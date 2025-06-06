@@ -9,7 +9,7 @@ class TrainingSessionController extends ChangeNotifier {
   final TrainingSession session;
   final BluetoothDevice ftmsDevice;
   late final FTMSService _ftmsService;
-  late final List<TrainingInterval> _intervals;
+  late final List<UnitTrainingInterval> _intervals;
   late final List<int> _intervalStartTimes;
   late final int _totalDuration;
   late final Stream<DeviceData?> _ftmsStream;
@@ -40,11 +40,11 @@ class TrainingSessionController extends ChangeNotifier {
   }
 
   int get totalDuration => _totalDuration;
-  List<TrainingInterval> get intervals => _intervals;
+  List<UnitTrainingInterval> get intervals => _intervals;
   List<int> get intervalStartTimes => _intervalStartTimes;
 
-  TrainingInterval get current => _intervals[currentInterval];
-  List<TrainingInterval> get remainingIntervals => _intervals.sublist(currentInterval);
+  UnitTrainingInterval get current => _intervals[currentInterval];
+  List<UnitTrainingInterval> get remainingIntervals => _intervals.sublist(currentInterval);
   int get mainTimeLeft => _totalDuration - elapsed;
   int get intervalTimeLeft => current.duration - intervalElapsed;
 

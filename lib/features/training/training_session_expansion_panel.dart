@@ -116,7 +116,7 @@ class _TrainingSessionExpansionPanelListState extends State<TrainingSessionExpan
 }
 
 class _IntervalDetails extends StatelessWidget {
-  final TrainingInterval interval;
+  final UnitTrainingInterval interval;
   final FtmsDisplayConfig? config;
   const _IntervalDetails({required this.interval, required this.config});
 

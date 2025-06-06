@@ -5,7 +5,7 @@ import 'interval_target_fields_display.dart';
 import '../../core/utils/ftms_display_config.dart';
 
 class TrainingIntervalList extends StatelessWidget {
-  final List<TrainingInterval> intervals;
+  final List<UnitTrainingInterval> intervals;
   final int currentInterval;
   final int intervalElapsed;
   final int intervalTimeLeft;
@@ -28,7 +28,7 @@ class TrainingIntervalList extends StatelessWidget {
     return ListView.builder(
       itemCount: remainingIntervals.length,
       itemBuilder: (context, idx) {
-        final interval = remainingIntervals[idx];
+        final UnitTrainingInterval interval = remainingIntervals[idx];
         final isCurrent = idx == 0;
         final intervalProgress = isCurrent ? intervalElapsed / interval.duration : 0.0;
         return Card(

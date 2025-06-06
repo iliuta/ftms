@@ -34,13 +34,13 @@ void main() {
     final session = TrainingSession(
       title: 'Rowing Test',
       ftmsMachineType: 'DeviceDataType.rower',
-      intervals: [
-        TrainingInterval(
+      intervals: <UnitTrainingInterval>[
+        UnitTrainingInterval(
           title: 'Warmup',
           duration: 60,
           targets: {'Stroke Rate': 24, 'Heart Rate': 120},
         ),
-        TrainingInterval(
+        UnitTrainingInterval(
           title: 'Main',
           duration: 300,
           targets: {'Instantaneous Power': 200},
