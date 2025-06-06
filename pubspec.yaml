@@ -36,6 +36,7 @@ dependencies:
   flutter_blue_plus: ^1.35.5
   path: any
   json_annotation: ^4.8.1
+  provider: ^6.1.5
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +48,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  mockito: ^5.4.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
