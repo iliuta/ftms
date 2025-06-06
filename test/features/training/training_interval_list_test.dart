@@ -25,8 +25,8 @@ void main() {
         ),
       );
       // Only 2 intervals should be shown (current and next)
-      expect(find.text('Main'), findsOneWidget);
-      expect(find.text('Cooldown'), findsOneWidget);
+      expect(find.text('Main (2/3)'), findsOneWidget);
+      expect(find.text('Cooldown (3/3)'), findsOneWidget);
       expect(find.text('Warmup'), findsNothing);
       // Current interval should show time left in bold
       expect(find.text('00:100'), findsOneWidget);

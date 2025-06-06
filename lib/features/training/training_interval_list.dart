@@ -34,7 +34,13 @@ class TrainingIntervalList extends StatelessWidget {
         return Card(
           color: isCurrent ? Colors.blue[50] : null,
           child: ListTile(
-            title: Text(interval.title ?? 'Interval'),
+            title: Text(
+              _intervalTitleWithIndex(
+                interval.title ?? 'Interval',
+                currentInterval + idx + 1,
+                intervals.length,
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -66,4 +72,9 @@ class TrainingIntervalList extends StatelessWidget {
       },
     );
   }
+}
+
+/// Returns the interval title with its index and total, e.g. "Warmup (3/5)"
+String _intervalTitleWithIndex(String title, int index, int total) {
+  return '$title ($index/$total)';
 }
