@@ -1,6 +1,11 @@
 // This file was moved from lib/training_session_expansion_panel.dart
+
 import 'package:flutter/material.dart';
 import 'training_session_loader.dart';
+import '../../core/utils/ftms_display_config.dart';
+import '../../core/utils/ftms_icon_registry.dart';
+import 'package:flutter_ftms/flutter_ftms.dart';
+import 'interval_target_fields_display.dart';
 
 class TrainingSessionExpansionPanelList extends StatefulWidget {
   final List<TrainingSession> sessions;
@@ -12,6 +17,7 @@ class TrainingSessionExpansionPanelList extends StatefulWidget {
 }
 
 class _TrainingSessionExpansionPanelListState extends State<TrainingSessionExpansionPanelList> {
+  Map<String, FtmsDisplayConfig?> _configCache = {};
   late List<bool> _expanded;
 
   @override
@@ -46,38 +52,88 @@ class _TrainingSessionExpansionPanelListState extends State<TrainingSessionExpan
               subtitle: Text('Intervals: ${session.intervals.length}'),
               trailing: isExpanded ? const Icon(Icons.expand_less) : const Icon(Icons.expand_more),
             ),
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ...session.intervals.map((interval) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(
-                          '${interval.title ?? 'Interval'}: ${interval.duration}s'
-                          '${interval.targets != null ? '\nTargets: ${interval.targets}' : ''}',
+            body: FutureBuilder<FtmsDisplayConfig?>(
+              future: _getConfig(session.ftmsMachineType),
+              builder: (context, snapshot) {
+                final config = snapshot.data;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...session.intervals.map((interval) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: _IntervalDetails(
+                              interval: interval,
+                              config: config,
+                            ),
+                          )),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text('Start This Session'),
+                          onPressed: () async {
+                            Navigator.pop(context, session);
+                          },
                         ),
-                      )),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('Start This Session'),
-                      onPressed: () async {
-                        // Pop and return the selected session
-                        Navigator.pop(context, session);
-                      },
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
             isExpanded: _expanded[idx],
             canTapOnHeader: true,
           );
         }),
       ),
+    );
+  }
+
+  Future<FtmsDisplayConfig?> _getConfig(String machineType) async {
+    if (_configCache.containsKey(machineType)) {
+      return _configCache[machineType];
+    }
+    // Map string to DeviceDataType
+    DeviceDataType? type;
+    switch (machineType) {
+      case 'DeviceDataType.rower':
+        type = DeviceDataType.rower;
+        break;
+      case 'DeviceDataType.indoorBike':
+        type = DeviceDataType.indoorBike;
+        break;
+      default:
+        type = null;
+    }
+    if (type == null) return null;
+    final config = await loadFtmsDisplayConfig(type);
+    _configCache[machineType] = config;
+    return config;
+  }
+}
+
+class _IntervalDetails extends StatelessWidget {
+  final TrainingInterval interval;
+  final FtmsDisplayConfig? config;
+  const _IntervalDetails({required this.interval, required this.config});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${interval.title ?? 'Interval'}: ${interval.duration}s',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        IntervalTargetFieldsDisplay(
+          targets: interval.targets,
+          config: config,
+        ),
+      ],
     );
   }
 }

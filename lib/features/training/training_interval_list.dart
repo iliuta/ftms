@@ -1,5 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'training_session_loader.dart';
+import 'interval_target_fields_display.dart';
+import '../../core/utils/ftms_display_config.dart';
 
 class TrainingIntervalList extends StatelessWidget {
   final List<TrainingInterval> intervals;
@@ -7,6 +10,7 @@ class TrainingIntervalList extends StatelessWidget {
   final int intervalElapsed;
   final int intervalTimeLeft;
   final String Function(int) formatMMSS;
+  final FtmsDisplayConfig? config;
 
   const TrainingIntervalList({
     Key? key,
@@ -15,6 +19,7 @@ class TrainingIntervalList extends StatelessWidget {
     required this.intervalElapsed,
     required this.intervalTimeLeft,
     required this.formatMMSS,
+    this.config,
   }) : super(key: key);
 
   @override
@@ -50,8 +55,10 @@ class TrainingIntervalList extends StatelessWidget {
                       Text('${interval.duration}s'),
                   ],
                 ),
-                if (interval.targets != null)
-                  Text('Targets: ${interval.targets}')
+                IntervalTargetFieldsDisplay(
+                  targets: interval.targets,
+                  config: config,
+                ),
               ],
             ),
           ),
