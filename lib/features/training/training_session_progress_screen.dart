@@ -6,7 +6,7 @@ import 'training_session_loader.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
 import '../../core/utils/ftms_display_config.dart';
-import '../../core/utils/ftms_display_widgets.dart';
+import '../../core/utils/ftms_live_data_display_widget.dart';
 
 class TrainingSessionProgressScreen extends StatefulWidget {
   final TrainingSession session;
@@ -339,53 +339,11 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
                   for (final p in parameterValues)
                     if (p.name != null) p.name.name: p
                 };
-                return Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  children: _config!.fields.map((field) {
-                    final param = paramValueMap[field.name];
-                    Color? color;
-                    FontWeight fontWeight = FontWeight.normal;
-                    if (param == null) {
-                      return Text('${field.label}: (not available)', style: const TextStyle(color: Colors.grey));
-                    }
-                    final value = param.value ?? param.toString();
-                    final factor = (param.factor is num)
-                        ? param.factor as num
-                        : num.tryParse(param.factor?.toString() ?? '1') ?? 1;
-                    final scaledValue = (value is num ? value : num.tryParse(value.toString()) ?? 0) * factor;
-                    if (widget.targets != null && widget.targets![field.name] != null) {
-                      final target = widget.targets![field.name];
-                      fontWeight = FontWeight.bold;
-                      if (_isWithinTarget(
-                            value is num ? value : num.tryParse(value.toString()),
-                            target is num ? target : num.tryParse(target.toString()),
-                            factor: factor,
-                          )) {
-                        color = Colors.green[700];
-                      } else {
-                        color = Colors.red[700];
-                      }
-                    }
-                    // Display widget selection
-                    if (field.display == 'speedometer') {
-                      return SpeedometerWidget(
-                        value: scaledValue.toDouble(),
-                        min: (field.min ?? 0).toDouble(),
-                        max: (field.max ?? 100).toDouble(),
-                        label: field.label,
-                        unit: field.unit,
-                        color: color ?? Colors.blue,
-                      );
-                    } else {
-                      return SimpleNumberWidget(
-                        label: field.label,
-                        value: scaledValue,
-                        unit: field.unit,
-                        color: color,
-                      );
-                    }
-                  }).toList(),
+                return FtmsLiveDataDisplayWidget(
+                  config: _config!,
+                  paramValueMap: paramValueMap,
+                  targets: widget.targets,
+                  isWithinTarget: _isWithinTarget,
                 );
               },
             ),

@@ -11,7 +11,7 @@ import '../training/training_session_expansion_panel.dart';
 import '../training/training_session_progress_screen.dart';
 import '../../core/utils/ftms_debug_utils.dart';
 import '../../core/utils/ftms_display_config.dart';
-import '../../core/utils/ftms_display_widgets.dart';
+import '../../core/utils/ftms_live_data_display_widget.dart';
 
 class FTMSDataTab extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
@@ -85,36 +85,10 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                   textScaler: const TextScaler.linear(4),
                   style: TextStyle(color: Theme.of(context).primaryColor),
                 ),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  children: _config!.fields.map((field) {
-                    final param = paramValueMap[field.name];
-                    if (param == null) {
-                      return Text('${field.label}: (not available)', style: const TextStyle(color: Colors.grey));
-                    }
-                  final value = param.value ?? param.toString();
-                  final factor = (param.factor is num)
-                      ? param.factor as num
-                      : num.tryParse(param.factor?.toString() ?? '1') ?? 1;
-                  final scaledValue = (value is num ? value : num.tryParse(value.toString()) ?? 0) * factor;
-                  if (field.display == 'speedometer') {
-                    return SpeedometerWidget(
-                      value: scaledValue.toDouble(),
-                      min: (field.min ?? 0).toDouble(),
-                      max: (field.max ?? 100).toDouble(),
-                      label: field.label,
-                      unit: field.unit,
-                      color: Colors.blue,
-                    );
-                  } else {
-                    return SimpleNumberWidget(
-                      label: field.label,
-                      value: scaledValue,
-                      unit: field.unit,
-                    );
-                  }
-                  }).toList(),
+                FtmsLiveDataDisplayWidget(
+                  config: _config!,
+                  paramValueMap: paramValueMap,
+                  defaultColor: Colors.blue,
                 ),
                 const SizedBox(height: 24),
                 // Start Training Button

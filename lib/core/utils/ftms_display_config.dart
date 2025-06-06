@@ -10,6 +10,7 @@ class FtmsDisplayField {
   final String unit;
   final num? min;
   final num? max;
+  final String? icon;
   FtmsDisplayField({
     required this.name,
     required this.label,
@@ -17,6 +18,7 @@ class FtmsDisplayField {
     required this.unit,
     this.min,
     this.max,
+    this.icon,
   });
   factory FtmsDisplayField.fromJson(Map<String, dynamic> json) {
     return FtmsDisplayField(
@@ -26,13 +28,26 @@ class FtmsDisplayField {
       unit: json['unit'] as String? ?? '',
       min: json['min'] as num?,
       max: json['max'] as num?,
+      icon: json['icon'] as String?,
     );
   }
 }
 
+
 class FtmsDisplayConfig {
   final List<FtmsDisplayField> fields;
   FtmsDisplayConfig({required this.fields});
+
+  factory FtmsDisplayConfig.fromJson(Map<String, dynamic> json) {
+    final fieldsJson = json['fields'] as List<dynamic>?;
+    if (fieldsJson == null) {
+      throw Exception('No fields in config');
+    }
+    final fields = fieldsJson
+        .map((f) => FtmsDisplayField.fromJson(f as Map<String, dynamic>))
+        .toList();
+    return FtmsDisplayConfig(fields: fields);
+  }
 }
 
 Future<FtmsDisplayConfig?> loadFtmsDisplayConfig(DeviceDataType type) async {

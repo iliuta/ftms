@@ -2,7 +2,7 @@
   "fields": [
     { "name": "Instantaneous Speed", "label": "Speed", "display": "speedometer", "unit": "km/h", "min": 0, "max": 60 },
     { "name": "Instantaneous Power", "label": "Power", "display": "speedometer", "unit": "W", "min": 0, "max": 2000 },
-    { "name": "Instantaneous Cadence", "label": "Cadence", "display": "number", "unit": "rpm" },
-    { "name": "Heart Rate", "label": "Heart rate", "display": "number", "unit": "bpm" }
+    { "name": "Instantaneous Cadence", "label": "Cadence", "display": "number", "unit": "rpm", "icon": "cadence" },
+    { "name": "Heart Rate", "label": "Heart rate", "display": "number", "unit": "bpm", "icon": "heart" }
   ]
 }

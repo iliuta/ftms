@@ -64,22 +64,3 @@ class _GaugePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-
-/// Widget for displaying a value as a simple number with label.
-class SimpleNumberWidget extends StatelessWidget {
-  final String label;
-  final num value;
-  final String unit;
-  final Color? color;
-  const SimpleNumberWidget({super.key, required this.label, required this.value, required this.unit, this.color});
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text('$value $unit', style: TextStyle(fontSize: 22, color: color)),
-      ],
-    );
-  }
-}
