@@ -1,9 +1,19 @@
-import 'dart:async';
+// (Removed accidental pasted debug output)
 import 'package:flutter/material.dart';
 import '../../core/services/ftms_service.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
+
 import 'training_session_loader.dart';
+
+
+
+import 'fit_file_utils.dart';
+import 'package:fit_tool/src/profile/messages/record_message.dart';
+import 'dart:io';
+import 'dart:async';
+
+
 
 class TrainingSessionController extends ChangeNotifier {
   final TrainingSession session;
@@ -24,6 +34,10 @@ class TrainingSessionController extends ChangeNotifier {
   bool timerActive = false;
   List<dynamic>? _lastFtmsParams;
 
+  // FIT data collection (generic, map-based)
+  final List<Map<String, dynamic>> fitDataPoints = [];
+  DateTime? _sessionStartTime;
+
   TrainingSessionController({required this.session, required this.ftmsDevice}) {
     _ftmsService = FTMSService(ftmsDevice);
     _intervals = session.intervals;
@@ -37,6 +51,7 @@ class TrainingSessionController extends ChangeNotifier {
     _ftmsStream = ftmsBloc.ftmsDeviceDataControllerStream;
     _ftmsSub = _ftmsStream.listen(_onFtmsData);
     _initFTMS();
+    _sessionStartTime = DateTime.now();
   }
 
   int get totalDuration => _totalDuration;
@@ -100,6 +115,24 @@ class TrainingSessionController extends ChangeNotifier {
     }
     // Store current values for next comparison
     _lastFtmsParams = params.map((p) => p.value).toList();
+
+    // Collect FIT data point
+    _collectFitDataPoint(data);
+  }
+
+  void _collectFitDataPoint(DeviceData data) {
+    // Store all FTMS/DeviceData parameters as a map, agnostic to machine type
+    final params = data.getDeviceDataParameterValues();
+    final now = DateTime.now();
+    final elapsedSeconds = _sessionStartTime != null ? now.difference(_sessionStartTime!).inSeconds : 0;
+    final dataMap = <String, dynamic>{
+      'timestamp': now,
+      'elapsedSeconds': elapsedSeconds,
+    };
+    for (final p in params) {
+      dataMap[p.name.toString()] = p.value;
+    }
+    fitDataPoints.add(dataMap);
   }
 
   void _startTimer() {
@@ -117,6 +150,7 @@ class TrainingSessionController extends ChangeNotifier {
       sessionCompleted = true;
       _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
       notifyListeners();
+      generateAndSaveFitFile();
     } else {
       // Update current interval
       int previousInterval = currentInterval;
@@ -140,5 +174,54 @@ class TrainingSessionController extends ChangeNotifier {
     _ftmsSub.cancel();
     _timer?.cancel();
     super.dispose();
+  }
+
+  // FIT file generation and saving
+  Future<void> generateAndSaveFitFile({String? outFilePath}) async {
+    await FitFileUtils.generateAndSaveFitFile<Map<String, dynamic>>(
+      dataPoints: fitDataPoints,
+      sessionStartTime: _sessionStartTime,
+      outFilePath: outFilePath,
+      recordBuilder: (dp, dateTimeToFitTimestamp) {
+        final ts = dateTimeToFitTimestamp(dp['timestamp'] as DateTime);
+        final record = RecordMessage()
+          ..timestamp = ts;
+        // Map known fields if present, but allow for any FTMS machine type
+        if (dp.containsKey('power') && dp['power'] != null) record.power = dp['power'];
+        if (dp.containsKey('cadence') && dp['cadence'] != null) record.cadence = dp['cadence'];
+        if (dp.containsKey('heartRate') && dp['heartRate'] != null) record.heartRate = dp['heartRate'];
+        if (dp.containsKey('resistanceLevel') && dp['resistanceLevel'] != null) record.resistance = dp['resistanceLevel'];
+        // Also check for alternative field names (case-insensitive)
+        if (record.power == null) {
+          final altPower = dp.entries.firstWhere(
+            (e) => e.key.toLowerCase().contains('power') && e.value is int,
+            orElse: () => const MapEntry('', null),
+          );
+          if (altPower.value != null) record.power = altPower.value;
+        }
+        if (record.cadence == null) {
+          final altCadence = dp.entries.firstWhere(
+            (e) => e.key.toLowerCase().contains('cadence') && e.value is int,
+            orElse: () => const MapEntry('', null),
+          );
+          if (altCadence.value != null) record.cadence = altCadence.value;
+        }
+        if (record.heartRate == null) {
+          final altHR = dp.entries.firstWhere(
+            (e) => (e.key.toLowerCase().contains('heartrate') || e.key.toLowerCase() == 'hr' || e.key.toLowerCase() == 'heart_rate') && e.value is int,
+            orElse: () => const MapEntry('', null),
+          );
+          if (altHR.value != null) record.heartRate = altHR.value;
+        }
+        if (record.resistance == null) {
+          final altRes = dp.entries.firstWhere(
+            (e) => e.key.toLowerCase().contains('resistance') && e.value is int,
+            orElse: () => const MapEntry('', null),
+          );
+          if (altRes.value != null) record.resistance = altRes.value;
+        }
+        return record;
+      },
+    );
   }
 }

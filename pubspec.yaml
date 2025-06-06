@@ -37,6 +37,10 @@ dependencies:
   path: any
   json_annotation: ^4.8.1
   provider: ^6.1.5
+  fit_tool: ^1.0.5
+
+  # For saving files to app document directory
+  path_provider: ^2.1.2
 
 
 dev_dependencies:

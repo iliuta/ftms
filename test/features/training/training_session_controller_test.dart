@@ -1,14 +1,24 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fmts/features/training/training_session_controller.dart';
+
 import 'package:fmts/features/training/training_session_loader.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:mockito/mockito.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
+import 'dart:io';
+import 'package:fit_tool/fit_tool.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:fmts/features/training/fit_file_utils.dart';
+
 class MockBluetoothDevice extends Mock implements BluetoothDevice {}
+
+// Helper to convert DateTime to FIT epoch seconds (since 1989-12-31 00:00:00 UTC)
+
 
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('TrainingSessionController', () {
     late TrainingSession session;
     late MockBluetoothDevice device;
@@ -35,4 +45,5 @@ void main() {
 
     // More tests can be added for timer, FTMS commands, etc. with further mocking
   });
+
 }
