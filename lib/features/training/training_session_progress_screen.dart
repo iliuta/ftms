@@ -179,33 +179,37 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            StreamBuilder<DeviceData?>(
-              stream: ftmsBloc.ftmsDeviceDataControllerStream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Text('No FTMS data'),
-                  );
-                }
-                final deviceData = snapshot.data!;
-                final parameterValues = deviceData.getDeviceDataParameterValues();
-                final paramValueMap = {
-                  for (final p in parameterValues)
-                    if (p.name != null) p.name.name: p
-                };
-                return FtmsLiveDataDisplayWidget(
-                  config: _config!,
-                  paramValueMap: paramValueMap,
-                  targets: widget.targets,
-                  isWithinTarget: _isWithinTarget,
-                );
-              },
-            ),
-          ],
+        child: SizedBox.expand(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: StreamBuilder<DeviceData?>(
+                  stream: ftmsBloc.ftmsDeviceDataControllerStream,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Text('No FTMS data'),
+                      );
+                    }
+                    final deviceData = snapshot.data!;
+                    final parameterValues = deviceData.getDeviceDataParameterValues();
+                    final paramValueMap = {
+                      for (final p in parameterValues)
+                        if (p.name != null) p.name.name: p
+                    };
+                    return FtmsLiveDataDisplayWidget(
+                      config: _config!,
+                      paramValueMap: paramValueMap,
+                      targets: widget.targets,
+                      isWithinTarget: _isWithinTarget,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -38,6 +38,7 @@ dependencies:
   json_annotation: ^4.8.1
   provider: ^6.1.5
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

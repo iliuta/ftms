@@ -69,7 +69,7 @@ class FtmsLiveDataDisplayWidget extends StatelessWidget {
             }
           }
           currentRow.add(Expanded(child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             child: child,
           )));
           if ((currentRow.length == columns) || (i == config.fields.length - 1)) {
