@@ -5,6 +5,8 @@ import '../../core/services/ftms_service.dart';
 import 'training_session_loader.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
+import '../../core/utils/ftms_display_config.dart';
+import '../../core/utils/ftms_display_widgets.dart';
 
 class TrainingSessionProgressScreen extends StatefulWidget {
   final TrainingSession session;
@@ -265,10 +267,40 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
 }
 
 
-class _LiveFTMSDataWidget extends StatelessWidget {
+class _LiveFTMSDataWidget extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
   final Map<String, dynamic>? targets;
   const _LiveFTMSDataWidget({Key? key, required this.ftmsDevice, this.targets}) : super(key: key);
+
+  @override
+  State<_LiveFTMSDataWidget> createState() => _LiveFTMSDataWidgetState();
+}
+
+class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
+  FtmsDisplayConfig? _config;
+  String? _configError;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadConfig();
+  }
+
+  Future<void> _loadConfig() async {
+    final type = await _getDeviceType();
+    if (type == null) return;
+    final config = await loadFtmsDisplayConfig(type);
+    setState(() {
+      _config = config;
+      _configError = config == null ? 'No config for this machine type' : null;
+    });
+  }
+
+  Future<DeviceDataType?> _getDeviceType() async {
+    // Try to get the latest device data from the stream
+    final snapshot = await ftmsBloc.ftmsDeviceDataControllerStream.firstWhere((d) => d != null);
+    return snapshot?.deviceDataType;
+  }
 
   bool _isWithinTarget(num? value, num? target, {num factor = 1}) {
     if (value == null || target == null) return false;
@@ -280,6 +312,12 @@ class _LiveFTMSDataWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (_configError != null) {
+      return Text(_configError!, style: const TextStyle(color: Colors.red));
+    }
+    if (_config == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -297,15 +335,28 @@ class _LiveFTMSDataWidget extends StatelessWidget {
                 }
                 final deviceData = snapshot.data!;
                 final parameterValues = deviceData.getDeviceDataParameterValues();
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: parameterValues.map((param) {
-                    final name = param.name.name;
-                    final value = param.value;
-                    final factor = (param.factor is num) ? param.factor as num : num.tryParse(param.factor?.toString() ?? '1') ?? 1;
+                final paramValueMap = {
+                  for (final p in parameterValues)
+                    if (p.name != null) p.name.name: p
+                };
+                return Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: _config!.fields.map((field) {
+                    final param = paramValueMap[field.name];
                     Color? color;
-                    if (targets != null && targets![name] != null) {
-                      final target = targets![name];
+                    FontWeight fontWeight = FontWeight.normal;
+                    if (param == null) {
+                      return Text('${field.label}: (not available)', style: const TextStyle(color: Colors.grey));
+                    }
+                    final value = param.value ?? param.toString();
+                    final factor = (param.factor is num)
+                        ? param.factor as num
+                        : num.tryParse(param.factor?.toString() ?? '1') ?? 1;
+                    final scaledValue = (value is num ? value : num.tryParse(value.toString()) ?? 0) * factor;
+                    if (widget.targets != null && widget.targets![field.name] != null) {
+                      final target = widget.targets![field.name];
+                      fontWeight = FontWeight.bold;
                       if (_isWithinTarget(
                             value is num ? value : num.tryParse(value.toString()),
                             target is num ? target : num.tryParse(target.toString()),
@@ -316,14 +367,24 @@ class _LiveFTMSDataWidget extends StatelessWidget {
                         color = Colors.red[700];
                       }
                     }
-                    return Text(
-                      param.toString(),
-                      style: TextStyle(
-                        fontWeight: targets != null && targets![name] != null ? FontWeight.bold : FontWeight.normal,
+                    // Display widget selection
+                    if (field.display == 'speedometer') {
+                      return SpeedometerWidget(
+                        value: scaledValue.toDouble(),
+                        min: (field.min ?? 0).toDouble(),
+                        max: (field.max ?? 100).toDouble(),
+                        label: field.label,
+                        unit: field.unit,
+                        color: color ?? Colors.blue,
+                      );
+                    } else {
+                      return SimpleNumberWidget(
+                        label: field.label,
+                        value: scaledValue,
+                        unit: field.unit,
                         color: color,
-                        fontSize: 18,
-                      ),
-                    );
+                      );
+                    }
                   }).toList(),
                 );
               },

@@ -2,11 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path/path.dart' as p;
 import '../../core/bloc/ftms_bloc.dart';
 import '../training/training_session_loader.dart';
 import '../training/training_session_expansion_panel.dart';
 import '../training/training_session_progress_screen.dart';
 import '../../core/utils/ftms_debug_utils.dart';
+import '../../core/utils/ftms_display_config.dart';
+import '../../core/utils/ftms_display_widgets.dart';
 
 class FTMSDataTab extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
@@ -18,11 +23,21 @@ class FTMSDataTab extends StatefulWidget {
 
 class FTMSDataTabState extends State<FTMSDataTab> {
   bool _started = false;
+  FtmsDisplayConfig? _config;
+  String? _configError;
 
   @override
   void initState() {
     super.initState();
     _startFTMS();
+  }
+
+  Future<void> _loadConfigForType(DeviceDataType type) async {
+    final config = await loadFtmsDisplayConfig(type);
+    setState(() {
+      _config = config;
+      _configError = config == null ? 'No config for this machine type' : null;
+    });
   }
 
   void _startFTMS() async {
@@ -47,9 +62,20 @@ class FTMSDataTabState extends State<FTMSDataTab> {
             return const Center(child: Text("No FTMSData found!"));
           }
           final deviceData = snapshot.data!;
-          // Log all FTMS parameter attributes for debugging
+          // Load config if not loaded or if type changed
+          if (_config == null || _configError != null) {
+            _loadConfigForType(deviceData.deviceDataType);
+            if (_configError != null) {
+              return Center(child: Text(_configError!));
+            }
+            return const Center(child: CircularProgressIndicator());
+          }
           final parameterValues = deviceData.getDeviceDataParameterValues();
           logFtmsParameterAttributes(parameterValues);
+          final Map<String, dynamic> paramValueMap = {
+            for (final p in parameterValues)
+              if (p.name != null) p.name.name: p
+          };
           return Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -59,14 +85,36 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                   textScaler: const TextScaler.linear(4),
                   style: TextStyle(color: Theme.of(context).primaryColor),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: parameterValues
-                      .map((parameterValue) => Text(
-                            parameterValue.toString(),
-                            textScaler: const TextScaler.linear(2),
-                          ))
-                      .toList(),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: _config!.fields.map((field) {
+                    final param = paramValueMap[field.name];
+                    if (param == null) {
+                      return Text('${field.label}: (not available)', style: const TextStyle(color: Colors.grey));
+                    }
+                  final value = param.value ?? param.toString();
+                  final factor = (param.factor is num)
+                      ? param.factor as num
+                      : num.tryParse(param.factor?.toString() ?? '1') ?? 1;
+                  final scaledValue = (value is num ? value : num.tryParse(value.toString()) ?? 0) * factor;
+                  if (field.display == 'speedometer') {
+                    return SpeedometerWidget(
+                      value: scaledValue.toDouble(),
+                      min: (field.min ?? 0).toDouble(),
+                      max: (field.max ?? 100).toDouble(),
+                      label: field.label,
+                      unit: field.unit,
+                      color: Colors.blue,
+                    );
+                  } else {
+                    return SimpleNumberWidget(
+                      label: field.label,
+                      value: scaledValue,
+                      unit: field.unit,
+                    );
+                  }
+                  }).toList(),
                 ),
                 const SizedBox(height: 24),
                 // Start Training Button
@@ -76,13 +124,10 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('Load training session'),
                     onPressed: () async {
-                      // Log the value of deviceData.deviceDataType
-                      // ignore: avoid_print
                       print('Start Training pressed. deviceData.deviceDataType: '
                           '${deviceData.deviceDataType}');
                       final sessions = await loadTrainingSessions(deviceData.deviceDataType.toString());
                       if (sessions.isEmpty) {
-                        // ignore: use_build_context_synchronously
                         showDialog(
                           context: context,
                           builder: (context) => const AlertDialog(
@@ -92,7 +137,6 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                         );
                         return;
                       }
-                      // ignore: use_build_context_synchronously
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
