@@ -2,10 +2,15 @@
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
+typedef WriteMachineControlPointCharacteristic = Future<void> Function(
+    BluetoothDevice device, MachineControlPoint controlPoint);
+
 class FTMSService {
   final BluetoothDevice ftmsDevice;
+  final WriteMachineControlPointCharacteristic writeCharacteristic;
 
-  FTMSService(this.ftmsDevice);
+  FTMSService(this.ftmsDevice, {WriteMachineControlPointCharacteristic? writeCharacteristic})
+      : writeCharacteristic = writeCharacteristic ?? FTMS.writeMachineControlPointCharacteristic;
 
   Future<void> writeCommand(MachineControlPointOpcodeType opcodeType, {int? resistanceLevel}) async {
     MachineControlPoint? controlPoint;
@@ -41,6 +46,6 @@ class FTMSService {
         throw 'MachineControlPointOpcodeType $opcodeType is not implemented in this example';
     }
 
-    await FTMS.writeMachineControlPointCharacteristic(ftmsDevice, controlPoint);
+    await writeCharacteristic(ftmsDevice, controlPoint);
   }
 }
