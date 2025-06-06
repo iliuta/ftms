@@ -5,7 +5,8 @@
         {
             "title": "Warm Up",
             "duration": 30,
-            "targets": {"Instantaneous Power": 100, "Instantaneous Cadence": 80}
+            "targets": {"Instantaneous Power": 100, "Instantaneous Cadence": 80},
+            "repeat": 10
         },
         {
             "title": "Main Set",

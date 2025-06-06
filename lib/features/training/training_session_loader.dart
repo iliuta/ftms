@@ -10,12 +10,21 @@ class TrainingSession {
   TrainingSession({required this.title, required this.ftmsMachineType, required this.intervals});
 
   factory TrainingSession.fromJson(Map<String, dynamic> json) {
+    final List intervalsRaw = json['intervals'] as List;
+    final List<TrainingInterval> expandedIntervals = [];
+    for (final e in intervalsRaw) {
+      final interval = TrainingInterval.fromJson(e);
+      final repeat = interval.repeat ?? 1;
+      if (repeat > 0) {
+        for (int i = 0; i < repeat; i++) {
+          expandedIntervals.add(interval);
+        }
+      }
+    }
     return TrainingSession(
       title: json['title'],
       ftmsMachineType: json['ftmsMachineType'],
-      intervals: (json['intervals'] as List)
-          .map((e) => TrainingInterval.fromJson(e))
-          .toList(),
+      intervals: expandedIntervals,
     );
   }
 }
@@ -25,8 +34,9 @@ class TrainingInterval {
   final int duration;
   final Map<String, dynamic>? targets;
   final int? resistanceLevel;
+  final int? repeat;
 
-  TrainingInterval({this.title, required this.duration, this.targets, this.resistanceLevel});
+  TrainingInterval({this.title, required this.duration, this.targets, this.resistanceLevel, this.repeat});
 
   factory TrainingInterval.fromJson(Map<String, dynamic> json) {
     return TrainingInterval(
@@ -34,6 +44,7 @@ class TrainingInterval {
       duration: json['duration'],
       targets: json['targets'] != null ? Map<String, dynamic>.from(json['targets']) : null,
       resistanceLevel: json['resistanceLevel'],
+      repeat: json['repeat'],
     );
   }
 }
