@@ -8,7 +8,7 @@ import 'model/unit_training_interval.dart';
 import 'model/training_session.dart';
 
 
-Future<List<TrainingSession>> loadTrainingSessions(String machineType) async {
+Future<List<TrainingSessionDefinition>> loadTrainingSessions(String machineType) async {
   // ignore: avoid_print
   print('[loadTrainingSessions] machineType: $machineType');
   // Use AssetManifest to list all training session files
@@ -21,12 +21,12 @@ Future<List<TrainingSession>> loadTrainingSessions(String machineType) async {
   for (final f in sessionFiles) {
     print('  - $f');
   }
-  List<TrainingSession> sessions = [];
+  List<TrainingSessionDefinition> sessions = [];
   for (final file in sessionFiles) {
     try {
       final content = await rootBundle.loadString(file);
       final jsonData = json.decode(content);
-      final session = TrainingSession.fromJson(jsonData);
+      final session = TrainingSessionDefinition.fromJson(jsonData);
       print('[loadTrainingSessions] Read session: title=${session.title}, ftmsMachineType=${session.ftmsMachineType}');
       if (session.ftmsMachineType == machineType) {
         print('[loadTrainingSessions]   -> MATCH');

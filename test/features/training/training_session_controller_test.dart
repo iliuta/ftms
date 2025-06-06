@@ -11,11 +11,11 @@ class MockBluetoothDevice extends Mock implements BluetoothDevice {}
 
 void main() {
   group('TrainingSessionController', () {
-    late TrainingSession session;
+    late TrainingSessionDefinition session;
     late MockBluetoothDevice device;
 
     setUp(() {
-      session = TrainingSession(
+      session = TrainingSessionDefinition(
         title: 'Test Session',
         ftmsMachineType: 'bike',
         intervals: <UnitTrainingInterval>[

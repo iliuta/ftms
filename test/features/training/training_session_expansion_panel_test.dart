@@ -32,7 +32,7 @@ void main() {
   });
 
   testWidgets('TrainingSessionExpansionPanelList displays intervals and targets prettily', (WidgetTester tester) async {
-    final session = TrainingSession(
+    final session = TrainingSessionDefinition(
       title: 'Rowing Test',
       ftmsMachineType: 'DeviceDataType.rower',
       intervals: <UnitTrainingInterval>[

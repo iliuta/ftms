@@ -10,7 +10,7 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import 'interval_target_fields_display.dart';
 
 class TrainingSessionExpansionPanelList extends StatefulWidget {
-  final List<TrainingSession> sessions;
+  final List<TrainingSessionDefinition> sessions;
   final ScrollController scrollController;
   const TrainingSessionExpansionPanelList({Key? key, required this.sessions, required this.scrollController}) : super(key: key);
 

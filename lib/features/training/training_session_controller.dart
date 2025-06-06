@@ -8,7 +8,7 @@ import 'model/training_session.dart';
 import 'model/unit_training_interval.dart';
 
 class TrainingSessionController extends ChangeNotifier {
-  final TrainingSession session;
+  final TrainingSessionDefinition session;
   final BluetoothDevice ftmsDevice;
   late final FTMSService _ftmsService;
   late final List<UnitTrainingInterval> _intervals;

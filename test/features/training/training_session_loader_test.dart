@@ -27,7 +27,7 @@ dynamic _enduranceRideJson = {
 
 void main() {
   test('TrainingSession.fromJson expands intervals with repeat field', () {
-    final session = TrainingSession.fromJson(_enduranceRideJson);
+    final session = TrainingSessionDefinition.fromJson(_enduranceRideJson);
     // Warm Up should be repeated 10 times, plus 2 more intervals
     expect(session.intervals.length, 12);
     for (int i = 0; i < 10; i++) {
@@ -79,7 +79,7 @@ void main() {
       ]
     };
 
-    final session = TrainingSession.fromJson(complexJson);
+    final session = TrainingSessionDefinition.fromJson(complexJson);
     // Should expand to: Warm Up, Work, Rest, Work, Rest, Cool Down
     expect(session.intervals.length, 6);
     expect(session.intervals[0].title, 'Warm Up');

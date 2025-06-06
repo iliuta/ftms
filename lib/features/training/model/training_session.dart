@@ -3,21 +3,21 @@ import 'unit_training_interval.dart';
 import 'training_interval.dart';
 import 'group_training_interval.dart';
 
-class TrainingSession {
+class TrainingSessionDefinition {
   final String title;
   final String ftmsMachineType;
   final List<UnitTrainingInterval> intervals;
 
-  TrainingSession({required this.title, required this.ftmsMachineType, required this.intervals});
+  TrainingSessionDefinition({required this.title, required this.ftmsMachineType, required this.intervals});
 
-  factory TrainingSession.fromJson(Map<String, dynamic> json) {
+  factory TrainingSessionDefinition.fromJson(Map<String, dynamic> json) {
     final List intervalsRaw = json['intervals'] as List;
     final List<UnitTrainingInterval> expandedIntervals = [];
     for (final e in intervalsRaw) {
       final interval = TrainingIntervalFactory.fromJsonPolymorphic(e);
       expandedIntervals.addAll(interval.expand());
     }
-    return TrainingSession(
+    return TrainingSessionDefinition(
       title: json['title'],
       ftmsMachineType: json['ftmsMachineType'],
       intervals: expandedIntervals,

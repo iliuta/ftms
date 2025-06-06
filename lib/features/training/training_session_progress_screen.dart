@@ -15,7 +15,7 @@ import 'training_interval_list.dart';
 
 
 class TrainingSessionProgressScreen extends StatelessWidget {
-  final TrainingSession session;
+  final TrainingSessionDefinition session;
   final BluetoothDevice ftmsDevice;
   const TrainingSessionProgressScreen({Key? key, required this.session, required this.ftmsDevice}) : super(key: key);
 
