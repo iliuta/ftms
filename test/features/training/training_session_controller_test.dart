@@ -17,9 +17,9 @@ void main() {
       session = TrainingSession(
         title: 'Test Session',
         ftmsMachineType: 'bike',
-        intervals: [
-          TrainingInterval(duration: 60, title: 'Warmup', resistanceLevel: 1),
-          TrainingInterval(duration: 120, title: 'Main', resistanceLevel: 2),
+        intervals: <UnitTrainingInterval>[
+          UnitTrainingInterval(duration: 60, title: 'Warmup', resistanceLevel: 1),
+          UnitTrainingInterval(duration: 120, title: 'Main', resistanceLevel: 2),
         ],
       );
       device = MockBluetoothDevice();

@@ -6,10 +6,10 @@ import 'package:fmts/features/training/training_session_loader.dart';
 void main() {
   group('TrainingIntervalList', () {
     testWidgets('displays intervals and highlights current', (WidgetTester tester) async {
-      final intervals = [
-        TrainingInterval(duration: 60, title: 'Warmup', resistanceLevel: 1, targets: {'power': 100}),
-        TrainingInterval(duration: 120, title: 'Main', resistanceLevel: 2, targets: {'power': 200}),
-        TrainingInterval(duration: 30, title: 'Cooldown', resistanceLevel: 1, targets: {'power': 80}),
+      final intervals = <UnitTrainingInterval>[
+        UnitTrainingInterval(duration: 60, title: 'Warmup', resistanceLevel: 1, targets: {'power': 100}),
+        UnitTrainingInterval(duration: 120, title: 'Main', resistanceLevel: 2, targets: {'power': 200}),
+        UnitTrainingInterval(duration: 30, title: 'Cooldown', resistanceLevel: 1, targets: {'power': 80}),
       ];
       await tester.pumpWidget(
         MaterialApp(
