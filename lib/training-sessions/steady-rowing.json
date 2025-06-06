@@ -1,0 +1,35 @@
+{
+    "title": "Steady Rowing",
+    "ftmsMachineType": "DeviceDataType.rower",
+    "intervals": [
+        {
+            "title": "Steady Rowing",
+            "duration": 10,
+            "targets": {
+                "Stroke Rate": 20,
+                "Instantaneous Pace": 150
+            },
+            "resistanceLevel": 5
+        },
+        {
+            "title": "Steady Rowing",
+            "duration": 10,
+            "targets": {
+                "Stroke Rate": 24,
+                "Instantaneous Pace": 150
+            },
+            "resistanceLevel": 7
+        },
+        {
+            "title": "Cool Down",
+            "duration": 10,
+            "targets": {
+                "Stroke Rate": 24,
+                "Instantaneous Pace": 150
+            },
+            "resistanceLevel": 3
+        }
+
+
+    ]
+}

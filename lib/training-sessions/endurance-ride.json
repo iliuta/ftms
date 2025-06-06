@@ -1,0 +1,21 @@
+{
+    "title": "Endurance Ride",
+    "ftmsMachineType": "DeviceDataType.indoorBike",
+    "intervals": [
+        {
+            "title": "Warm Up",
+            "duration": 30,
+            "targets": {"Instantaneous Power": 100, "Instantaneous Cadence": 80}
+        },
+        {
+            "title": "Main Set",
+            "duration": 30,
+            "targets": {"Instantaneous Power": 180, "Instantaneous Cadence": 90}
+        },
+        {
+            "title": "Cool Down",
+            "duration": 30,
+            "targets": {"Instantaneous Power": 80, "Instantaneous Cadence": 70}
+        }
+    ]
+}
