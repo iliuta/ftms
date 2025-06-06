@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fmts/features/training/training_session_loader.dart';
+import 'package:fmts/features/training/model/training_session.dart';
 
 dynamic _enduranceRideJson = {
   "title": "Endurance Ride",

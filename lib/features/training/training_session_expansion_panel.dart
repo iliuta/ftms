@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'training_session_loader.dart';
+import 'model/training_session.dart';
+import 'model/unit_training_interval.dart';
 import '../../core/utils/ftms_display_config.dart';
 import '../../core/utils/ftms_icon_registry.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';

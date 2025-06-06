@@ -4,6 +4,8 @@ import '../../core/services/ftms_service.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
 import 'training_session_loader.dart';
+import 'model/training_session.dart';
+import 'model/unit_training_interval.dart';
 
 class TrainingSessionController extends ChangeNotifier {
   final TrainingSession session;

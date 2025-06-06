@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'training_session_loader.dart';
+import 'model/unit_training_interval.dart';
 import 'interval_target_fields_display.dart';
 import '../../core/utils/ftms_display_config.dart';
 
