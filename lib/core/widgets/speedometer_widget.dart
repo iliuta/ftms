@@ -74,7 +74,7 @@ class _GaugePainter extends CustomPainter {
     canvas.drawArc(rect, 3.14, 3.14, false, paint);
     // Draw value arc
     final paintValue = Paint()
-      ..color = color
+      ..color = color // Utilise la couleur passée au constructeur
       ..strokeWidth = 8
       ..style = PaintingStyle.stroke;
     final sweep = ((value - min) / (max - min)).clamp(0, 1) * 3.14;
