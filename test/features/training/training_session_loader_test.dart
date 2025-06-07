@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/features/training/model/training_session.dart';
+import 'package:ftms/core/config/user_settings.dart';
 
 dynamic _enduranceRideJson = {
   "title": "Endurance Ride",
@@ -25,8 +26,13 @@ dynamic _enduranceRideJson = {
 };
 
 void main() {
+  final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00');
+
   test('TrainingSession.fromJson expands intervals with repeat field', () {
-    final session = TrainingSessionDefinition.fromJson(_enduranceRideJson);
+    final session = TrainingSessionDefinition.fromJson(
+      _enduranceRideJson,
+      userSettings: userSettings,
+    );
     // Warm Up should be repeated 10 times, plus 2 more intervals
     expect(session.intervals.length, 12);
     for (int i = 0; i < 10; i++) {
@@ -78,7 +84,10 @@ void main() {
       ]
     };
 
-    final session = TrainingSessionDefinition.fromJson(complexJson);
+    final session = TrainingSessionDefinition.fromJson(
+      complexJson,
+      userSettings: userSettings,
+    );
     // Should expand to: Warm Up, Work, Rest, Work, Rest, Cool Down
     expect(session.intervals.length, 6);
     expect(session.intervals[0].title, 'Warm Up');

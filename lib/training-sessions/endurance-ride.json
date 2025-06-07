@@ -5,7 +5,7 @@
         {
             "title": "Warm Up",
             "duration": 10,
-            "targets": {"Instantaneous Power": 100, "Instantaneous Cadence": 80}
+            "targets": {"Instantaneous Power": "40%", "Instantaneous Cadence": 80}
         },
         {
             "repeat": 4,
@@ -13,19 +13,19 @@
                 {
                     "title": "Steady State",
                     "duration": 10,
-                    "targets": {"Instantaneous Power": 260, "Instantaneous Cadence": 90}
+                    "targets": {"Instantaneous Power": "104%", "Instantaneous Cadence": 90}
                 },
                 {
                     "title": "Recovery",
                     "duration": 10,
-                    "targets": {"Instantaneous Power": 80, "Instantaneous Cadence": 70}
+                    "targets": {"Instantaneous Power": "32%", "Instantaneous Cadence": 70}
                 }
             ]
         },
         {
             "title": "Cool Down",
             "duration": 10,
-            "targets": {"Instantaneous Power": 80, "Instantaneous Cadence": 70}
+            "targets": {"Instantaneous Power": "32%", "Instantaneous Cadence": 70}
         }
     ]
 }

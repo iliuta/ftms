@@ -98,7 +98,10 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                     onPressed: () async {
                       logger.i('Start Training pressed. deviceData.deviceDataType: '
                           '${deviceData.deviceDataType}');
-                      final sessions = await loadTrainingSessions(deviceData.deviceDataType.toString());
+                      // Load training sessions (default user settings are now loaded inside the loader)
+                      final sessions = await loadTrainingSessions(
+                        deviceData.deviceDataType.toString(),
+                      );
                       if (sessions.isEmpty) {
                         if (!context.mounted) return;
                         showDialog(

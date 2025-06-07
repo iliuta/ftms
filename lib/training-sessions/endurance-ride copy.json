@@ -5,25 +5,25 @@
         {
             "title": "Warm Up",
             "duration": 10,
-            "targets": {"Instantaneous Power": 100, "Instantaneous Cadence": 80},
+            "targets": {"Instantaneous Power": "40%", "Instantaneous Cadence": 80},
             "resistanceLevel": 1
         },
         {
             "title": "Main Set",
             "duration": 20,
-            "targets": {"Instantaneous Power": 180, "Instantaneous Cadence": 90},
+            "targets": {"Instantaneous Power": "72%", "Instantaneous Cadence": 90},
             "resistanceLevel": 10
         },
         {
             "title": "Cool Down",
             "duration": 10,
-            "targets": {"Instantaneous Power": 80, "Instantaneous Cadence": 70},
+            "targets": {"Instantaneous Power": "32%", "Instantaneous Cadence": 70},
             "resistanceLevel": 20
         },
         {
             "title": "Warm Up",
             "duration": 10,
-            "targets": {"Instantaneous Power": 100, "Instantaneous Cadence": 80},
+            "targets": {"Instantaneous Power": "40%", "Instantaneous Cadence": 80},
             "resistanceLevel": 2
         }
     ]
