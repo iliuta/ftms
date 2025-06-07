@@ -41,7 +41,7 @@ class TrainingSessionController extends ChangeNotifier {
     }
     _totalDuration = acc;
     _ftmsStream = ftmsBloc.ftmsDeviceDataControllerStream;
-    _ftmsSub = _ftmsStream.listen(onFtmsData);
+    _ftmsSub = _ftmsStream.listen(_onFtmsData);
     _initFTMS();
   }
 
@@ -86,8 +86,7 @@ class TrainingSessionController extends ChangeNotifier {
     }
   }
 
-  // Expose for testing
-  void onFtmsData(DeviceData? data) {
+  void _onFtmsData(DeviceData? data) {
     if (timerActive || data == null) return;
     final params = data.getDeviceDataParameterValues();
     // Only start timer if at least one value has changed since last update
@@ -112,11 +111,10 @@ class TrainingSessionController extends ChangeNotifier {
   void _startTimer() {
     if (timerActive) return;
     timerActive = true;
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => onTick());
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
   }
 
-  // Expose for testing
-  void onTick() {
+  void _onTick() {
     if (sessionCompleted) return;
     elapsed++;
     if (elapsed >= _totalDuration) {
