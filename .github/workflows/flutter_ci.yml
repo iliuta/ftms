@@ -1,8 +1,10 @@
 name: FTMS CI
 
+
 on:
   push:
     branches: [ main ]
+    tags: [ '*' ]
   pull_request:
     branches: [ main ]
 
@@ -29,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.yaml') }}
       - name: Install dependencies
         run: flutter pub get
-      - name: Check for compile errors (flutter build apk dry run)
+      - name: Check for compile errors (flutter build apk)
         run: flutter build apk --debug --no-pub
 
   analyze:
