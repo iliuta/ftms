@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fmts/features/training/training_session_expansion_panel.dart';
-import 'package:fmts/features/training/model/unit_training_interval.dart';
-import 'package:fmts/features/training/model/training_session.dart';
+import 'package:ftms/features/training/training_session_expansion_panel.dart';
+import 'package:ftms/features/training/model/unit_training_interval.dart';
+import 'package:ftms/features/training/model/training_session.dart';
 import 'package:flutter/services.dart';
 
 void main() {

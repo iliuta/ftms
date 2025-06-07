@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fmts/features/training/training_interval_list.dart';
-import 'package:fmts/features/training/model/unit_training_interval.dart';
+import 'package:ftms/features/training/training_interval_list.dart';
+import 'package:ftms/features/training/model/unit_training_interval.dart';
 
 void main() {
   group('TrainingIntervalList', () {

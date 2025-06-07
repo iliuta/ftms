@@ -1,11 +1,11 @@
 {
-    "name": "fmts",
-    "short_name": "fmts",
+    "name": "ftms",
+    "short_name": "ftms",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "FMTS test tool",
+    "description": "ftms test tool",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

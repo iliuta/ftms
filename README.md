@@ -1,6 +1,6 @@
-# fmts
+# ftms
 
-FMTS test tool
+FTMS test tool
 
 ## Getting Started
 

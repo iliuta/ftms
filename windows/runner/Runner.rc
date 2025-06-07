@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.iliuta" "\0"
-            VALUE "FileDescription", "fmts" "\0"
+            VALUE "FileDescription", "ftms" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "fmts" "\0"
+            VALUE "InternalName", "ftms" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.iliuta. All rights reserved." "\0"
-            VALUE "OriginalFilename", "fmts.exe" "\0"
-            VALUE "ProductName", "fmts" "\0"
+            VALUE "OriginalFilename", "ftms.exe" "\0"
+            VALUE "ProductName", "ftms" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

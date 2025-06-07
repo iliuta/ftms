@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fmts/features/training/training_session_controller.dart';
+import 'package:ftms/features/training/training_session_controller.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:mockito/mockito.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:fmts/features/training/model/training_session.dart';
-import 'package:fmts/features/training/model/unit_training_interval.dart';
+import 'package:ftms/features/training/model/training_session.dart';
+import 'package:ftms/features/training/model/unit_training_interval.dart';
 
 class MockBluetoothDevice extends Mock implements BluetoothDevice {}
 

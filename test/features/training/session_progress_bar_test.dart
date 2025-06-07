@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fmts/features/training/session_progress_bar.dart';
+import 'package:ftms/features/training/session_progress_bar.dart';
 
 void main() {
   testWidgets('SessionProgressBar displays progress and formatted time', (WidgetTester tester) async {

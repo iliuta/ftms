@@ -1,4 +1,4 @@
-package com.iliuta.fmts
+package com.iliuta.ftms
 
 import io.flutter.embedding.android.FlutterActivity
 

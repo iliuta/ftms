@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fmts/core/utils/ftms_display_config.dart';
+import 'package:ftms/core/utils/ftms_display_config.dart';
 
 void main() {
   group('FtmsDisplayConfig', () {
