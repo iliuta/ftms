@@ -7,7 +7,7 @@
             "duration": 10,
             "targets": {
                 "Stroke Rate": 20,
-                "Instantaneous Pace": 150
+                "Instantaneous Pace": "100%"
             },
             "resistanceLevel": 5
         },
@@ -16,7 +16,7 @@
             "duration": 10,
             "targets": {
                 "Stroke Rate": 24,
-                "Instantaneous Pace": 150
+                "Instantaneous Pace": "95%"
             },
             "resistanceLevel": 7
         },
@@ -25,7 +25,7 @@
             "duration": 10,
             "targets": {
                 "Stroke Rate": 24,
-                "Instantaneous Pace": 150
+                "Instantaneous Pace": "105%"
             },
             "resistanceLevel": 3
         }

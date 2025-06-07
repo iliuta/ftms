@@ -1,5 +1,6 @@
 import 'training_interval.dart';
 import '../../../core/config/user_settings.dart';
+import 'target_power_strategy.dart';
 
 class UnitTrainingInterval extends TrainingInterval {
   final String? title;
@@ -22,17 +23,11 @@ class UnitTrainingInterval extends TrainingInterval {
     Map<String, dynamic>? targets;
     if (json['targets'] != null) {
       targets = Map<String, dynamic>.from(json['targets']);
-      // Only for indoorBike, convert percentage string for Instantaneous Power
-      if (machineType == 'DeviceDataType.indoorBike' && userSettings != null) {
-        final power = targets['Instantaneous Power'];
-        if (power is String && power.endsWith('%')) {
-          final percent = int.tryParse(power.replaceAll('%', ''));
-          if (percent != null) {
-            targets['Instantaneous Power'] = ((userSettings.cyclingFtp * percent) / 100).round();
-          }
-        }
+      // Use strategy pattern for power target resolution
+      final strategy = TargetPowerStrategyFactory.getStrategy(machineType);
+      if (targets.containsKey('Instantaneous Power')) {
+        targets['Instantaneous Power'] = strategy.resolvePower(targets['Instantaneous Power'], userSettings);
       }
-      // (Future: add similar logic for rower/rowingFtp here)
     }
     return UnitTrainingInterval(
       title: json['title'],
