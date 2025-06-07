@@ -10,6 +10,7 @@ import '../training/training_session_progress_screen.dart';
 import '../../core/utils/ftms_debug_utils.dart';
 import '../../core/config/ftms_display_config.dart';
 import '../../core/widgets/ftms_live_data_display_widget.dart';
+import '../../core/services/ftms_data_processor.dart';
 
 class FTMSDataTab extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
@@ -23,6 +24,7 @@ class FTMSDataTabState extends State<FTMSDataTab> {
   bool _started = false;
   FtmsDisplayConfig? _config;
   String? _configError;
+  final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
 
   @override
   void initState() {
@@ -36,6 +38,11 @@ class FTMSDataTabState extends State<FTMSDataTab> {
       _config = config;
       _configError = config == null ? 'No config for this machine type' : null;
     });
+    
+    // Configure data processor for averaging
+    if (config != null) {
+      _dataProcessor.configure(config);
+    }
   }
 
   void _startFTMS() async {
@@ -70,10 +77,10 @@ class FTMSDataTabState extends State<FTMSDataTab> {
           }
           final parameterValues = deviceData.getDeviceDataParameterValues();
           logFtmsParameterAttributes(parameterValues);
-          final Map<String, dynamic> paramValueMap = {
-            for (final p in parameterValues)
-              p.name.name: p
-          };
+          
+          // Process device data with averaging
+          final paramValueMap = _dataProcessor.processDeviceData(deviceData);
+          
           return Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
