@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/config/user_settings.dart';
-import 'package:ftms/features/training/model/unit_training_interval.dart';
 
 // Helper to patch UserSettings to allow custom asset path for tests
 class TestableUserSettings extends UserSettings {
