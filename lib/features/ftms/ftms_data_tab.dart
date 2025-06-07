@@ -8,8 +8,8 @@ import '../training/training_session_loader.dart';
 import '../training/training_session_expansion_panel.dart';
 import '../training/training_session_progress_screen.dart';
 import '../../core/utils/ftms_debug_utils.dart';
-import '../../core/utils/ftms_display_config.dart';
-import '../../core/utils/ftms_live_data_display_widget.dart';
+import '../../core/config/ftms_display_config.dart';
+import '../../core/widgets/ftms_live_data_display_widget.dart';
 
 class FTMSDataTab extends StatefulWidget {
   final BluetoothDevice ftmsDevice;

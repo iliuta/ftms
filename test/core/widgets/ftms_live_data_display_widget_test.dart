@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/utils/ftms_live_data_display_widget.dart';
-import 'package:ftms/core/utils/ftms_display_config.dart';
+import 'package:ftms/core/widgets/ftms_live_data_display_widget.dart';
+import 'package:ftms/core/config/ftms_display_config.dart';
 
 
 // The widget expects each value to have a .value property (like a parameter object)

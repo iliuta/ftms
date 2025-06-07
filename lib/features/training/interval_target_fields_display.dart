@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/utils/ftms_display_config.dart';
-import '../../core/utils/ftms_icon_registry.dart';
+import '../../core/config/ftms_display_config.dart';
+import '../../core/widgets/ftms_icon_registry.dart';
 
 class IntervalTargetFieldsDisplay extends StatelessWidget {
   final Map<String, dynamic>? targets;

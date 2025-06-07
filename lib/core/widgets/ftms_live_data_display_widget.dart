@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ftms_display_config.dart';
+import '../config/ftms_display_config.dart';
 import 'ftms_display_widget_registry.dart';
 
 /// Shared widget for displaying FTMS live data fields according to config.

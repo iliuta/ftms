@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/utils/simple_number_widget.dart';
+import 'package:ftms/core/widgets/simple_number_widget.dart';
 
 void main() {
   testWidgets('SimpleNumberWidget displays label, value, unit, and icon', (WidgetTester tester) async {
