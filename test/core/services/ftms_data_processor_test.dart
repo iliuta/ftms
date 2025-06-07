@@ -5,7 +5,7 @@ import 'package:ftms/core/config/ftms_display_config.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_ftms/src/ftms/flag.dart';
 import 'package:flutter_ftms/src/ftms/parameter_name.dart';
-import 'package:mockito/mockito.dart';
+
 
 // Mock classes for testing
 class MockDeviceData extends DeviceData {
@@ -48,7 +48,6 @@ class MockParameter implements DeviceDataParameter {
   @override
   ParameterName get name => _name;
   
-  @override
   num get value => _value;
   
   @override
@@ -57,7 +56,6 @@ class MockParameter implements DeviceDataParameter {
   @override
   String get unit => _unit;
   
-  @override
   num get scaleFactor => 1;
   
   @override
@@ -107,7 +105,6 @@ class MockParameterValue implements DeviceDataParameterValue {
   @override
   String get unit => _parameter.unit;
   
-  @override
   num get scaleFactor => _parameter.scaleFactor;
   
   @override

@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/features/ftms/ftms_data_tab.dart';
 import 'package:ftms/core/services/ftms_data_processor.dart';
 import 'package:ftms/core/services/value_averaging_service.dart';
 import 'package:ftms/core/config/ftms_display_config.dart';
@@ -68,7 +66,6 @@ class MockParameter implements DeviceDataParameter {
   @override
   ParameterName get name => _name;
   
-  @override
   num get value => _value;
   
   @override
@@ -77,7 +74,6 @@ class MockParameter implements DeviceDataParameter {
   @override
   String get unit => 'W';
   
-  @override
   num? get scaleFactor => 1;
   
   @override
@@ -124,7 +120,6 @@ class MockParameterValue implements DeviceDataParameterValue {
   @override
   num get factor => 1;
   
-  @override
   num? get scaleFactor => 1;
   
   @override
@@ -145,10 +140,9 @@ class MockParameterName implements ParameterName {
 
 void main() {
   group('FTMSDataTab Integration Tests', () {
-    late MockBluetoothDevice mockDevice;
-
     setUp(() {
-      mockDevice = MockBluetoothDevice();
+      // Clear singleton state before each test
+      ValueAveragingService().clearAll();
     });
 
     // Note: These widget tests are currently skipped because they require proper mocking
