@@ -1,12 +1,11 @@
 // This file was moved from lib/ftms_device_data_features_tab.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/bloc/ftms_bloc.dart';
 
 class FTMSDeviceDataFeaturesTab extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
-  const FTMSDeviceDataFeaturesTab({Key? key, required this.ftmsDevice}) : super(key: key);
+  const FTMSDeviceDataFeaturesTab({super.key, required this.ftmsDevice});
 
   @override
   State<FTMSDeviceDataFeaturesTab> createState() => FTMSDeviceDataFeaturesTabState();

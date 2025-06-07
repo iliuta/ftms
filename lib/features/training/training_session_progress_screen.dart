@@ -1,9 +1,6 @@
-// This file was moved from lib/training_session_progress_screen.dart
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/services/ftms_service.dart';
 import 'model/training_session.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
@@ -17,7 +14,7 @@ import 'training_interval_list.dart';
 class TrainingSessionProgressScreen extends StatelessWidget {
   final TrainingSessionDefinition session;
   final BluetoothDevice ftmsDevice;
-  const TrainingSessionProgressScreen({Key? key, required this.session, required this.ftmsDevice}) : super(key: key);
+  const TrainingSessionProgressScreen({super.key, required this.session, required this.ftmsDevice});
 
   String formatHHMMSS(int seconds) {
     final h = seconds ~/ 3600;
@@ -128,7 +125,7 @@ class TrainingSessionProgressScreen extends StatelessWidget {
 class _LiveFTMSDataWidget extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
   final Map<String, dynamic>? targets;
-  const _LiveFTMSDataWidget({Key? key, required this.ftmsDevice, this.targets}) : super(key: key);
+  const _LiveFTMSDataWidget({required this.ftmsDevice, this.targets});
 
   @override
   State<_LiveFTMSDataWidget> createState() => _LiveFTMSDataWidgetState();
@@ -197,7 +194,7 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
                     final parameterValues = deviceData.getDeviceDataParameterValues();
                     final paramValueMap = {
                       for (final p in parameterValues)
-                        if (p.name != null) p.name.name: p
+                        p.name.name: p
                     };
                     return FtmsLiveDataDisplayWidget(
                       config: _config!,

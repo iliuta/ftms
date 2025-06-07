@@ -5,11 +5,11 @@ class SessionProgressBar extends StatelessWidget {
   final int timeLeft;
   final String Function(int) formatTime;
   const SessionProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     required this.timeLeft,
     required this.formatTime,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

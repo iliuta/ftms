@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../../lib/core/utils/ftms_debug_utils.dart';
+import 'package:ftms/core/utils/ftms_debug_utils.dart';
 
 class DummyParam {
   final dynamic flag;

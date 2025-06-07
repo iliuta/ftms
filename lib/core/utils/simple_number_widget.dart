@@ -8,7 +8,7 @@ class SimpleNumberWidget extends StatelessWidget {
   final String unit;
   final String? icon;
   final Color? color;
-  const SimpleNumberWidget({Key? key, required this.label, required this.value, required this.unit, this.icon, this.color}) : super(key: key);
+  const SimpleNumberWidget({super.key, required this.label, required this.value, required this.unit, this.icon, this.color});
 
   @override
   Widget build(BuildContext context) {

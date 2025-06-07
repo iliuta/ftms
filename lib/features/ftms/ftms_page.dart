@@ -34,8 +34,7 @@ class _FTMSPageState extends State<FTMSPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            '${widget.ftmsDevice.platformName}'),
+        title: Text(widget.ftmsDevice.platformName),
       ),
       body: Column(
         children: [

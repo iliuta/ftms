@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'simple_number_widget.dart';
 import 'speedometer_widget.dart';
-import 'ftms_live_data_display_widget.dart';
 
 /// Dictionary of available FTMS display widgets for use in config files.
 /// Maps display type string to a builder function.

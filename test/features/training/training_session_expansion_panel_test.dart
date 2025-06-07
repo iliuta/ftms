@@ -12,7 +12,7 @@ void main() {
   setUpAll(() async {
     // Mock AssetManifest.json
     const manifest = '{"lib/config/rowing_machine.json":[],"lib/config/indoor_bike.json":[]}';
-    ServicesBinding.instance.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', (message) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', (message) async {
       final String key = const StringCodec().decodeMessage(message) as String;
       if (key == 'AssetManifest.json') {
         return const StringCodec().encodeMessage(manifest);

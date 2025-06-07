@@ -1,7 +1,7 @@
 // This file was moved from lib/machine_feature_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+
 import '../../core/bloc/ftms_bloc.dart';
 
 class MachineFeatureWidget extends StatefulWidget {

@@ -1,6 +1,5 @@
 // This file was moved from lib/ftms_service.dart
 import 'package:flutter_ftms/flutter_ftms.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 typedef WriteMachineControlPointCharacteristic = Future<void> Function(
     BluetoothDevice device, MachineControlPoint controlPoint);
@@ -42,8 +41,6 @@ class FTMSService {
       case MachineControlPointOpcodeType.stopOrPause:
         controlPoint = MachineControlPoint.stopOrPause(pause: true);
         break;
-      default:
-        throw 'MachineControlPointOpcodeType $opcodeType is not implemented in this example';
     }
 
     await writeCharacteristic(ftmsDevice, controlPoint);

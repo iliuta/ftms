@@ -13,14 +13,14 @@ class TrainingIntervalList extends StatelessWidget {
   final FtmsDisplayConfig? config;
 
   const TrainingIntervalList({
-    Key? key,
+    super.key,
     required this.intervals,
     required this.currentInterval,
     required this.intervalElapsed,
     required this.intervalTimeLeft,
     required this.formatMMSS,
     this.config,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

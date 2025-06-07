@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../../lib/core/bloc/ftms_bloc.dart';
+import 'package:ftms/core/bloc/ftms_bloc.dart';
 import 'package:flutter_ftms/src/ftms/characteristic/data/device_data.dart';
 import 'package:flutter_ftms/src/ftms/characteristic/machine/feature/machine_feature.dart';
 // Import Flag and DeviceDataParameter for the fake class

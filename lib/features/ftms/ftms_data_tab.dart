@@ -1,10 +1,8 @@
 // This file was moved from lib/ftms_data_tab.dart
 import 'package:flutter/material.dart';
+import '../../core/utils/logger.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:path/path.dart' as p;
+// import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/bloc/ftms_bloc.dart';
 import '../training/training_session_loader.dart';
 import '../training/training_session_expansion_panel.dart';
@@ -15,7 +13,7 @@ import '../../core/utils/ftms_live_data_display_widget.dart';
 
 class FTMSDataTab extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
-  const FTMSDataTab({Key? key, required this.ftmsDevice}) : super(key: key);
+  const FTMSDataTab({super.key, required this.ftmsDevice});
 
   @override
   State<FTMSDataTab> createState() => FTMSDataTabState();
@@ -74,7 +72,7 @@ class FTMSDataTabState extends State<FTMSDataTab> {
           logFtmsParameterAttributes(parameterValues);
           final Map<String, dynamic> paramValueMap = {
             for (final p in parameterValues)
-              if (p.name != null) p.name.name: p
+              p.name.name: p
           };
           return Padding(
             padding: const EdgeInsets.all(8),
@@ -98,10 +96,11 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('Load training session'),
                     onPressed: () async {
-                      print('Start Training pressed. deviceData.deviceDataType: '
+                      logger.i('Start Training pressed. deviceData.deviceDataType: '
                           '${deviceData.deviceDataType}');
                       final sessions = await loadTrainingSessions(deviceData.deviceDataType.toString());
                       if (sessions.isEmpty) {
+                        if (!context.mounted) return;
                         showDialog(
                           context: context,
                           builder: (context) => const AlertDialog(
@@ -111,6 +110,7 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                         );
                         return;
                       }
+                      if (!context.mounted) return;
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
@@ -127,7 +127,7 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                           },
                         ),
                       ).then((selectedSession) {
-                        if (selectedSession != null) {
+                        if (selectedSession != null && context.mounted) {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => TrainingSessionProgressScreen(

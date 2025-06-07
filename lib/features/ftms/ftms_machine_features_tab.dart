@@ -5,7 +5,7 @@ import 'machine_feature_widget.dart';
 class FTMSMachineFeaturesTab extends StatelessWidget {
   final BluetoothDevice ftmsDevice;
   final void Function(MachineControlPointOpcodeType) writeCommand;
-  const FTMSMachineFeaturesTab({Key? key, required this.ftmsDevice, required this.writeCommand}) : super(key: key);
+  const FTMSMachineFeaturesTab({super.key, required this.ftmsDevice, required this.writeCommand});
 
   @override
   Widget build(BuildContext context) {

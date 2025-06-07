@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import '../../core/utils/logger.dart';
 import 'dart:io';
 
 import 'scan_widgets.dart';
@@ -23,12 +24,12 @@ class _ScanPageState extends State<ScanPage> {
   }
 
   void _printBluetoothState() {
-    // Listen to the adapter state stream and print updates
+    // Listen to the adapter state stream (logging removed for production)
     FlutterBluePlus.adapterState.listen((state) {
-      print('Bluetooth adapter state: [0m${state.toString()}');
+      logger.i('Bluetooth adapter state: [0m${state.toString()}');
     });
     // Also print the last known state immediately
-    print('Bluetooth adapter state (now): ${FlutterBluePlus.adapterStateNow.toString()}');
+    logger.i('Bluetooth adapter state (now): ${FlutterBluePlus.adapterStateNow.toString()}');
   }
 
   @override

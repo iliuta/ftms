@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ftms_display_config.dart';
 import 'ftms_display_widget_registry.dart';
-import 'ftms_icon_registry.dart';
 
 /// Shared widget for displaying FTMS live data fields according to config.
 class FtmsLiveDataDisplayWidget extends StatelessWidget {
@@ -33,7 +32,7 @@ class FtmsLiveDataDisplayWidget extends StatelessWidget {
           final field = config.fields[i];
           final param = paramValueMap[field.name];
           Color? color = defaultColor;
-          FontWeight fontWeight = FontWeight.normal;
+          // FontWeight fontWeight = FontWeight.normal;
           Widget child;
           if (param == null) {
             child = Text('${field.label}: (not available)', style: const TextStyle(color: Colors.grey));
@@ -45,7 +44,6 @@ class FtmsLiveDataDisplayWidget extends StatelessWidget {
             final scaledValue = (value is num ? value : num.tryParse(value.toString()) ?? 0) * factor;
             if (targets != null && targets![field.name] != null && isWithinTarget != null) {
               final target = targets![field.name];
-              fontWeight = FontWeight.bold;
               if (isWithinTarget!(value is num ? value : num.tryParse(value.toString()),
                   target is num ? target : num.tryParse(target.toString()), factor: factor)) {
                 color = Colors.green[700];

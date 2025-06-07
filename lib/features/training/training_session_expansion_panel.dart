@@ -1,26 +1,22 @@
-// This file was moved from lib/training_session_expansion_panel.dart
-
 import 'package:flutter/material.dart';
-import 'training_session_loader.dart';
 import 'model/training_session.dart';
 import 'model/unit_training_interval.dart';
 import '../../core/utils/ftms_display_config.dart';
-import '../../core/utils/ftms_icon_registry.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'interval_target_fields_display.dart';
 
 class TrainingSessionExpansionPanelList extends StatefulWidget {
   final List<TrainingSessionDefinition> sessions;
   final ScrollController scrollController;
-  const TrainingSessionExpansionPanelList({Key? key, required this.sessions, required this.scrollController}) : super(key: key);
+  const TrainingSessionExpansionPanelList({super.key, required this.sessions, required this.scrollController});
 
   @override
   State<TrainingSessionExpansionPanelList> createState() => _TrainingSessionExpansionPanelListState();
 }
 
 class _TrainingSessionExpansionPanelListState extends State<TrainingSessionExpansionPanelList> {
-  Map<String, FtmsDisplayConfig?> _configCache = {};
-  late List<bool> _expanded;
+  final Map<String, FtmsDisplayConfig?> _configCache = {};
+  late final List<bool> _expanded;
 
   @override
   void initState() {

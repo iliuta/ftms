@@ -9,12 +9,12 @@ class IntervalTargetFieldsDisplay extends StatelessWidget {
   final TextStyle? valueStyle;
 
   const IntervalTargetFieldsDisplay({
-    Key? key,
+    super.key,
     required this.targets,
     required this.config,
     this.labelStyle,
     this.valueStyle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
