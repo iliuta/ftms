@@ -3,12 +3,15 @@ import 'dart:convert';
 import '../../core/utils/logger.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
+
 import 'model/training_session.dart';
+import '../../core/config/user_settings.dart';
 
 
 
 Future<List<TrainingSessionDefinition>> loadTrainingSessions(String machineType) async {
   logger.i('[loadTrainingSessions] machineType: $machineType');
+  final userSettings = await UserSettings.loadDefault();
   // Use AssetManifest to list all training session files
   final manifestContent = await rootBundle.loadString('AssetManifest.json');
   final Map<String, dynamic> manifestMap = json.decode(manifestContent);
@@ -24,7 +27,11 @@ Future<List<TrainingSessionDefinition>> loadTrainingSessions(String machineType)
     try {
       final content = await rootBundle.loadString(file);
       final jsonData = json.decode(content);
-      final session = TrainingSessionDefinition.fromJson(jsonData);
+      final session = TrainingSessionDefinition.fromJson(
+        jsonData,
+        machineType: machineType,
+        userSettings: userSettings,
+      );
       logger.i('[loadTrainingSessions] Read session: title=${session.title}, ftmsMachineType=${session.ftmsMachineType}');
       if (session.ftmsMachineType == machineType) {
         logger.i('[loadTrainingSessions]   -> MATCH');

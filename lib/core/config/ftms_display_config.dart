@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/utils/logger.dart';
 
 
 class FtmsDisplayField {
   final String name;
   final String label;
   final String display;
+  final String? formatter;
   final String unit;
   final num? min;
   final num? max;
@@ -15,6 +17,7 @@ class FtmsDisplayField {
     required this.name,
     required this.label,
     required this.display,
+    this.formatter,
     required this.unit,
     this.min,
     this.max,
@@ -25,11 +28,19 @@ class FtmsDisplayField {
       name: json['name'] as String,
       label: json['label'] as String,
       display: json['display'] as String? ?? 'number',
+      formatter: json['formatter'] as String?,
       unit: json['unit'] as String? ?? '',
       min: json['min'] as num?,
       max: json['max'] as num?,
       icon: json['icon'] as String?,
     );
+  }
+
+  num getScaledValue(dynamic value, dynamic factor) {
+    final localFactor = (factor is num)
+        ? factor
+        : num.tryParse(factor?.toString() ?? '1') ?? 1;
+    return (value is num ? value : num.tryParse(value.toString()) ?? 0) * localFactor;
   }
 }
 
@@ -70,6 +81,7 @@ Future<FtmsDisplayConfig?> loadFtmsDisplayConfig(DeviceDataType type) async {
     final fields = [for (final f in fieldsJson) FtmsDisplayField.fromJson(f as Map<String, dynamic>)];
     return FtmsDisplayConfig(fields: fields);
   } catch (e) {
+    logger.e('Error loading FTMS display config', error: e);
     return null;
   }
 }

@@ -25,8 +25,13 @@ class TrainingSessionController extends ChangeNotifier {
   bool timerActive = false;
   List<dynamic>? _lastFtmsParams;
 
-  TrainingSessionController({required this.session, required this.ftmsDevice}) {
-    _ftmsService = FTMSService(ftmsDevice);
+  // Allow injection of FTMSService for testing
+  TrainingSessionController({
+    required this.session,
+    required this.ftmsDevice,
+    FTMSService? ftmsService,
+  }) {
+    _ftmsService = ftmsService ?? FTMSService(ftmsDevice);
     _intervals = session.intervals;
     _intervalStartTimes = [];
     int acc = 0;

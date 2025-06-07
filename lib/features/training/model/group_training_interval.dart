@@ -1,5 +1,6 @@
 import 'training_interval.dart';
 import 'unit_training_interval.dart';
+import '../../../core/config/user_settings.dart';
 
 class GroupTrainingInterval extends TrainingInterval {
   @override
@@ -8,11 +9,19 @@ class GroupTrainingInterval extends TrainingInterval {
 
   GroupTrainingInterval({required this.intervals, this.repeat});
 
-  factory GroupTrainingInterval.fromJson(Map<String, dynamic> json) {
+  factory GroupTrainingInterval.fromJson(
+    Map<String, dynamic> json, {
+    String? machineType,
+    UserSettings? userSettings,
+  }) {
     return GroupTrainingInterval(
       repeat: json['repeat'],
       intervals: (json['intervals'] as List)
-          .map((e) => UnitTrainingInterval.fromJson(e))
+          .map((e) => UnitTrainingInterval.fromJson(
+                e,
+                machineType: machineType,
+                userSettings: userSettings,
+              ))
           .toList(),
     );
   }

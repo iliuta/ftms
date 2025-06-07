@@ -1,4 +1,6 @@
 import 'training_interval.dart';
+import '../../../core/config/user_settings.dart';
+import 'target_power_strategy.dart';
 
 class UnitTrainingInterval extends TrainingInterval {
   final String? title;
@@ -10,11 +12,27 @@ class UnitTrainingInterval extends TrainingInterval {
 
   UnitTrainingInterval({this.title, required this.duration, this.targets, this.resistanceLevel, this.repeat});
 
-  factory UnitTrainingInterval.fromJson(Map<String, dynamic> json) {
+
+  /// [machineType] is required to apply FTP logic for indoorBike/rower.
+  /// [userSettings] is used for percentage-based targets.
+  factory UnitTrainingInterval.fromJson(
+    Map<String, dynamic> json, {
+    String? machineType,
+    UserSettings? userSettings,
+  }) {
+    Map<String, dynamic>? targets;
+    if (json['targets'] != null) {
+      targets = Map<String, dynamic>.from(json['targets']);
+      // Use strategy pattern for power target resolution
+      final strategy = TargetPowerStrategyFactory.getStrategy(machineType);
+      if (targets.containsKey('Instantaneous Power')) {
+        targets['Instantaneous Power'] = strategy.resolvePower(targets['Instantaneous Power'], userSettings);
+      }
+    }
     return UnitTrainingInterval(
       title: json['title'],
       duration: json['duration'],
-      targets: json['targets'] != null ? Map<String, dynamic>.from(json['targets']) : null,
+      targets: targets,
       resistanceLevel: json['resistanceLevel'],
       repeat: json['repeat'],
     );
