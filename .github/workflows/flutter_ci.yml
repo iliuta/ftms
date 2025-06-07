@@ -1,4 +1,4 @@
-name: Flutter CI
+name: FTMS CI
 
 on:
   push:
@@ -14,31 +14,51 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - name: Cache Flutter dependencies
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.yaml') }}
       - name: Install dependencies
         run: flutter pub get
       - name: Check for compile errors (flutter build apk dry run)
-        run: flutter build apk --debug --no-pub --dry-run
+        run: flutter build apk --debug --no-pub
 
   analyze:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Install dependencies
-        run: flutter pub get
-      - name: Dart analyze
+      - name: Restore Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.yaml') }}
+      - name: Flutter analyze
         run: flutter analyze
 
   test:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Restore Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.yaml') }}
       - name: Run tests
         run: flutter test --no-pub
