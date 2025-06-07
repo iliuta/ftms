@@ -1,8 +1,35 @@
 {
   "fields": [
-    { "name": "Instantaneous Speed", "label": "Speed", "display": "speedometer", "unit": "km/h", "min": 0, "max": 30 },
-    { "name": "Stroke Rate", "label": "Stroke Rate", "display": "number", "unit": "spm", "icon": "rowing" },
-    { "name": "Instantaneous Power", "label": "Power", "display": "speedometer", "unit": "W", "min": 0, "max": 1500 },
-    { "name": "Heart Rate", "label": "Heart rate", "display": "number", "unit": "bpm", "icon": "heart" }
+    {
+      "name": "Instantaneous Speed",
+      "label": "Speed",
+      "display": "speedometer",
+      "formatter": "rowerPaceFormatter",
+      "unit": "km/h",
+      "min": 0,
+      "max": 30
+    },
+    {
+      "name": "Stroke Rate",
+      "label": "Stroke Rate",
+      "display": "number",
+      "unit": "spm",
+      "icon": "rowing"
+    },
+    {
+      "name": "Instantaneous Power",
+      "label": "Power",
+      "display": "speedometer",
+      "unit": "W",
+      "min": 0,
+      "max": 1500
+    },
+    {
+      "name": "Heart Rate",
+      "label": "Heart rate",
+      "display": "number",
+      "unit": "bpm",
+      "icon": "heart"
+    }
   ]
 }

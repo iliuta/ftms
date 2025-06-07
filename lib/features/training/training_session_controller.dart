@@ -25,8 +25,13 @@ class TrainingSessionController extends ChangeNotifier {
   bool timerActive = false;
   List<dynamic>? _lastFtmsParams;
 
-  TrainingSessionController({required this.session, required this.ftmsDevice}) {
-    _ftmsService = FTMSService(ftmsDevice);
+  // Allow injection of FTMSService for testing
+  TrainingSessionController({
+    required this.session,
+    required this.ftmsDevice,
+    FTMSService? ftmsService,
+  }) {
+    _ftmsService = ftmsService ?? FTMSService(ftmsDevice);
     _intervals = session.intervals;
     _intervalStartTimes = [];
     int acc = 0;
@@ -36,7 +41,7 @@ class TrainingSessionController extends ChangeNotifier {
     }
     _totalDuration = acc;
     _ftmsStream = ftmsBloc.ftmsDeviceDataControllerStream;
-    _ftmsSub = _ftmsStream.listen(_onFtmsData);
+    _ftmsSub = _ftmsStream.listen(onFtmsData);
     _initFTMS();
   }
 
@@ -81,7 +86,8 @@ class TrainingSessionController extends ChangeNotifier {
     }
   }
 
-  void _onFtmsData(DeviceData? data) {
+  // Expose for testing
+  void onFtmsData(DeviceData? data) {
     if (timerActive || data == null) return;
     final params = data.getDeviceDataParameterValues();
     // Only start timer if at least one value has changed since last update
@@ -106,10 +112,11 @@ class TrainingSessionController extends ChangeNotifier {
   void _startTimer() {
     if (timerActive) return;
     timerActive = true;
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => onTick());
   }
 
-  void _onTick() {
+  // Expose for testing
+  void onTick() {
     if (sessionCompleted) return;
     elapsed++;
     if (elapsed >= _totalDuration) {

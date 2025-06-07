@@ -37,7 +37,6 @@ void main() {
   });
 
   group('UserSettings', () {
-
     test('fromJson parses all fields correctly', () {
       final json = {
         'maxHeartRate': 180,
@@ -108,6 +107,34 @@ void main() {
         () async => await TestableUserSettings.loadFromAsset(assetPath),
         throwsA(isA<Exception>()),
       );
+    });
+
+    group('loadDefault', () {
+      const defaultAssetPath = 'lib/config/default_user_settings.json';
+
+      test('loads settings from default asset', () async {
+        final defaultJson = jsonEncode({
+          'maxHeartRate': 200,
+          'cyclingFtp': 300,
+          'rowingFtp': '2:10',
+        });
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
+          channel.name,
+          (ByteData? message) async {
+            final requested = utf8.decode(message!.buffer.asUint8List());
+            if (requested == defaultAssetPath) {
+              return ByteData.view(Uint8List.fromList(defaultJson.codeUnits).buffer);
+            }
+            return null;
+          },
+        );
+        final settings = await UserSettings.loadDefault();
+        expect(settings.maxHeartRate, 200);
+        expect(settings.cyclingFtp, 300);
+        expect(settings.rowingFtp, '2:10');
+      });
+
+
     });
   });
 }

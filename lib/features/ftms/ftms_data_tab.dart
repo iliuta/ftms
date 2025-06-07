@@ -87,6 +87,7 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                   config: _config!,
                   paramValueMap: paramValueMap,
                   defaultColor: Colors.blue,
+                  machineType: deviceData.deviceDataType.toString(),
                 ),
                 const SizedBox(height: 24),
                 // Start Training Button

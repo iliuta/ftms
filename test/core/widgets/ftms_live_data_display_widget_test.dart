@@ -79,6 +79,7 @@ void main() {
           targets: targets,
           isWithinTarget: isWithinTarget,
           defaultColor: Colors.purple,
+          machineType: 'DeviceDataType.indoorBike',
         ),
       ),
     ));
@@ -102,6 +103,7 @@ void main() {
           body: FtmsLiveDataDisplayWidget(
             config: config,
             paramValueMap: paramValueMap,
+            machineType: 'DeviceDataType.indoorBike',
           ),
         ),
       ),
@@ -125,6 +127,7 @@ void main() {
         body: FtmsLiveDataDisplayWidget(
           config: weirdConfig,
           paramValueMap: weirdParamValueMap,
+          machineType: 'DeviceDataType.indoorBike',
         ),
       ),
     ));
@@ -140,6 +143,7 @@ void main() {
           paramValueMap: paramValueMap,
           targets: targets,
           isWithinTarget: alwaysFalse,
+          machineType: 'DeviceDataType.indoorBike',
         ),
       ),
     ));
@@ -165,6 +169,7 @@ void main() {
           body: FtmsLiveDataDisplayWidget(
             config: singleConfig,
             paramValueMap: singleParamValueMap,
+            machineType: 'DeviceDataType.indoorBike',
           ),
         ),
       ),

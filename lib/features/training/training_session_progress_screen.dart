@@ -91,6 +91,7 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                               child: _LiveFTMSDataWidget(
                                 ftmsDevice: ftmsDevice,
                                 targets: controller.current.targets,
+                                machineType: session.ftmsMachineType,
                               ),
                             ),
                           ],
@@ -125,7 +126,8 @@ class TrainingSessionProgressScreen extends StatelessWidget {
 class _LiveFTMSDataWidget extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
   final Map<String, dynamic>? targets;
-  const _LiveFTMSDataWidget({required this.ftmsDevice, this.targets});
+  final String machineType;
+  const _LiveFTMSDataWidget({required this.ftmsDevice, this.targets, required this.machineType});
 
   @override
   State<_LiveFTMSDataWidget> createState() => _LiveFTMSDataWidgetState();
@@ -201,6 +203,7 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
                       paramValueMap: paramValueMap,
                       targets: widget.targets,
                       isWithinTarget: _isWithinTarget,
+                      machineType: widget.machineType,
                     );
                   },
                 ),
