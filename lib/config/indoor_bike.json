@@ -6,7 +6,7 @@
       "display": "speedometer",
       "unit": "km/h",
       "min": 0,
-      "max": 60
+      "max": 100
     },
     {
       "name": "Instantaneous Power",
@@ -14,7 +14,8 @@
       "display": "speedometer",
       "unit": "W",
       "min": 0,
-      "max": 1000
+      "max": 1000,
+      "samplePeriodSeconds": 5
     },
     {
       "name": "Instantaneous Cadence",

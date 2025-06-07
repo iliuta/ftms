@@ -13,6 +13,7 @@ class FtmsDisplayField {
   final num? min;
   final num? max;
   final String? icon;
+  final int? samplePeriodSeconds;
   FtmsDisplayField({
     required this.name,
     required this.label,
@@ -22,6 +23,7 @@ class FtmsDisplayField {
     this.min,
     this.max,
     this.icon,
+    this.samplePeriodSeconds,
   });
   factory FtmsDisplayField.fromJson(Map<String, dynamic> json) {
     return FtmsDisplayField(
@@ -33,6 +35,7 @@ class FtmsDisplayField {
       min: json['min'] as num?,
       max: json['max'] as num?,
       icon: json['icon'] as String?,
+      samplePeriodSeconds: json['samplePeriodSeconds'] as int?,
     );
   }
 

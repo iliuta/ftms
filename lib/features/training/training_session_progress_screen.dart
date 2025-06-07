@@ -6,6 +6,7 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
 import '../../core/config/ftms_display_config.dart';
 import '../../core/widgets/ftms_live_data_display_widget.dart';
+import '../../core/services/ftms_data_processor.dart';
 import 'training_session_controller.dart';
 import 'session_progress_bar.dart';
 import 'training_interval_list.dart';
@@ -136,6 +137,7 @@ class _LiveFTMSDataWidget extends StatefulWidget {
 class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
   FtmsDisplayConfig? _config;
   String? _configError;
+  final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
 
   @override
   void didChangeDependencies() {
@@ -151,6 +153,11 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
       _config = config;
       _configError = config == null ? 'No config for this machine type' : null;
     });
+    
+    // Configure data processor for averaging
+    if (config != null) {
+      _dataProcessor.configure(config);
+    }
   }
 
   Future<DeviceDataType?> _getDeviceType() async {
@@ -193,11 +200,10 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
                       );
                     }
                     final deviceData = snapshot.data!;
-                    final parameterValues = deviceData.getDeviceDataParameterValues();
-                    final paramValueMap = {
-                      for (final p in parameterValues)
-                        p.name.name: p
-                    };
+                    
+                    // Process device data with averaging
+                    final paramValueMap = _dataProcessor.processDeviceData(deviceData);
+                    
                     return FtmsLiveDataDisplayWidget(
                       config: _config!,
                       paramValueMap: paramValueMap,
