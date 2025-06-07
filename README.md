@@ -8,11 +8,17 @@ I started this app because I bought a rowing machine :) and the free app I was u
 
 By chance, the rowing machine supports FTMS protocol.
 
+I also have a Zwift Hub trainer and it's easier to play with it than with the rowing machine because it doesn't go in standby mode after a few minutes of inactivity.
+
 I was looking for a way to learn Flutter and this seemed like a good project to start with.
 
-This app is designed to connect to FTMS (Fitness Machine Service) compatible exercise machines via Bluetooth. It provides a modern, user-friendly interface for managing workouts, tracking live machine data, and running structured training sessions.
-
 It is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutter package for FTMS Bluetooth connectivity. Nice work, BTW, it saves a lot of time for translating complicated hex bluetooth codes into meaningful, human readable data.
+
+## embed the images from doc directory here
+![App Screenshot](doc/screen1.png)
+![App Screenshot](doc/screen2.png)
+![App Screenshot](doc/screen3.png)
+
 
 ## Main Features
 
