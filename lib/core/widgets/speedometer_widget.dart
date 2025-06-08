@@ -33,9 +33,7 @@ class SpeedometerWidget extends StatelessWidget {
       );
     }
     
-    final value = param!.value;
-    final factor = param!.factor;
-    final scaledValue = displayField.getScaledValue(value, factor);
+    final scaledValue = param!.getScaledValue();
     // if there is a formatter, then use the field format strategy to init a variable
     // with the formatted value
     String formattedValue = '${scaledValue.toStringAsFixed(0)} ${displayField.unit}';

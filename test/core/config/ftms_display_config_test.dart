@@ -154,21 +154,5 @@ void main() {
       expect(field.icon, isNull);
       expect(field.samplePeriodSeconds, isNull);
     });
-
-    test('getScaledValue works correctly', () {
-      final field = FtmsDisplayField(
-        name: 'Power',
-        label: 'Power',
-        display: 'number',
-        unit: 'W',
-      );
-      
-      expect(field.getScaledValue(100, 2), equals(200));
-      expect(field.getScaledValue(100, '2'), equals(200));
-      expect(field.getScaledValue('100', 2), equals(200));
-      expect(field.getScaledValue('100', '2'), equals(200));
-      expect(field.getScaledValue(100, null), equals(100));
-      expect(field.getScaledValue(100, 'invalid'), equals(100));
-    });
   });
 }

@@ -13,9 +13,7 @@ class SimpleNumberWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     IconData? iconData = getFtmsIcon(displayField.icon);
-    final value = param.value;
-    final factor = param.factor;
-    final scaledValue = displayField.getScaledValue(value, factor);
+    final scaledValue = param.getScaledValue();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

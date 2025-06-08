@@ -38,13 +38,6 @@ class FtmsDisplayField {
       samplePeriodSeconds: json['samplePeriodSeconds'] as int?,
     );
   }
-
-  num getScaledValue(dynamic value, dynamic factor) {
-    final localFactor = (factor is num)
-        ? factor
-        : num.tryParse(factor?.toString() ?? '1') ?? 1;
-    return (value is num ? value : num.tryParse(value.toString()) ?? 0) * localFactor;
-  }
 }
 
 
