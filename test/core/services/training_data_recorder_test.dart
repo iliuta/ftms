@@ -44,8 +44,8 @@ void main() {
       expect(stats['maxPower'], equals(140)); // 100 + 4*10
       expect(stats['averageHeartRate'], isNotNull);
       
-      print('Data recording test completed successfully');
-      print('Statistics: $stats');
+      // Test completed successfully - statistics: $stats
+      expect(stats, isNotEmpty);
       
       // Note: FIT file generation would work in real app environment
       // with proper platform channel access

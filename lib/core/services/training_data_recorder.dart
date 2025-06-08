@@ -6,6 +6,7 @@ import 'package:fit_tool/fit_tool.dart';
 import '../models/training_record.dart';
 import 'distance_calculation_strategy.dart';
 import '../utils/logger.dart';
+import '../utils/fit_timestamp_utils.dart';
 
 /// Service for recording training session data and generating FIT files
 class TrainingDataRecorder {
@@ -145,21 +146,21 @@ class TrainingDataRecorder {
     // Create File ID message
     final fileIdMessage = FileIdMessage()
       ..type = FileType.activity
-      ..timeCreated = toSecondsSince1989Epoch(_sessionStartTime!.millisecondsSinceEpoch)
+      ..timeCreated = millisecondsToFitTimestamp(_sessionStartTime!.millisecondsSinceEpoch)
       ..manufacturer = Manufacturer.development.value;
 
     // Create Activity message
     final activityMessage = ActivityMessage()
-      ..timestamp = toSecondsSince1989Epoch(_records.last.timestamp.millisecondsSinceEpoch)
+      ..timestamp = millisecondsToFitTimestamp(_records.last.timestamp.millisecondsSinceEpoch)
       ..type = Activity.manual
       ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble();
 
     // Create Session message
     final sessionMessage = SessionMessage()
-      ..timestamp = toSecondsSince1989Epoch(_records.last.timestamp.millisecondsSinceEpoch)
+      ..timestamp = millisecondsToFitTimestamp(_records.last.timestamp.millisecondsSinceEpoch)
       ..sport = _getSport()
       ..subSport = _getSubSport()
-      ..startTime = toSecondsSince1989Epoch(_sessionStartTime!.millisecondsSinceEpoch)
+      ..startTime = millisecondsToFitTimestamp(_sessionStartTime!.millisecondsSinceEpoch)
       ..totalElapsedTime = (_records.last.elapsedTime * 1000).toDouble()
       ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble()
       ..totalDistance = _getTotalDistance()?.toDouble()
@@ -174,8 +175,8 @@ class TrainingDataRecorder {
 
     // Create Lap message (one lap for the entire session)
     final lapMessage = LapMessage()
-      ..timestamp = toSecondsSince1989Epoch(_records.last.timestamp.millisecondsSinceEpoch)
-      ..startTime = toSecondsSince1989Epoch(_sessionStartTime!.millisecondsSinceEpoch)
+      ..timestamp = millisecondsToFitTimestamp(_records.last.timestamp.millisecondsSinceEpoch)
+      ..startTime = millisecondsToFitTimestamp(_sessionStartTime!.millisecondsSinceEpoch)
       ..totalElapsedTime = (_records.last.elapsedTime * 1000).toDouble()
       ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble()
       ..totalDistance = _getTotalDistance()?.toDouble()
@@ -199,7 +200,7 @@ class TrainingDataRecorder {
     for (int i = 0; i < _records.length; i += sampleRate) {
       final record = _records[i];
       final recordMessage = RecordMessage()
-        ..timestamp = toSecondsSince1989Epoch(record.timestamp.millisecondsSinceEpoch)
+        ..timestamp = millisecondsToFitTimestamp(record.timestamp.millisecondsSinceEpoch)
         ..power = record.instantaneousPower?.round()
         ..speed = record.instantaneousSpeed != null 
             ? (record.instantaneousSpeed! / 3.6 * 1000).toDouble() // Convert km/h to mm/s
