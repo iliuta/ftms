@@ -4,6 +4,7 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fit_tool/fit_tool.dart';
 import '../models/training_record.dart';
+import '../models/ftms_parameter.dart';
 import 'distance_calculation_strategy.dart';
 import '../utils/logger.dart';
 import '../utils/fit_timestamp_utils.dart';
@@ -47,7 +48,7 @@ class TrainingDataRecorder {
   
   /// Add a new data point from FTMS device
   void recordDataPoint({
-    required Map<String, dynamic> ftmsParams,
+    required Map<String, FtmsParameter> ftmsParams,
     double? resistanceLevel,
   }) {
     if (!_isRecording || _sessionStartTime == null) return;
@@ -70,7 +71,7 @@ class TrainingDataRecorder {
     );
     
     // Create training record
-    final record = TrainingRecord.fromFtmsData(
+    final record = TrainingRecord.fromFtmsParameters(
       timestamp: now,
       elapsedTime: elapsedTime,
       ftmsParams: ftmsParams,
@@ -87,14 +88,50 @@ class TrainingDataRecorder {
     }
   }
   
-  Map<String, dynamic> _convertRecordToMap(TrainingRecord record) {
-    return {
-      'Instantaneous Power': record.instantaneousPower,
-      'Instantaneous Speed': record.instantaneousSpeed,
-      'Instantaneous Cadence': record.instantaneousCadence,
-      'Heart Rate': record.heartRate,
-      'Instantaneous Stroke Rate': record.instantaneousStrokeRate,
-    };
+  Map<String, FtmsParameter> _convertRecordToMap(TrainingRecord record) {
+    final convertedMap = <String, FtmsParameter>{};
+    
+    if (record.instantaneousPower != null) {
+      convertedMap['Instantaneous Power'] = FtmsParameter(
+        name: 'Instantaneous Power',
+        value: record.instantaneousPower!,
+        unit: 'W',
+      );
+    }
+    
+    if (record.instantaneousSpeed != null) {
+      convertedMap['Instantaneous Speed'] = FtmsParameter(
+        name: 'Instantaneous Speed', 
+        value: record.instantaneousSpeed!,
+        unit: 'km/h',
+      );
+    }
+    
+    if (record.instantaneousCadence != null) {
+      convertedMap['Instantaneous Cadence'] = FtmsParameter(
+        name: 'Instantaneous Cadence',
+        value: record.instantaneousCadence!,
+        unit: 'rpm',
+      );
+    }
+    
+    if (record.heartRate != null) {
+      convertedMap['Heart Rate'] = FtmsParameter(
+        name: 'Heart Rate',
+        value: record.heartRate!,
+        unit: 'bpm',
+      );
+    }
+    
+    if (record.instantaneousStrokeRate != null) {
+      convertedMap['Instantaneous Stroke Rate'] = FtmsParameter(
+        name: 'Instantaneous Stroke Rate',
+        value: record.instantaneousStrokeRate!,
+        unit: 'strokes/min',
+      );
+    }
+    
+    return convertedMap;
   }
   
   /// Generate and save FIT file
@@ -146,21 +183,21 @@ class TrainingDataRecorder {
     // Create File ID message
     final fileIdMessage = FileIdMessage()
       ..type = FileType.activity
-      ..timeCreated = millisecondsToFitTimestamp(_sessionStartTime!.millisecondsSinceEpoch)
+      ..timeCreated = toFitTimestamp(_sessionStartTime!)
       ..manufacturer = Manufacturer.development.value;
 
     // Create Activity message
     final activityMessage = ActivityMessage()
-      ..timestamp = millisecondsToFitTimestamp(_records.last.timestamp.millisecondsSinceEpoch)
+      ..timestamp = toFitTimestamp(_records.last.timestamp)
       ..type = Activity.manual
       ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble();
 
     // Create Session message
     final sessionMessage = SessionMessage()
-      ..timestamp = millisecondsToFitTimestamp(_records.last.timestamp.millisecondsSinceEpoch)
+      ..timestamp = toFitTimestamp(_records.last.timestamp)
       ..sport = _getSport()
       ..subSport = _getSubSport()
-      ..startTime = millisecondsToFitTimestamp(_sessionStartTime!.millisecondsSinceEpoch)
+      ..startTime = toFitTimestamp(_sessionStartTime!)
       ..totalElapsedTime = (_records.last.elapsedTime * 1000).toDouble()
       ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble()
       ..totalDistance = _getTotalDistance()?.toDouble()
@@ -175,8 +212,8 @@ class TrainingDataRecorder {
 
     // Create Lap message (one lap for the entire session)
     final lapMessage = LapMessage()
-      ..timestamp = millisecondsToFitTimestamp(_records.last.timestamp.millisecondsSinceEpoch)
-      ..startTime = millisecondsToFitTimestamp(_sessionStartTime!.millisecondsSinceEpoch)
+      ..timestamp = toFitTimestamp(_records.last.timestamp)
+      ..startTime = toFitTimestamp(_sessionStartTime!)
       ..totalElapsedTime = (_records.last.elapsedTime * 1000).toDouble()
       ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble()
       ..totalDistance = _getTotalDistance()?.toDouble()
@@ -200,14 +237,16 @@ class TrainingDataRecorder {
     for (int i = 0; i < _records.length; i += sampleRate) {
       final record = _records[i];
       final recordMessage = RecordMessage()
-        ..timestamp = millisecondsToFitTimestamp(record.timestamp.millisecondsSinceEpoch)
+        ..timestamp = toFitTimestamp(record.timestamp)
         ..power = record.instantaneousPower?.round()
         ..speed = record.instantaneousSpeed != null 
-            ? (record.instantaneousSpeed! / 3.6 * 1000).toDouble() // Convert km/h to mm/s
+            ? (record.instantaneousSpeed! / 3.6).toDouble() // Convert km/h to m/s
             : null
         ..cadence = record.instantaneousCadence?.round()
         ..heartRate = record.heartRate?.round()
-        ..distance = record.totalDistance?.toDouble();
+        ..distance = (record.totalDistance != null) 
+            ? (record.totalDistance!).toDouble()
+            : null;
 
       builder.add(recordMessage);
     }
@@ -274,7 +313,7 @@ class TrainingDataRecorder {
         .toList();
     if (speeds.isEmpty) return null;
     // Convert km/h to mm/s for FIT format
-    return (speeds.reduce((a, b) => a + b) / speeds.length) / 3.6 * 1000;
+    return (speeds.reduce((a, b) => a + b) / speeds.length) * 1000 / 3.6;
   }
   
   double? _getMaximumSpeed() {
@@ -284,7 +323,7 @@ class TrainingDataRecorder {
         .toList();
     if (speeds.isEmpty) return null;
     // Convert km/h to mm/s for FIT format
-    return speeds.reduce((a, b) => a > b ? a : b) / 3.6 * 1000;
+    return speeds.reduce((a, b) => a > b ? a : b) * 1000 / 3.6;
   }
   
   int? _getAverageHeartRate() {

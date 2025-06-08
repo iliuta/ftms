@@ -1,4 +1,5 @@
 import 'package:flutter_ftms/flutter_ftms.dart';
+import '../models/ftms_parameter.dart';
 
 /// Abstract base class for distance calculation strategies
 abstract class DistanceCalculationStrategy {
@@ -50,13 +51,18 @@ class IndoorBikeDistanceStrategy implements DistanceCalculationStrategy {
     for (final key in possibleKeys) {
       final param = data[key];
       if (param != null) {
+        // Handle FtmsParameter objects - use scaled value
+        if (param is FtmsParameter) {
+          return param.getScaledValue().toDouble();
+        }
+        // Handle raw numeric values
         if (param is num) return param.toDouble();
-        // Handle FtmsParameter objects
+        // Handle dynamic objects with value property
         try {
           final value = param.value;
           if (value is num) return value.toDouble();
         } catch (e) {
-          // Ignore if not an FtmsParameter
+          // Ignore if not an FtmsParameter or dynamic object
         }
       }
     }
@@ -117,12 +123,18 @@ class RowerDistanceStrategy implements DistanceCalculationStrategy {
     for (final key in possibleKeys) {
       final param = data[key];
       if (param != null) {
+        // Handle FtmsParameter objects - use scaled value
+        if (param is FtmsParameter) {
+          return param.getScaledValue().toDouble();
+        }
+        // Handle raw numeric values
         if (param is num) return param.toDouble();
+        // Handle dynamic objects with value property
         try {
           final value = param.value;
           if (value is num) return value.toDouble();
         } catch (e) {
-          // Ignore if not an FtmsParameter
+          // Ignore if not an FtmsParameter or dynamic object
         }
       }
     }
@@ -139,12 +151,18 @@ class RowerDistanceStrategy implements DistanceCalculationStrategy {
     for (final key in possibleKeys) {
       final param = data[key];
       if (param != null) {
+        // Handle FtmsParameter objects - use scaled value
+        if (param is FtmsParameter) {
+          return param.getScaledValue().toDouble();
+        }
+        // Handle raw numeric values
         if (param is num) return param.toDouble();
+        // Handle dynamic objects with value property
         try {
           final value = param.value;
           if (value is num) return value.toDouble();
         } catch (e) {
-          // Ignore if not an FtmsParameter
+          // Ignore if not an FtmsParameter or dynamic object
         }
       }
     }

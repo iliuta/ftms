@@ -1,3 +1,5 @@
+import 'ftms_parameter.dart';
+
 /// Model for a single training data record
 class TrainingRecord {
   final DateTime timestamp;
@@ -37,25 +39,74 @@ class TrainingRecord {
     return TrainingRecord(
       timestamp: timestamp,
       elapsedTime: elapsedTime,
-      instantaneousPower: _getDoubleValue(ftmsParams, 'Instantaneous Power'),
-      instantaneousSpeed: _getDoubleValue(ftmsParams, 'Instantaneous Speed'),
-      instantaneousCadence: _getDoubleValue(ftmsParams, 'Instantaneous Cadence'),
-      heartRate: _getDoubleValue(ftmsParams, 'Heart Rate'),
+      instantaneousPower: _getScaledValue(ftmsParams, 'Instantaneous Power'),
+      instantaneousSpeed: _getScaledValue(ftmsParams, 'Instantaneous Speed'),
+      instantaneousCadence: _getScaledValue(ftmsParams, 'Instantaneous Cadence'),
+      heartRate: _getScaledValue(ftmsParams, 'Heart Rate'),
       totalDistance: calculatedDistance,
       resistanceLevel: resistanceLevel,
-      instantaneousStrokeRate: _getDoubleValue(ftmsParams, 'Instantaneous Stroke Rate'),
-      totalStrokeCount: _getDoubleValue(ftmsParams, 'Total Stroke Count'),
+      instantaneousStrokeRate: _getScaledValue(ftmsParams, 'Instantaneous Stroke Rate'),
+      totalStrokeCount: _getScaledValue(ftmsParams, 'Total Stroke Count'),
     );
   }
   
-  static double? _getDoubleValue(Map<String, dynamic> params, String key) {
+  /// Create from FTMS parameter map (with proper types) and calculated distance
+  factory TrainingRecord.fromFtmsParameters({
+    required DateTime timestamp,
+    required int elapsedTime,
+    required Map<String, FtmsParameter> ftmsParams,
+    double? calculatedDistance,
+    double? resistanceLevel,
+  }) {
+    return TrainingRecord(
+      timestamp: timestamp,
+      elapsedTime: elapsedTime,
+      instantaneousPower: _getParameterValue(ftmsParams, 'Instantaneous Power'),
+      instantaneousSpeed: _getParameterValue(ftmsParams, 'Instantaneous Speed'),
+      instantaneousCadence: _getParameterValue(ftmsParams, 'Instantaneous Cadence'),
+      heartRate: _getParameterValue(ftmsParams, 'Heart Rate'),
+      totalDistance: calculatedDistance,
+      resistanceLevel: resistanceLevel,
+      instantaneousStrokeRate: _getParameterValue(ftmsParams, 'Instantaneous Stroke Rate'),
+      totalStrokeCount: _getParameterValue(ftmsParams, 'Total Stroke Count'),
+    );
+  }
+  
+  static double? _getParameterValue(Map<String, FtmsParameter> params, String key) {
     final param = params[key];
     if (param == null) return null;
+    return param.getScaledValue().toDouble();
+  }
+  
+  static double? _getScaledValue(Map<String, dynamic> params, String key) {
+    final param = params[key];
+    if (param == null) return null;
+    
+    // Handle FtmsParameter objects
+    if (param.runtimeType.toString().contains('FtmsParameter')) {
+      try {
+        final scaledValue = param.getScaledValue();
+        return scaledValue is num ? scaledValue.toDouble() : null;
+      } catch (e) {
+        // Fallback to raw value
+        try {
+          final value = param.value;
+          return value is num ? value.toDouble() : null;
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+    
+    // Handle raw numeric values (backward compatibility)
     if (param is num) return param.toDouble();
+    
+    // Handle dynamic objects with value property
     if (param.hasProperty('value')) {
       final value = param.value;
       return value is num ? value.toDouble() : null;
     }
+    
     return null;
   }
   

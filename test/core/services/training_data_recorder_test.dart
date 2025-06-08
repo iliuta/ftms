@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:ftms/core/services/training_data_recorder.dart';
+import 'package:ftms/core/models/ftms_parameter.dart';
 
 void main() {
   // Initialize Flutter bindings for platform channels
@@ -24,10 +25,30 @@ void main() {
         await Future.delayed(Duration(milliseconds: 100));
         recorder.recordDataPoint(
           ftmsParams: {
-            'Instantaneous Power': 100 + i * 10,
-            'Instantaneous Speed': 20.0 + i * 2,
-            'Instantaneous Cadence': 80 + i * 2,
-            'Heart Rate': 120 + i * 5,
+            'Instantaneous Power': FtmsParameter(
+              name: 'Instantaneous Power',
+              value: 100 + i * 10,
+              factor: 1,
+              unit: 'W',
+            ),
+            'Instantaneous Speed': FtmsParameter(
+              name: 'Instantaneous Speed',
+              value: 20.0 + i * 2,
+              factor: 0.01,
+              unit: 'km/h',
+            ),
+            'Instantaneous Cadence': FtmsParameter(
+              name: 'Instantaneous Cadence',
+              value: 80 + i * 2,
+              factor: 0.5,
+              unit: 'rpm',
+            ),
+            'Heart Rate': FtmsParameter(
+              name: 'Heart Rate',
+              value: 120 + i * 5,
+              factor: 1,
+              unit: 'bpm',
+            ),
           },
         );
       }

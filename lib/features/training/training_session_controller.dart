@@ -140,12 +140,8 @@ class TrainingSessionController extends ChangeNotifier {
     if (_dataRecorder != null && _isRecordingConfigured && timerActive) {
       try {
         final paramValueMap = _dataProcessor.processDeviceData(data);
-        // Convert FtmsParameter map to the required format
-        final ftmsParams = <String, dynamic>{};
-        for (final entry in paramValueMap.entries) {
-          ftmsParams[entry.key] = entry.value.value;
-        }
-        _dataRecorder!.recordDataPoint(ftmsParams: ftmsParams);
+        // Pass FtmsParameter map directly to training data recorder
+        _dataRecorder!.recordDataPoint(ftmsParams: paramValueMap);
       } catch (e) {
         debugPrint('Failed to record data point: $e');
       }

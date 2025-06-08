@@ -9,7 +9,7 @@ void main() {
       final testDate = DateTime.utc(2024, 6, 8, 12, 0, 0);
       final fitTimestamp = millisecondsToFitTimestamp(testDate.millisecondsSinceEpoch);
       
-      // Expected: seconds between Dec 31, 1989 and June 8, 2024
+      // Expected: milliseconds between Dec 31, 1989 and June 8, 2024
       final fitEpoch = DateTime.utc(1989, 12, 31, 0, 0, 0);
       final expectedMilliSeconds = testDate.difference(fitEpoch).inMilliseconds;
       
@@ -28,14 +28,14 @@ void main() {
       final now = DateTime.now();
       final fitTimestamp = millisecondsToFitTimestamp(now.millisecondsSinceEpoch);
       
-      // Expected: seconds between Dec 31, 1989 and now
+      // Expected: milliseconds between Dec 31, 1989 and now
       final fitEpoch = DateTime.utc(1989, 12, 31, 0, 0, 0);
       final expectedMilliSeconds = now.difference(fitEpoch).inMilliseconds;
       
       expect(fitTimestamp, equals(expectedMilliSeconds));
       
-      // Should be a reasonable number representing seconds since FIT epoch
-      expect(fitTimestamp, greaterThan(1000000000)); // Should be over 1 billion seconds since 1989
+      // Should be a reasonable number representing milliseconds since FIT epoch
+      expect(fitTimestamp, greaterThan(1000000000000)); // Should be over 1 trillion milliseconds since 1989
     });
     
     test('Basic FIT file creation should use correct timestamps', () {
@@ -54,7 +54,7 @@ void main() {
       
       expect(bytes, isNotEmpty);
       expect(fileIdMessage.timeCreated, isNotNull);
-      expect(fileIdMessage.timeCreated!, greaterThan(1000000000)); // Should be over 1 billion seconds since 1989
+      expect(fileIdMessage.timeCreated!, greaterThan(1000000000000)); // Should be over 1 trillion milliseconds since 1989
     });
 
     test('Timestamp conversion consistency', () {
@@ -71,9 +71,9 @@ void main() {
         // FIT timestamp should be smaller than Unix timestamp (FIT epoch is later than Unix epoch)
         expect(fitTimestamp, lessThan(unixTimestamp));
         
-        // The difference should be approximately 631065600 seconds (Unix - FIT, since Unix has more seconds)
+        // The difference should be approximately 631065600000 milliseconds (Unix - FIT, since Unix has more milliseconds)
         final diff = unixTimestamp - fitTimestamp; // Unix - FIT should be positive
-        expect(diff, closeTo(631065600000, 86400)); // Within 1 day tolerance for leap years
+        expect(diff, closeTo(631065600000, 86400000)); // Within 1 day tolerance for leap years
       }
     });
   });
