@@ -8,7 +8,6 @@ class FtmsFieldDisplay extends StatelessWidget {
   final FtmsDisplayField field;
   final FtmsParameter? param;
   final dynamic target;
-  final bool Function(num? value, num? target, {num factor})? isWithinTarget;
   final Color? defaultColor;
   final String? machineType;
 
@@ -17,7 +16,6 @@ class FtmsFieldDisplay extends StatelessWidget {
     required this.field,
     required this.param,
     this.target,
-    this.isWithinTarget,
     this.defaultColor,
     this.machineType,
   });
@@ -46,9 +44,9 @@ class FtmsFieldDisplay extends StatelessWidget {
   }
 
   Color? _getFieldColor(dynamic value, num factor, Color? color) {
-    if (target != null && isWithinTarget != null) {
+    if (target != null && param != null) {
       final targetValue = target is num ? target : num.tryParse(target.toString());
-      if (isWithinTarget!(value is num ? value : num.tryParse(value.toString()), targetValue, factor: factor)) {
+      if (param!.isWithinTarget(targetValue)) {
         color = Colors.green[700];
       } else {
         color = Colors.red[700];

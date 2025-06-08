@@ -166,14 +166,6 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
     return snapshot?.deviceDataType;
   }
 
-  bool _isWithinTarget(num? value, num? target, {num factor = 1}) {
-    if (value == null || target == null) return false;
-    final scaledValue = value * factor;
-    final lower = target * 0.9;
-    final upper = target * 1.1;
-    return scaledValue >= lower && scaledValue <= upper;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_configError != null) {
@@ -208,7 +200,6 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
                       config: _config!,
                       paramValueMap: paramValueMap,
                       targets: widget.targets,
-                      isWithinTarget: _isWithinTarget,
                       machineType: widget.machineType,
                     );
                   },

@@ -72,17 +72,12 @@ void main() {
       'Speed': 10,
       'Power': 150,
     };
-    bool isWithinTarget(num? value, num? target, {num factor = 1}) {
-      if (value == null || target == null) return false;
-      return value >= target;
-    }
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: FtmsLiveDataDisplayWidget(
           config: config,
           paramValueMap: paramValueMap,
           targets: targets,
-          isWithinTarget: isWithinTarget,
           defaultColor: Colors.purple,
           machineType: 'DeviceDataType.indoorBike',
         ),
@@ -147,15 +142,13 @@ void main() {
     expect(find.text('Weird'), findsOneWidget);
     expect(find.text('5 u'), findsOneWidget);
 
-    // Edge case: isWithinTarget returns false (should color red, branch exercised)
-    bool alwaysFalse(num? value, num? target, {num factor = 1}) => false;
+    // Edge case: testing with targets to verify color changes
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: FtmsLiveDataDisplayWidget(
           config: config,
           paramValueMap: paramValueMap,
           targets: targets,
-          isWithinTarget: alwaysFalse,
           machineType: 'DeviceDataType.indoorBike',
         ),
       ),

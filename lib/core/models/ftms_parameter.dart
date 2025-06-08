@@ -60,6 +60,15 @@ class FtmsParameter {
     return value * factor;
   }
 
+  /// Check if this parameter's scaled value is within target range (±10%)
+  bool isWithinTarget(num? target) {
+    if (target == null) return false;
+    final scaledValue = getScaledValue();
+    final lower = target * 0.9;
+    final upper = target * 1.1;
+    return scaledValue >= lower && scaledValue <= upper;
+  }
+
   /// Get the value formatted for display
   String getFormattedValue() {
     return '$value $unit';
