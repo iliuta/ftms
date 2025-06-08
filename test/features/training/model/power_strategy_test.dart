@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/config/user_settings.dart';
+import 'package:ftms/core/models/user_settings.dart';
 import 'package:ftms/features/training/model/target_power_strategy.dart';
 
 void main() {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import '../config/ftms_display_config.dart';
+import '../models/ftms_display_field.dart';
+import '../models/ftms_parameter.dart';
 import 'ftms_display_widget_registry.dart';
 
 /// Widget for displaying a single FTMS field.
 class FtmsFieldDisplay extends StatelessWidget {
   final FtmsDisplayField field;
-  final dynamic param;
+  final FtmsParameter? param;
   final dynamic target;
-  final bool Function(num? value, num? target, {num factor})? isWithinTarget;
   final Color? defaultColor;
   final String? machineType;
 
@@ -16,7 +16,6 @@ class FtmsFieldDisplay extends StatelessWidget {
     required this.field,
     required this.param,
     this.target,
-    this.isWithinTarget,
     this.defaultColor,
     this.machineType,
   });
@@ -27,10 +26,9 @@ class FtmsFieldDisplay extends StatelessWidget {
     if (param == null) {
       return Text('${field.label}: (not available)', style: const TextStyle(color: Colors.grey));
     }
-    final value = param.value ?? param.toString();
-    final factor = (param.factor is num)
-        ? param.factor as num
-        : num.tryParse(param.factor?.toString() ?? '1') ?? 1;
+    
+    final value = param!.value;
+    final factor = param!.factor;
 
     color = _getFieldColor(value, factor, color);
 
@@ -38,7 +36,7 @@ class FtmsFieldDisplay extends StatelessWidget {
     if (widgetBuilder != null) {
       return widgetBuilder(
         displayField: field,
-        param: param,
+        param: param!,
         color: color
       );
     }
@@ -46,9 +44,9 @@ class FtmsFieldDisplay extends StatelessWidget {
   }
 
   Color? _getFieldColor(dynamic value, num factor, Color? color) {
-    if (target != null && isWithinTarget != null) {
+    if (target != null && param != null) {
       final targetValue = target is num ? target : num.tryParse(target.toString());
-      if (isWithinTarget!(value is num ? value : num.tryParse(value.toString()), targetValue, factor: factor)) {
+      if (param!.isWithinTarget(targetValue)) {
         color = Colors.green[700];
       } else {
         color = Colors.red[700];

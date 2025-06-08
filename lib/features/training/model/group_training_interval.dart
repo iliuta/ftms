@@ -1,6 +1,6 @@
 import 'training_interval.dart';
 import 'unit_training_interval.dart';
-import '../../../core/config/user_settings.dart';
+import '../../../core/models/user_settings.dart';
 
 class GroupTrainingInterval extends TrainingInterval {
   @override

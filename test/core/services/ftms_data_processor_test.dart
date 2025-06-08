@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/services/ftms_data_processor.dart';
 import 'package:ftms/core/services/value_averaging_service.dart';
 import 'package:ftms/core/config/ftms_display_config.dart';
+import 'package:ftms/core/models/ftms_display_field.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_ftms/src/ftms/flag.dart';
 import 'package:flutter_ftms/src/ftms/parameter_name.dart';
@@ -56,8 +57,6 @@ class MockParameter implements DeviceDataParameter {
   @override
   String get unit => _unit;
   
-  num get scaleFactor => 1;
-  
   @override
   Flag? get flag => null;
   
@@ -104,8 +103,6 @@ class MockParameterValue implements DeviceDataParameterValue {
   
   @override
   String get unit => _parameter.unit;
-  
-  num get scaleFactor => _parameter.scaleFactor;
   
   @override
   Flag? get flag => _parameter.flag;
@@ -214,8 +211,8 @@ void main() {
         expect(result, hasLength(2));
         expect(result['Instantaneous Power'], isNotNull);
         expect(result['Instantaneous Speed'], isNotNull);
-        expect(result['Instantaneous Power'].value, equals(250));
-        expect(result['Instantaneous Speed'].value, equals(25));
+        expect(result['Instantaneous Power']!.value, equals(250));
+        expect(result['Instantaneous Speed']!.value, equals(25));
       });
 
       test('preserves original parameter properties', () {
@@ -226,12 +223,12 @@ void main() {
         ], DeviceDataType.indoorBike);
         
         final result = processor.processDeviceData(deviceData);
-        final param = result['Instantaneous Power'];
+        final param = result['Instantaneous Power']!;
         
         expect(param.value, equals(250));
         expect(param.factor, equals(2));
         expect(param.unit, equals('W'));
-        expect(param.name.name, equals('Instantaneous Power'));
+        expect(param.name, equals('Instantaneous Power'));
       });
     });
 
@@ -254,10 +251,10 @@ void main() {
         final result = processor.processDeviceData(deviceData2);
         
         // Power should be averaged (has samplePeriodSeconds)
-        expect(result['Instantaneous Power'].value, equals(250.0)); // (200 + 300) / 2
+        expect(result['Instantaneous Power']!.value, equals(250.0)); // (200 + 300) / 2
         
         // Speed should be instantaneous (no samplePeriodSeconds)
-        expect(result['Instantaneous Speed'].value, equals(30));
+        expect(result['Instantaneous Speed']!.value, equals(30));
       });
 
       test('maintains parameter interface for averaged values', () {
@@ -271,19 +268,19 @@ void main() {
         processor.processDeviceData(deviceData);
         final result = processor.processDeviceData(deviceData);
         
-        final param = result['Instantaneous Power'];
+        final param = result['Instantaneous Power']!;
         
         // Should have averaged value but preserve other properties
         expect(param.value, equals(250.0)); // Average of same value
         expect(param.factor, equals(2));
         expect(param.unit, equals('W'));
-        expect(param.name.name, equals('Instantaneous Power'));
-        expect(param.toString(), equals('250.0'));
+        expect(param.name, equals('Instantaneous Power'));
+        expect(param.toString(), contains('250.0'));
       });
     });
 
-    group('Averaged parameter wrapper', () {
-      test('delegates all properties correctly', () {
+    group('Averaged parameter properties', () {
+      test('maintains all properties correctly', () {
         processor.configure(configWithAveraging);
         
         final deviceData = MockDeviceData([
@@ -293,18 +290,17 @@ void main() {
         processor.processDeviceData(deviceData);
         final result = processor.processDeviceData(deviceData);
         
-        final wrapper = result['Instantaneous Power'];
+        final param = result['Instantaneous Power']!;
         
-        expect(wrapper.value, equals(100.0));
-        expect(wrapper.factor, equals(1.5));
-        expect(wrapper.unit, equals('W'));
-        expect(wrapper.scaleFactor, equals(1));
-        expect(wrapper.flag, equals(null));
-        expect(wrapper.size, equals(2));
-        expect(wrapper.name.name, equals('Instantaneous Power'));
+        expect(param.value, equals(100.0));
+        expect(param.factor, equals(1.5));
+        expect(param.unit, equals('W'));
+        expect(param.flag, equals(null));
+        expect(param.size, equals(2));
+        expect(param.name, equals('Instantaneous Power'));
       });
 
-      test('handles noSuchMethod correctly', () {
+      test('handles averaged values correctly', () {
         processor.configure(configWithAveraging);
         
         final deviceData = MockDeviceData([
@@ -314,13 +310,13 @@ void main() {
         processor.processDeviceData(deviceData);
         final result = processor.processDeviceData(deviceData);
         
-        final wrapper = result['Instantaneous Power'];
+        final param = result['Instantaneous Power']!;
         
-        // Test accessing value property through noSuchMethod
-        expect(wrapper.value, equals(150.0));
+        // Test accessing value property
+        expect(param.value, equals(150.0));
         
-        // Test toString
-        expect(wrapper.toString(), equals('150.0'));
+        // Test toString contains the value
+        expect(param.toString(), contains('150.0'));
       });
     });
 
@@ -372,13 +368,13 @@ void main() {
         final result = processor.processDeviceData(finalData);
         
         // Power: averaged (100, 200, 300, 400) / 4 = 250
-        expect(result['Instantaneous Power'].value, equals(250.0));
+        expect(result['Instantaneous Power']!.value, equals(250.0));
         
         // Speed: instantaneous (latest value)
-        expect(result['Instantaneous Speed'].value, equals(40));
+        expect(result['Instantaneous Speed']!.value, equals(40));
         
         // Cadence: averaged (20, 40, 60, 80) / 4 = 50
-        expect(result['Instantaneous Cadence'].value, equals(50.0));
+        expect(result['Instantaneous Cadence']!.value, equals(50.0));
       });
     });
 
@@ -412,13 +408,12 @@ void main() {
         final result = processor.processDeviceData(deviceData);
         
         // Should still work, just no averaging
-        expect(result['Instantaneous Power'].value, equals(250));
+        expect(result['Instantaneous Power']!.value, equals(250));
       });
 
-      test('handles parameter with non-parameter type', () {
+      test('handles parameter processing correctly', () {
         processor.configure(config);
         
-        // This tests the fallback case in _createAveragedParameter
         final deviceData = MockDeviceData([
           MockParameter('Instantaneous Power', 250),
         ], DeviceDataType.indoorBike);

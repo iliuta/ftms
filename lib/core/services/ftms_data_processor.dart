@@ -1,5 +1,6 @@
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../config/ftms_display_config.dart';
+import '../models/ftms_parameter.dart';
 import 'value_averaging_service.dart';
 
 /// Service for processing FTMS device data with averaging capabilities.
@@ -21,17 +22,17 @@ class FtmsDataProcessor {
   }
 
   /// Process raw FTMS device data and return paramValueMap with averaging applied
-  Map<String, dynamic> processDeviceData(DeviceData deviceData) {
+  Map<String, FtmsParameter> processDeviceData(DeviceData deviceData) {
     final parameterValues = deviceData.getDeviceDataParameterValues();
     
-    // Create initial param value map
-    final Map<String, dynamic> rawParamValueMap = {
+    // Create initial param value map using FtmsParameter model
+    final Map<String, FtmsParameter> rawParamValueMap = {
       for (final p in parameterValues)
-        p.name.name: p
+        p.name.name: FtmsParameter.fromDeviceDataParameterValue(p)
     };
     
     // Process values for averaging and create final param value map
-    final Map<String, dynamic> paramValueMap = {};
+    final Map<String, FtmsParameter> paramValueMap = {};
     for (final entry in rawParamValueMap.entries) {
       final fieldName = entry.key;
       final param = entry.value;
@@ -42,8 +43,12 @@ class FtmsDataProcessor {
       // Use averaged value if configured, otherwise use raw value
       if (_averagingService.isFieldAveraged(fieldName)) {
         final averagedValue = _averagingService.getAveragedValue(fieldName);
-        // Create a modified parameter with averaged value
-        paramValueMap[fieldName] = _createAveragedParameter(param, averagedValue);
+        if (averagedValue != null) {
+          // Create a new parameter with averaged value
+          paramValueMap[fieldName] = param.copyWith(value: averagedValue);
+        } else {
+          paramValueMap[fieldName] = param;
+        }
       } else {
         paramValueMap[fieldName] = param;
       }
@@ -57,54 +62,5 @@ class FtmsDataProcessor {
     _isConfigured = false;
     // Clear the averaging service data when resetting
     _averagingService.clearAll();
-  }
-
-  /// Creates a parameter with averaged value while preserving other properties
-  dynamic _createAveragedParameter(dynamic originalParam, num? averagedValue) {
-    if (originalParam == null || averagedValue == null) {
-      return originalParam;
-    }
-    
-    // Create a new parameter object with the averaged value
-    // This assumes the parameter has a 'value' property that can be modified
-    if (originalParam.runtimeType.toString().contains('Parameter')) {
-      // For FTMS parameter objects, we need to create a wrapper that behaves the same
-      // but returns the averaged value
-      return _AveragedParameterWrapper(originalParam, averagedValue);
-    }
-    
-    return originalParam;
-  }
-}
-
-/// Wrapper class to provide averaged values while maintaining parameter interface
-class _AveragedParameterWrapper {
-  final dynamic _originalParam;
-  final num _averagedValue;
-  
-  _AveragedParameterWrapper(this._originalParam, this._averagedValue);
-  
-  // Delegate all properties except 'value' to the original parameter
-  dynamic get name => _originalParam.name;
-  dynamic get unit => _originalParam.unit;
-  dynamic get scaleFactor => _originalParam.scaleFactor;
-  dynamic get factor => _originalParam.factor;
-  dynamic get flag => _originalParam.flag;
-  dynamic get size => _originalParam.size;
-  
-  // Return the averaged value instead of the original
-  num get value => _averagedValue;
-  
-  // Maintain toString behavior
-  @override
-  String toString() => _averagedValue.toString();
-  
-  // Handle any other method calls by delegating to the original
-  @override
-  dynamic noSuchMethod(Invocation invocation) {
-    if (invocation.memberName == #value) {
-      return _averagedValue;
-    }
-    return _originalParam.noSuchMethod(invocation);
   }
 }

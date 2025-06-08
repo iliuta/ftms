@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/features/training/model/training_session.dart';
-import 'package:ftms/core/config/user_settings.dart';
+import 'package:ftms/core/models/user_settings.dart';
 
 dynamic _enduranceRideJson = {
   "title": "Endurance Ride",

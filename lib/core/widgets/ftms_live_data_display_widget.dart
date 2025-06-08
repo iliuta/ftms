@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../config/ftms_display_config.dart';
+import '../models/ftms_display_field.dart';
+import '../models/ftms_parameter.dart';
 import 'ftms_field_display.dart';
 
 /// Shared widget for displaying FTMS live data fields according to config.
 class FtmsLiveDataDisplayWidget extends StatelessWidget {
   final FtmsDisplayConfig config;
-  final Map<String, dynamic> paramValueMap;
+  final Map<String, FtmsParameter> paramValueMap;
   final Map<String, dynamic>? targets;
-  final bool Function(num? value, num? target, {num factor})? isWithinTarget;
   final Color? defaultColor;
   final String? machineType;
   const FtmsLiveDataDisplayWidget({
@@ -15,7 +16,6 @@ class FtmsLiveDataDisplayWidget extends StatelessWidget {
     required this.config,
     required this.paramValueMap,
     this.targets,
-    this.isWithinTarget,
     this.defaultColor,
     this.machineType,
   });
@@ -65,7 +65,6 @@ class FtmsLiveDataDisplayWidget extends StatelessWidget {
           field: field,
           param: param,
           target: target,
-          isWithinTarget: isWithinTarget,
           defaultColor: defaultColor,
           machineType: machineType,
         ),

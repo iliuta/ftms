@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/services/ftms_data_processor.dart';
 import 'package:ftms/core/services/value_averaging_service.dart';
 import 'package:ftms/core/config/ftms_display_config.dart';
+import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/models/ftms_display_field.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_ftms/src/ftms/flag.dart';
 import 'package:flutter_ftms/src/ftms/parameter_name.dart';
@@ -74,8 +76,6 @@ class MockParameter implements DeviceDataParameter {
   @override
   String get unit => 'W';
   
-  num? get scaleFactor => 1;
-  
   @override
   Flag? get flag => null;
   
@@ -119,8 +119,6 @@ class MockParameterValue implements DeviceDataParameterValue {
   
   @override
   num get factor => 1;
-  
-  num? get scaleFactor => 1;
   
   @override
   int get size => 2;
@@ -209,7 +207,7 @@ void main() {
         ], DeviceDataType.indoorBike),
       ];
       
-      Map<String, dynamic>? finalResult;
+      Map<String, FtmsParameter>? finalResult;
       
       // Process the data points
       for (final data in deviceDataPoints) {
@@ -221,10 +219,10 @@ void main() {
       expect(finalResult['Instantaneous Speed'], isNotNull);
       
       // Power should be averaged: (200 + 250 + 300) / 3 = 250
-      expect(finalResult['Instantaneous Power'].value, equals(250.0));
+      expect(finalResult['Instantaneous Power']?.value, equals(250.0));
       
       // Speed should be instantaneous (latest value)
-      expect(finalResult['Instantaneous Speed'].value, equals(29));
+      expect(finalResult['Instantaneous Speed']?.value, equals(29));
     });
 
     test('Data processor maintains parameter compatibility', () {
@@ -247,16 +245,15 @@ void main() {
       ], DeviceDataType.indoorBike);
       
       final result = processor.processDeviceData(deviceData);
-      final param = result['Instantaneous Power'];
+      final param = result['Instantaneous Power']!;
       
-      // Test that the wrapped parameter maintains interface compatibility
-      expect(param.name, isA<ParameterName>());
+      // Test that the FtmsParameter maintains interface compatibility
+      expect(param.name, isA<String>());
       expect(param.value, isA<num>());
-      expect(param.factor, isA<num?>());
-      expect(param.unit, isA<String?>());
-      expect(param.scaleFactor, isA<num?>());
+      expect(param.factor, isA<num>());
+      expect(param.unit, isA<String>());
       expect(param.flag, isA<bool?>());
-      expect(param.size, isA<int?>());
+      expect(param.size, isA<int>());
       
       // Test string conversion
       expect(param.toString(), isA<String>());
@@ -403,7 +400,7 @@ void main() {
       ], DeviceDataType.indoorBike);
       
       var result = processor.processDeviceData(deviceData);
-      expect(result['Instantaneous Power'].value, equals(200.0));
+      expect(result['Instantaneous Power']!.value, equals(200.0));
       
       // Reset and reconfigure  
       processor.reset();
@@ -422,7 +419,7 @@ void main() {
       
       // Process same data - should not be averaged now
       result = processor.processDeviceData(deviceData);
-      expect(result['Instantaneous Power'].value, equals(200));
+      expect(result['Instantaneous Power']!.value, equals(200));
     });
   });
 }

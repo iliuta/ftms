@@ -5,7 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 
 import 'model/training_session.dart';
-import '../../core/config/user_settings.dart';
+import '../../core/models/user_settings.dart';
 
 
 

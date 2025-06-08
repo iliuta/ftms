@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ftms/core/models/ftms_display_field.dart';
+import 'package:ftms/core/models/ftms_parameter.dart';
 import 'package:ftms/core/widgets/speedometer_widget.dart';
-import 'package:ftms/core/config/ftms_display_config.dart';
-
-class DummyParam {
-  final int value;
-  final num factor;
-  DummyParam(this.value, {this.factor = 1});
-  @override
-  String toString() => value.toString();
-}
 
 void main() {
   testWidgets('SpeedometerWidget displays label and value', (WidgetTester tester) async {
@@ -22,11 +15,21 @@ void main() {
       display: 'speedometer',
     );
 
+    final param = FtmsParameter(
+      name: 'speed',
+      value: 30,
+      factor: 1,
+      unit: 'km/h',
+      flag: null,
+      size: 2,
+      signed: false,
+    );
+
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: SpeedometerWidget(
           displayField: displayField,
-          param: DummyParam(30, factor: 1),
+          param: param,
           color: Colors.blue,
         ),
       ),

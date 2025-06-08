@@ -1,4 +1,4 @@
-import '../../../core/config/user_settings.dart';
+import '../../../core/models/user_settings.dart';
 
 abstract class TargetPowerStrategy {
   /// Returns the resolved power value for the given [rawValue] and [userSettings].
