@@ -75,8 +75,6 @@ class MockParameter implements DeviceDataParameter {
   @override
   String get unit => 'W';
   
-  num? get scaleFactor => 1;
-  
   @override
   Flag? get flag => null;
   
@@ -120,8 +118,6 @@ class MockParameterValue implements DeviceDataParameterValue {
   
   @override
   num get factor => 1;
-  
-  num? get scaleFactor => 1;
   
   @override
   int get size => 2;
@@ -255,7 +251,6 @@ void main() {
       expect(param.value, isA<num>());
       expect(param.factor, isA<num>());
       expect(param.unit, isA<String>());
-      expect(param.scaleFactor, isA<num>());
       expect(param.flag, isA<bool?>());
       expect(param.size, isA<int>());
       

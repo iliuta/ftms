@@ -7,7 +7,6 @@ class FtmsParameter {
   final num value;
   final num factor;
   final String unit;
-  final num scaleFactor;
   final bool? flag;
   final int size;
   final bool signed;
@@ -17,7 +16,6 @@ class FtmsParameter {
     required this.value,
     this.factor = 1,
     this.unit = '',
-    this.scaleFactor = 1,
     this.flag,
     this.size = 2,
     this.signed = false,
@@ -30,7 +28,6 @@ class FtmsParameter {
       value: paramValue.value,
       factor: paramValue.factor,
       unit: paramValue.unit,
-      scaleFactor: _getScaleFactor(paramValue),
       flag: _getFlag(paramValue),
       size: paramValue.size,
       signed: paramValue.signed,
@@ -43,7 +40,6 @@ class FtmsParameter {
     num? value,
     num? factor,
     String? unit,
-    num? scaleFactor,
     bool? flag,
     int? size,
     bool? signed,
@@ -53,16 +49,15 @@ class FtmsParameter {
       value: value ?? this.value,
       factor: factor ?? this.factor,
       unit: unit ?? this.unit,
-      scaleFactor: scaleFactor ?? this.scaleFactor,
       flag: flag ?? this.flag,
       size: size ?? this.size,
       signed: signed ?? this.signed,
     );
   }
 
-  /// Get the scaled value using the scale factor
+  /// Get the scaled value using the factor
   num getScaledValue() {
-    return value * scaleFactor;
+    return value * factor;
   }
 
   /// Get the value formatted for display
@@ -81,7 +76,6 @@ class FtmsParameter {
         other.value == value &&
         other.factor == factor &&
         other.unit == unit &&
-        other.scaleFactor == scaleFactor &&
         other.flag == flag &&
         other.size == size &&
         other.signed == signed;
@@ -94,24 +88,10 @@ class FtmsParameter {
       value,
       factor,
       unit,
-      scaleFactor,
       flag,
       size,
       signed,
     );
-  }
-
-  /// Helper method to safely extract scaleFactor from FTMS parameter
-  static num _getScaleFactor(dynamic param) {
-    try {
-      // Try different ways to access scaleFactor based on FTMS library implementation
-      if (param.scaleFactor != null) {
-        return param.scaleFactor;
-      }
-    } catch (e) {
-      // Ignore and fall back to default
-    }
-    return 1;
   }
 
   /// Helper method to safely extract flag from FTMS parameter

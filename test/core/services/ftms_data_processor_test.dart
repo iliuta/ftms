@@ -56,8 +56,6 @@ class MockParameter implements DeviceDataParameter {
   @override
   String get unit => _unit;
   
-  num get scaleFactor => 1;
-  
   @override
   Flag? get flag => null;
   
@@ -104,8 +102,6 @@ class MockParameterValue implements DeviceDataParameterValue {
   
   @override
   String get unit => _parameter.unit;
-  
-  num get scaleFactor => _parameter.scaleFactor;
   
   @override
   Flag? get flag => _parameter.flag;
@@ -298,7 +294,6 @@ void main() {
         expect(param.value, equals(100.0));
         expect(param.factor, equals(1.5));
         expect(param.unit, equals('W'));
-        expect(param.scaleFactor, equals(1));
         expect(param.flag, equals(null));
         expect(param.size, equals(2));
         expect(param.name, equals('Instantaneous Power'));

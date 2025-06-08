@@ -20,7 +20,6 @@ void main() {
       value: 30,
       factor: 1,
       unit: 'km/h',
-      scaleFactor: 1,
       flag: null,
       size: 2,
       signed: false,
