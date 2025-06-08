@@ -2,11 +2,12 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:ftms/core/config/field_format_strategy.dart';
 import 'package:ftms/core/config/ftms_display_config.dart';
+import '../models/ftms_parameter.dart';
 
 /// Widget for displaying a value as a speedometer (gauge).
 class SpeedometerWidget extends StatelessWidget {
   final FtmsDisplayField displayField;
-  final dynamic param;
+  final FtmsParameter? param;
   final Color color;
 
   const SpeedometerWidget(
@@ -21,10 +22,19 @@ class SpeedometerWidget extends StatelessWidget {
         (displayField.min is num) ? (displayField.min as num).toDouble() : null;
     double? max =
         (displayField.max is num) ? (displayField.max as num).toDouble() : null;
-    final value = param.value ?? param.toString();
-    final factor = (param.factor is num)
-        ? param.factor as num
-        : num.tryParse(param.factor?.toString() ?? '1') ?? 1;
+    
+    if (param == null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(displayField.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const Text('No data', style: TextStyle(color: Colors.grey)),
+        ],
+      );
+    }
+    
+    final value = param!.value;
+    final factor = param!.factor;
     final scaledValue = displayField.getScaledValue(value, factor);
     // if there is a formatter, then use the field format strategy to init a variable
     // with the formatted value

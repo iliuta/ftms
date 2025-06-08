@@ -1,3 +1,4 @@
+import '../models/ftms_parameter.dart';
 import 'logger.dart';
 
 void logFtmsParameterAttributes(List parameterValues) {
@@ -8,5 +9,13 @@ void logFtmsParameterAttributes(List parameterValues) {
     final unit = param.unit ?? 'n/a';
     final factor = param.factor ?? 'n/a';
     logger.i('  code: ${param.name.name}, value: ${param.value}, flag: $flag, size: $size, unit: $unit, factor: $factor');
+  }
+}
+
+void logFtmsParameters(Map<String, FtmsParameter> paramValueMap) {
+  logger.i('Processed FTMS parameters:');
+  for (final entry in paramValueMap.entries) {
+    final param = entry.value;
+    logger.i('  ${entry.key}: ${param.value} ${param.unit} (factor: ${param.factor})');
   }
 }

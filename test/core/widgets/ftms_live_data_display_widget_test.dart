@@ -1,27 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/widgets/ftms_live_data_display_widget.dart';
+import 'package:ftms/core/models/ftms_parameter.dart';
 import 'package:ftms/core/config/ftms_display_config.dart';
-
-
-
-// The widget expects each value to have a .value property (like a parameter object)
-class DummyParam {
-  final int value;
-  final num factor;
-  DummyParam(this.value, {this.factor = 1});
-  @override
-  String toString() => value.toString();
-}
-
-// Edge case: param.factor is not a number and cannot be parsed
-class WeirdParam {
-  final int value;
-  final String factor;
-  WeirdParam(this.value, {this.factor = 'not_a_number'});
-  @override
-  String toString() => value.toString();
-}
 
 void main() {
   testWidgets('FtmsLiveDataDisplayWidget covers all branches for 100% coverage', (WidgetTester tester) async {
@@ -57,11 +38,38 @@ void main() {
         unit: '',
       ),
     ]);
-    final paramValueMap = {
-      'Speed': DummyParam(10),
-      'Power': DummyParam(200),
+    final paramValueMap = <String, FtmsParameter>{
+      'Speed': FtmsParameter(
+        name: 'Speed',
+        value: 10,
+        factor: 1,
+        unit: 'km/h',
+        scaleFactor: 1,
+        flag: null,
+        size: 2,
+        signed: false,
+      ),
+      'Power': FtmsParameter(
+        name: 'Power',
+        value: 200,
+        factor: 1,
+        unit: 'W',
+        scaleFactor: 1,
+        flag: null,
+        size: 2,
+        signed: false,
+      ),
       // 'Missing' is intentionally missing
-      'Unknown': DummyParam(1),
+      'Unknown': FtmsParameter(
+        name: 'Unknown',
+        value: 1,
+        factor: 1,
+        unit: '',
+        scaleFactor: 1,
+        flag: null,
+        size: 2,
+        signed: false,
+      ),
     };
     final targets = {
       'Speed': 10,
@@ -119,8 +127,17 @@ void main() {
         unit: 'u',
       ),
     ]);
-    final weirdParamValueMap = {
-      'Weird': WeirdParam(5),
+    final weirdParamValueMap = <String, FtmsParameter>{
+      'Weird': FtmsParameter(
+        name: 'Weird',
+        value: 5,
+        factor: 1,
+        unit: 'u',
+        scaleFactor: 1,
+        flag: null,
+        size: 2,
+        signed: false,
+      ),
     };
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
@@ -159,8 +176,17 @@ void main() {
         unit: 'km/h',
       ),
     ]);
-    final singleParamValueMap = {
-      'Speed': DummyParam(99),
+    final singleParamValueMap = <String, FtmsParameter>{
+      'Speed': FtmsParameter(
+        name: 'Speed',
+        value: 99,
+        factor: 1,
+        unit: 'km/h',
+        scaleFactor: 1,
+        flag: null,
+        size: 2,
+        signed: false,
+      ),
     };
     await tester.pumpWidget(SizedBox(
       width: 1000,
