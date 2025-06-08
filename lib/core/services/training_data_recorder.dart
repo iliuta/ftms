@@ -189,8 +189,8 @@ class TrainingDataRecorder {
     // Create Activity message
     final activityMessage = ActivityMessage()
       ..timestamp = toFitTimestamp(_records.last.timestamp)
-      ..type = Activity.manual
-      ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble();
+      ..totalTimerTime = _records.last.elapsedTime.toDouble()
+      ..numSessions = 1;
 
     // Create Session message
     final sessionMessage = SessionMessage()
@@ -198,8 +198,8 @@ class TrainingDataRecorder {
       ..sport = _getSport()
       ..subSport = _getSubSport()
       ..startTime = toFitTimestamp(_sessionStartTime!)
-      ..totalElapsedTime = (_records.last.elapsedTime * 1000).toDouble()
-      ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble()
+      ..totalElapsedTime = _records.last.elapsedTime.toDouble()
+      ..totalTimerTime = (_records.last.elapsedTime - _records.first.elapsedTime).toDouble()
       ..totalDistance = _getTotalDistance()?.toDouble()
       ..avgPower = _getAveragePower()
       ..maxPower = _getMaximumPower()
@@ -214,8 +214,8 @@ class TrainingDataRecorder {
     final lapMessage = LapMessage()
       ..timestamp = toFitTimestamp(_records.last.timestamp)
       ..startTime = toFitTimestamp(_sessionStartTime!)
-      ..totalElapsedTime = (_records.last.elapsedTime * 1000).toDouble()
-      ..totalTimerTime = (_records.last.elapsedTime * 1000).toDouble()
+      ..totalElapsedTime = _records.last.elapsedTime.toDouble()
+      ..totalTimerTime = (_records.last.elapsedTime - _records.first.elapsedTime).toDouble()
       ..totalDistance = _getTotalDistance()?.toDouble()
       ..avgPower = _getAveragePower()
       ..maxPower = _getMaximumPower()

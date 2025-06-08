@@ -10,7 +10,7 @@ void main() {
       final fitTimestamp = millisecondsToFitTimestamp(testDate.millisecondsSinceEpoch);
       
       // Expected: milliseconds between Dec 31, 1989 and June 8, 2024
-      final fitEpoch = DateTime.utc(1989, 12, 31, 0, 0, 0);
+      final fitEpoch = DateTime.utc(1990, 1, 1, 0, 0, 0);
       final expectedMilliSeconds = testDate.difference(fitEpoch).inMilliseconds;
       
       expect(fitTimestamp, equals(expectedMilliSeconds));
@@ -29,7 +29,7 @@ void main() {
       final fitTimestamp = millisecondsToFitTimestamp(now.millisecondsSinceEpoch);
       
       // Expected: milliseconds between Dec 31, 1989 and now
-      final fitEpoch = DateTime.utc(1989, 12, 31, 0, 0, 0);
+      final fitEpoch = DateTime.utc(1990, 1, 1, 0, 0, 0);
       final expectedMilliSeconds = now.difference(fitEpoch).inMilliseconds;
       
       expect(fitTimestamp, equals(expectedMilliSeconds));

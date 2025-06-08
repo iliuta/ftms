@@ -5,7 +5,7 @@
 library;
 
 /// The FIT epoch: December 31, 1989, 00:00:00 UTC
-final DateTime fitEpoch = DateTime.utc(1989, 12, 31, 0, 0, 0);
+final DateTime fitEpoch = DateTime.utc(1990, 1, 1, 0, 0, 0);
 
 /// Converts a DateTime to FIT timestamp format (seconds since FIT epoch)
 int toFitTimestamp(DateTime dateTime) {
