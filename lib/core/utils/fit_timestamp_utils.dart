@@ -9,12 +9,7 @@ final DateTime fitEpoch = DateTime.utc(1989, 12, 31, 0, 0, 0);
 
 /// Converts a DateTime to FIT timestamp format (seconds since FIT epoch)
 int toFitTimestamp(DateTime dateTime) {
-  return dateTime.difference(fitEpoch).inSeconds;
-}
-
-/// Converts a FIT timestamp (seconds since FIT epoch) back to DateTime
-DateTime fromFitTimestamp(int fitTimestamp) {
-  return fitEpoch.add(Duration(seconds: fitTimestamp));
+  return dateTime.difference(fitEpoch).inMilliseconds;
 }
 
 /// Converts milliseconds since Unix epoch to FIT timestamp (seconds since FIT epoch)
