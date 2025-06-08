@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ftms/core/config/ftms_display_config.dart';
+import '../models/ftms_display_field.dart';
 import '../models/ftms_parameter.dart';
 import 'simple_number_widget.dart';
 import 'speedometer_widget.dart';

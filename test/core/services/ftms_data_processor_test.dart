@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/services/ftms_data_processor.dart';
 import 'package:ftms/core/services/value_averaging_service.dart';
 import 'package:ftms/core/config/ftms_display_config.dart';
+import 'package:ftms/core/models/ftms_display_field.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_ftms/src/ftms/flag.dart';
 import 'package:flutter_ftms/src/ftms/parameter_name.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../config/ftms_display_config.dart';
+import '../models/ftms_display_field.dart';
 import '../models/ftms_parameter.dart';
 import 'ftms_display_widget_registry.dart';
 

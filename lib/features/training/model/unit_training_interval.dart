@@ -1,5 +1,5 @@
 import 'training_interval.dart';
-import '../../../core/config/user_settings.dart';
+import '../../../core/models/user_settings.dart';
 import 'target_power_strategy.dart';
 
 class UnitTrainingInterval extends TrainingInterval {

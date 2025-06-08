@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/widgets/ftms_live_data_display_widget.dart';
-import 'package:ftms/core/models/ftms_parameter.dart';
 import 'package:ftms/core/config/ftms_display_config.dart';
+import 'package:ftms/core/models/ftms_display_field.dart';
+import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/widgets/ftms_live_data_display_widget.dart';
 
 void main() {
   testWidgets('FtmsLiveDataDisplayWidget covers all branches for 100% coverage', (WidgetTester tester) async {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/widgets/speedometer_widget.dart';
+import 'package:ftms/core/models/ftms_display_field.dart';
 import 'package:ftms/core/models/ftms_parameter.dart';
-import 'package:ftms/core/config/ftms_display_config.dart';
+import 'package:ftms/core/widgets/speedometer_widget.dart';
 
 void main() {
   testWidgets('SpeedometerWidget displays label and value', (WidgetTester tester) async {

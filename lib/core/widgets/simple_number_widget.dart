@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ftms/core/config/ftms_display_config.dart';
+import 'package:ftms/core/models/ftms_display_field.dart';
+
 import '../models/ftms_parameter.dart';
 import 'ftms_icon_registry.dart';
 

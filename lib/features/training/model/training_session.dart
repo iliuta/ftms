@@ -2,7 +2,7 @@
 import 'unit_training_interval.dart';
 import 'training_interval.dart';
 import 'group_training_interval.dart';
-import '../../../core/config/user_settings.dart';
+import '../../../core/models/user_settings.dart';
 
 class TrainingSessionDefinition {
   final String title;

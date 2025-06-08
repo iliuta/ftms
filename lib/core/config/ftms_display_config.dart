@@ -1,45 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/ftms_display_field.dart';
 import 'package:ftms/core/utils/logger.dart';
-
-
-class FtmsDisplayField {
-  final String name;
-  final String label;
-  final String display;
-  final String? formatter;
-  final String unit;
-  final num? min;
-  final num? max;
-  final String? icon;
-  final int? samplePeriodSeconds;
-  FtmsDisplayField({
-    required this.name,
-    required this.label,
-    required this.display,
-    this.formatter,
-    required this.unit,
-    this.min,
-    this.max,
-    this.icon,
-    this.samplePeriodSeconds,
-  });
-  factory FtmsDisplayField.fromJson(Map<String, dynamic> json) {
-    return FtmsDisplayField(
-      name: json['name'] as String,
-      label: json['label'] as String,
-      display: json['display'] as String? ?? 'number',
-      formatter: json['formatter'] as String?,
-      unit: json['unit'] as String? ?? '',
-      min: json['min'] as num?,
-      max: json['max'] as num?,
-      icon: json['icon'] as String?,
-      samplePeriodSeconds: json['samplePeriodSeconds'] as int?,
-    );
-  }
-}
-
 
 class FtmsDisplayConfig {
   final List<FtmsDisplayField> fields;
