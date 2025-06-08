@@ -40,7 +40,7 @@ Future<FtmsDisplayConfig?> loadFtmsDisplayConfig(DeviceDataType type) async {
     final fields = [for (final f in fieldsJson) FtmsDisplayField.fromJson(f as Map<String, dynamic>)];
     return FtmsDisplayConfig(fields: fields);
   } catch (e) {
-    logger.e('Error loading FTMS display config', error: e);
+    logger.e('Error loading FTMS display config: $e');
     return null;
   }
 }

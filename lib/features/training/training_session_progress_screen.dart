@@ -46,8 +46,40 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                     barrierDismissible: false,
                     builder: (context) => AlertDialog(
                       title: const Text('Congratulations!'),
-                      content: const Text('You have completed the training session.'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('You have completed the training session.'),
+                          if (controller.lastGeneratedFitFile != null) ...[
+                            const SizedBox(height: 16),
+                            const Text('Training data has been saved as a FIT file:'),
+                            const SizedBox(height: 8),
+                            Text(
+                              controller.lastGeneratedFitFile!,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontFamily: 'monospace',
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text('You can upload this file to Strava or other fitness apps.'),
+                          ],
+                        ],
+                      ),
                       actions: [
+                        if (controller.lastGeneratedFitFile != null)
+                          TextButton(
+                            onPressed: () {
+                              // TODO: Implement file sharing
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('File sharing feature coming soon!'),
+                                ),
+                              );
+                            },
+                            child: const Text('Share FIT File'),
+                          ),
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
@@ -71,6 +103,26 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                         timeLeft: controller.mainTimeLeft,
                         formatTime: formatHHMMSS,
                       ),
+                      const SizedBox(height: 8),
+                      // Recording indicator
+                      if (controller.timerActive)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.fiber_manual_record,
+                              color: Colors.red,
+                              size: 12,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Recording FIT data',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
                       const SizedBox(height: 16),
                       Expanded(
                         child: Row(

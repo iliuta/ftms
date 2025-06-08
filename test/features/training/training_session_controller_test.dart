@@ -8,8 +8,12 @@ import 'package:ftms/features/training/model/unit_training_interval.dart';
 
 class MockBluetoothDevice extends Mock implements BluetoothDevice {}
 
-
 void main() {
+  // Initialize Flutter bindings for platform channels
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+  });
+
   group('TrainingSessionController', () {
     late TrainingSessionDefinition session;
     late MockBluetoothDevice device;
@@ -26,8 +30,12 @@ void main() {
       device = MockBluetoothDevice();
     });
 
-    test('initializes with correct intervals and duration', () {
+    test('initializes with correct intervals and duration', () async {
       final controller = TrainingSessionController(session: session, ftmsDevice: device);
+      
+      // Give it a moment for async initialization to complete
+      await Future.delayed(Duration(milliseconds: 100));
+      
       expect(controller.intervals.length, 2);
       expect(controller.totalDuration, 180);
       expect(controller.currentInterval, 0);

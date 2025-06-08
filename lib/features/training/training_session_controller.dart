@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import '../../core/services/ftms_service.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
+import '../../core/services/training_data_recorder.dart';
+import '../../core/services/ftms_data_processor.dart';
+import '../../core/config/ftms_display_config.dart';
+import '../../core/utils/logger.dart';
 import 'model/training_session.dart';
 import 'model/unit_training_interval.dart';
 
@@ -17,6 +21,11 @@ class TrainingSessionController extends ChangeNotifier {
   late final StreamSubscription<DeviceData?> _ftmsSub;
   Timer? _timer;
 
+  // FIT file recording
+  TrainingDataRecorder? _dataRecorder;
+  final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
+  bool _isRecordingConfigured = false;
+
   bool hasControl = false;
   bool sessionCompleted = false;
   int elapsed = 0;
@@ -24,6 +33,7 @@ class TrainingSessionController extends ChangeNotifier {
   int currentInterval = 0;
   bool timerActive = false;
   List<dynamic>? _lastFtmsParams;
+  String? lastGeneratedFitFile;
 
   // Allow injection of FTMSService for testing
   TrainingSessionController({
@@ -43,6 +53,7 @@ class TrainingSessionController extends ChangeNotifier {
     _ftmsStream = ftmsBloc.ftmsDeviceDataControllerStream;
     _ftmsSub = _ftmsStream.listen(_onFtmsData);
     _initFTMS();
+    _initDataRecording();
   }
 
   int get totalDuration => _totalDuration;
@@ -74,6 +85,42 @@ class TrainingSessionController extends ChangeNotifier {
     });
   }
 
+  Future<void> _initDataRecording() async {
+    try {
+      // Get device type from the machine type string
+      final deviceType = _parseDeviceType(session.ftmsMachineType);
+      
+      // Load config for data processor
+      final config = await loadFtmsDisplayConfig(deviceType);
+      if (config != null) {
+        _dataProcessor.configure(config);
+        _isRecordingConfigured = true;
+      }
+
+      // Initialize data recorder
+      _dataRecorder = TrainingDataRecorder(
+        sessionName: session.title,
+        deviceType: deviceType,
+      );
+      _dataRecorder!.startRecording();
+    } catch (e) {
+      debugPrint('Failed to initialize data recording: $e');
+    }
+  }
+
+  DeviceDataType _parseDeviceType(String machineType) {
+    switch (machineType) {
+      case 'DeviceDataType.rower':
+      case 'rower':
+        return DeviceDataType.rower;
+      case 'DeviceDataType.indoorBike':
+      case 'indoorBike':
+        return DeviceDataType.indoorBike;
+      default:
+        return DeviceDataType.indoorBike;
+    }
+  }
+
   Future<void> setResistanceWithControl(int resistance) async {
     try {
       if (!hasControl) {
@@ -87,7 +134,25 @@ class TrainingSessionController extends ChangeNotifier {
   }
 
   void _onFtmsData(DeviceData? data) {
-    if (timerActive || data == null) return;
+    if (data == null) return;
+    
+    // Record training data if recording is active and configured
+    if (_dataRecorder != null && _isRecordingConfigured && timerActive) {
+      try {
+        final paramValueMap = _dataProcessor.processDeviceData(data);
+        // Convert FtmsParameter map to the required format
+        final ftmsParams = <String, dynamic>{};
+        for (final entry in paramValueMap.entries) {
+          ftmsParams[entry.key] = entry.value.value;
+        }
+        _dataRecorder!.recordDataPoint(ftmsParams: ftmsParams);
+      } catch (e) {
+        debugPrint('Failed to record data point: $e');
+      }
+    }
+    
+    if (timerActive) return;
+    
     final params = data.getDeviceDataParameterValues();
     // Only start timer if at least one value has changed since last update
     if (_lastFtmsParams != null) {
@@ -122,6 +187,10 @@ class TrainingSessionController extends ChangeNotifier {
       timerActive = false;
       sessionCompleted = true;
       _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+      
+      // Finish recording and generate FIT file
+      _finishRecording();
+      
       notifyListeners();
     } else {
       // Update current interval
@@ -141,10 +210,31 @@ class TrainingSessionController extends ChangeNotifier {
     }
   }
 
+  Future<void> _finishRecording() async {
+    if (_dataRecorder != null) {
+      try {
+        _dataRecorder!.stopRecording();
+        final fitFilePath = await _dataRecorder!.generateFitFile();
+        lastGeneratedFitFile = fitFilePath;
+        logger.i('***************** Training session completed successfully. FIT file saved to: $fitFilePath');
+        debugPrint('FIT file generated: $fitFilePath');
+      } catch (e) {
+        logger.e('**************** Failed to generate FIT file: $e');
+        debugPrint('***************** Failed to generate FIT file: $e');
+      }
+    }
+  }
+
   @override
   void dispose() {
     _ftmsSub.cancel();
     _timer?.cancel();
+    
+    // Clean up data recorder if session wasn't completed normally
+    if (_dataRecorder != null && !sessionCompleted) {
+      _finishRecording();
+    }
+    
     super.dispose();
   }
 }
