@@ -37,7 +37,9 @@ dependencies:
   path: any
   json_annotation: ^4.8.1
   provider: ^6.1.5
-  logger: ^2.5.0
+  logger: ^1.4.0
+  path_provider: ^2.1.4
+  fit_tool: ^1.0.5
 
 
 dev_dependencies:

@@ -32,7 +32,7 @@ class UserSettings {
       logger.d('Created UserSettings: maxHeartRate=[1m${settings.maxHeartRate}[0m, cyclingFtp=[1m${settings.cyclingFtp}[0m, rowingFtp=[1m${settings.rowingFtp}[0m');
       return settings;
     } catch (e, stack) {
-      logger.e('Failed to load default user settings', error: e, stackTrace: stack);
+      logger.e('Failed to load default user settings: $e\nStack trace: $stack');
       throw Exception('Failed to load default user settings: $e');
     }
   }
