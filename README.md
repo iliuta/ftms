@@ -23,9 +23,10 @@ It is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutt
 ## Main Features
 
 - **FTMS Bluetooth Connectivity**: scan for and connect to FTMS-compatible fitness machines ( bikes, rowers) using Bluetooth Low Energy (BLE).
-- **Live Data Display**: View real-time metrics from your connected machine, including speed, power, cadence, distance, and more.
+- **Live Data Display**: View real-time metrics from your connected machine.
 - **Structured Training Sessions**: load and execute interval-based training sessions with support for both simple and grouped intervals (unit/group model).
 - **Session Progress Tracking**: Visual progress bar and detailed feedback during workouts, including interval targets and completion status.
+- **FIT file generation**: When a training session is over, a FIT file is generated for the moment in the application private storage. 
 
 For build, test, and usage instructions, see the rest of this README.
 
@@ -33,7 +34,7 @@ For build, test, and usage instructions, see the rest of this README.
 
 - Control the machine resistance. I tried to implement this but for some reason it doesn't work. I'm still digging into it.
 - Training session editor (for the moment, the training sessions are manually defined files in `lib/training-sessions/`)
-- Generate FIT files for upload to Strava or other fitness platforms.
+- Upload training sessions FIT files to Strava.
 - User preferences: FTP, max heart rate, etc
 
 ## Getting Started
