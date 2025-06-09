@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/services/ftms_service.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
@@ -52,6 +53,12 @@ class TrainingSessionController extends ChangeNotifier {
       acc += interval.duration;
     }
     _totalDuration = acc;
+
+    // Ensure wakelock stays enabled during training sessions
+    WakelockPlus.enable().catchError((e) {
+      debugPrint('Failed to enable wakelock during training: $e');
+    });
+
     _ftmsStream = ftmsBloc.ftmsDeviceDataControllerStream;
     _ftmsSub = _ftmsStream.listen(_onFtmsData);
     _initFTMS();
