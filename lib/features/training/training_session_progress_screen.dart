@@ -93,7 +93,10 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                 }
               });
               return Scaffold(
-                appBar: AppBar(title: Text(session.title)),
+                appBar: AppBar(
+                  title: Text(session.title),
+                  toolbarHeight: 40,
+                ),
                 body: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -103,27 +106,7 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                         timeLeft: controller.mainTimeLeft,
                         formatTime: formatHHMMSS,
                       ),
-                      const SizedBox(height: 8),
-                      // Recording indicator
-                      if (controller.timerActive)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.fiber_manual_record,
-                              color: Colors.red,
-                              size: 12,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Recording FIT data',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 4),
                       Expanded(
                         child: Row(
                           children: [

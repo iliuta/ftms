@@ -35,6 +35,7 @@ class _FTMSPageState extends State<FTMSPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.ftmsDevice.platformName),
+        toolbarHeight: 40,
       ),
       body: Column(
         children: [

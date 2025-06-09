@@ -56,8 +56,13 @@ flutter pub get
 2. Build and install the APK:
    ```zsh
    flutter build apk --release
-   flutter install
    flutter run -d <device_id>
+   ```
+The Android device ID can be found with `flutter devices`. It must be in developer mode.
+
+   ```zsh
+   flutter devicces
+   flutter install -d <device_id>
    ```
 
 #### macOS
