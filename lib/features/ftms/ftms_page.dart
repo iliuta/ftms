@@ -1,6 +1,7 @@
 // This file was moved from lib/ftms_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/services/ftms_service.dart';
 import 'ftms_machine_features_tab.dart';
 import 'ftms_data_tab.dart';
@@ -24,6 +25,13 @@ class _FTMSPageState extends State<FTMSPage> {
   void initState() {
     super.initState();
     _ftmsService = FTMSService(widget.ftmsDevice);
+  }
+
+  @override
+  void dispose() {
+    // Disable wakelock when leaving the FTMS device screen
+    WakelockPlus.disable();
+    super.dispose();
   }
 
   Future<void> writeCommand(MachineControlPointOpcodeType opcodeType) async {

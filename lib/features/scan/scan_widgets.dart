@@ -1,6 +1,7 @@
 // This file was moved from lib/scan_widgets.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../ftms/ftms_page.dart';
 import '../../core/bloc/ftms_bloc.dart';
 
@@ -92,19 +93,34 @@ Widget getButtonForBluetoothDevice(
                     builder: (c, snapshot) => (snapshot.data ?? false)
                         ? ElevatedButton(
                       child: const Text("Open"),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => FTMSPage(
-                              ftmsDevice: device,
-                            )),
-                      ),
+                      onPressed: () async {
+                        // Enable wakelock when device is selected
+                        try {
+                          await WakelockPlus.enable();
+                        } catch (e) {
+                          // Wakelock not supported on this platform
+                          debugPrint('Wakelock not supported: $e');
+                        }
+                        
+                        if (!context.mounted) return;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => FTMSPage(
+                                ftmsDevice: device,
+                              )),
+                        );
+                      },
                     )
                         : Container(),
                   ),
                   OutlinedButton(
                     child: const Text("Disconnect"),
-                    onPressed: () => FTMS.disconnectFromFTMSDevice(device),
+                    onPressed: () async {
+                      await FTMS.disconnectFromFTMSDevice(device);
+                      // Disable wakelock when disconnecting
+                      WakelockPlus.disable();
+                    },
                   )
                 ],
               ),
