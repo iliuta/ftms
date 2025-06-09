@@ -25,6 +25,7 @@ class TrainingSessionController extends ChangeNotifier {
   TrainingDataRecorder? _dataRecorder;
   final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
   bool _isRecordingConfigured = false;
+  final bool _enableFitFileGeneration;
 
   bool hasControl = false;
   bool sessionCompleted = false;
@@ -40,7 +41,8 @@ class TrainingSessionController extends ChangeNotifier {
     required this.session,
     required this.ftmsDevice,
     FTMSService? ftmsService,
-  }) {
+    bool enableFitFileGeneration = true, // Allow disabling for tests
+  }) : _enableFitFileGeneration = enableFitFileGeneration {
     _ftmsService = ftmsService ?? FTMSService(ftmsDevice);
     _intervals = session.intervals;
     _intervalStartTimes = [];
@@ -121,7 +123,7 @@ class TrainingSessionController extends ChangeNotifier {
     }
   }
 
-  Future<void> setResistanceWithControl(int resistance) async {
+  /* Future<void> setResistanceWithControl(int resistance) async {
     try {
       if (!hasControl) {
         debugPrint('Not in control, skipping resistance set');
@@ -131,7 +133,7 @@ class TrainingSessionController extends ChangeNotifier {
     } catch (e) {
       debugPrint('Failed to set resistance: $e');
     }
-  }
+  } */
 
   void _onFtmsData(DeviceData? data) {
     if (data == null) return;
@@ -197,10 +199,10 @@ class TrainingSessionController extends ChangeNotifier {
       intervalElapsed = elapsed - _intervalStartTimes[currentInterval];
       // If interval changed and resistanceLevel is set, send command
       if (currentInterval != previousInterval) {
-        final resistance = _intervals[currentInterval].resistanceLevel;
+        /* final resistance = _intervals[currentInterval].resistanceLevel;
         if (resistance != null) {
           setResistanceWithControl(resistance);
-        }
+        }*/
       }
       notifyListeners();
     }
@@ -210,10 +212,16 @@ class TrainingSessionController extends ChangeNotifier {
     if (_dataRecorder != null) {
       try {
         _dataRecorder!.stopRecording();
-        final fitFilePath = await _dataRecorder!.generateFitFile();
-        lastGeneratedFitFile = fitFilePath;
-        logger.i('***************** Training session completed successfully. FIT file saved to: $fitFilePath');
-        debugPrint('FIT file generated: $fitFilePath');
+        
+        // Only generate FIT file if enabled (disabled for tests to avoid path_provider dependency)
+        if (_enableFitFileGeneration) {
+          final fitFilePath = await _dataRecorder!.generateFitFile();
+          lastGeneratedFitFile = fitFilePath;
+          logger.i('***************** Training session completed successfully. FIT file saved to: $fitFilePath');
+          debugPrint('FIT file generated: $fitFilePath');
+        } else {
+          logger.i('***************** Training session completed successfully. FIT file generation disabled.');
+        }
       } catch (e) {
         logger.e('**************** Failed to generate FIT file: $e');
         debugPrint('***************** Failed to generate FIT file: $e');

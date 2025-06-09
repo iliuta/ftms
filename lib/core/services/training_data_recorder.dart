@@ -140,39 +140,9 @@ class TrainingDataRecorder {
 
   /// Generate and save FIT file
   Future<String?> generateFitFile() async {
-    if (_records.isEmpty || _sessionStartTime == null) {
-      logger.w('No training data to export');
-      return null;
-    }
-
-    try {
-      // Get app documents directory
-      final directory = await getApplicationDocumentsDirectory();
-      final fitDir = Directory('${directory.path}/fit_files');
-      if (!await fitDir.exists()) {
-        await fitDir.create(recursive: true);
-      }
-
-      final filename =
-          '${_sessionName}_${_formatDateForFilename(_sessionStartTime!)}.fit';
-      final filePath = '${fitDir.path}/$filename';
-
-      logger.i('Generating FIT file: $filePath');
-
-      // Create FIT file content
-      final fitFile = await _createFitFile();
-
-      // Write to file
-      final file = File(filePath);
-      await file.writeAsBytes(fitFile);
-
-      logger.i(
-          'FIT file generated successfully: $filePath (${_records.length} records)');
-      return filePath;
-    } catch (e, stackTrace) {
-      logger.e('Failed to generate FIT file: $e\nStack trace: $stackTrace');
-      return null;
-    }
+    final directory = await getApplicationDocumentsDirectory();
+    final fitDir = Directory('${directory.path}/fit_files');
+    return generateFitFileToDirectory(fitDir);
   }
 
   /// Generate and save FIT file to a specific directory

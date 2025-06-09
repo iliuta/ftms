@@ -31,7 +31,11 @@ void main() {
     });
 
     test('initializes with correct intervals and duration', () async {
-      final controller = TrainingSessionController(session: session, ftmsDevice: device);
+      final controller = TrainingSessionController(
+        session: session, 
+        ftmsDevice: device,
+        enableFitFileGeneration: false, // Disable FIT file generation for tests
+      );
       
       // Give it a moment for async initialization to complete
       await Future.delayed(Duration(milliseconds: 100));
