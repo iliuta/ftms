@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/utils/logger.dart';
+import '../../core/services/strava_service.dart';
 import 'dart:io';
 
 import 'scan_widgets.dart';
@@ -17,12 +18,103 @@ class ScanPage extends StatefulWidget {
 class _ScanPageState extends State<ScanPage> {
   // Helper to detect test environment
   bool get isInTest => Platform.environment['FLUTTER_TEST'] == 'true';
+  final StravaService _stravaService = StravaService();
+  bool _isConnectingStrava = false;
+  String? _stravaStatus;
+  
   @override
   void initState() {
     super.initState();
     _printBluetoothState();
+    _checkStravaStatus();
   }
-
+  
+  Future<void> _checkStravaStatus() async {
+    final status = await _stravaService.getAuthStatus();
+    setState(() {
+      if (status != null) {
+        _stravaStatus = 'Connected as ${status['athleteName']}';
+      } else {
+        _stravaStatus = null;
+      }
+    });
+  }
+  
+  Future<void> _handleStravaConnection() async {
+    if (_isConnectingStrava) return;
+    
+    setState(() {
+      _isConnectingStrava = true;
+    });
+    
+    try {
+      // Show initial feedback with detailed instructions
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Opening Strava authorization...'),
+                SizedBox(height: 4),
+                Text('Complete the login in browser and authorize the app', 
+                     style: TextStyle(fontSize: 12)),
+              ],
+            ),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+      
+      final success = await _stravaService.authenticate();
+      
+      if (success) {
+        await _checkStravaStatus();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Successfully connected to Strava!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Strava authentication was not completed'),
+                  SizedBox(height: 4),
+                  Text('Complete the login in the browser to connect to Strava', 
+                       style: TextStyle(fontSize: 12)),
+                ],
+              ),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      logger.e('Error connecting to Strava: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error connecting to Strava: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isConnectingStrava = false;
+      });
+    }
+  }
   void _printBluetoothState() {
     // Listen to the adapter state stream (logging removed for production)
     FlutterBluePlus.adapterState.listen((state) {
@@ -61,20 +153,60 @@ class _ScanPageState extends State<ScanPage> {
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.link),
-                  label: const Text('Connect to Strava'),
-                  onPressed: () {
-                    // TODO: Implement Strava connection
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Strava connection not implemented yet'),
-                      ),
-                    );
-                  },
+                  icon: _isConnectingStrava 
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(_stravaStatus != null ? Icons.check_circle : Icons.link),
+                  label: Text(_stravaStatus != null ? 'Connected to Strava' : 'Connect to Strava'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _stravaStatus != null ? Colors.green : null,
+                    foregroundColor: _stravaStatus != null ? Colors.white : null,
+                  ),
+                  onPressed: _isConnectingStrava ? null : _handleStravaConnection,
                 ),
               ],
             ),
           ),
+          if (_stravaStatus != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      _stravaStatus!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.green,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      await _stravaService.signOut();
+                      await _checkStravaStatus();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Disconnected from Strava')),
+                        );
+                      }
+                    },
+                    child: const Icon(
+                      Icons.logout,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: StreamBuilder<List<ScanResult>>(
               stream: FTMS.scanResults,

@@ -62,8 +62,45 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                                 color: Colors.grey[600],
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            const Text('You can upload this file to Strava or other fitness apps.'),
+                            if (controller.stravaUploadAttempted) ...[
+                              const SizedBox(height: 16),
+                              if (controller.stravaUploadSuccessful) ...[
+                                Row(
+                                  children: [
+                                    const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                                    const SizedBox(width: 8),
+                                    const Text('Successfully uploaded to Strava!'),
+                                  ],
+                                ),
+                                if (controller.stravaActivityId != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Activity ID: ${controller.stravaActivityId}',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ] else ...[
+                                Row(
+                                  children: [
+                                    const Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                                    const SizedBox(width: 8),
+                                    const Text('Strava upload not available'),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Make sure you\'re connected to Strava in settings',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ] else ...[
+                              const SizedBox(height: 8),
+                              const Text('You can manually upload this file to Strava or other fitness apps.'),
+                            ],
                           ],
                         ],
                       ),

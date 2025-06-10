@@ -1,8 +1,19 @@
+buildscript {
+    ext.agp_version = "8.3.0" // Version du plugin Android Gradle
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$agp_version"
+    }
+}
 
 plugins {
     id "com.github.ben-manes.versions" version "0.52.0"
 }
-
 
 allprojects {
     repositories {

@@ -6,6 +6,7 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
 import '../../core/services/training_data_recorder.dart';
 import '../../core/services/ftms_data_processor.dart';
+import '../../core/services/strava_service.dart';
 import '../../core/config/ftms_display_config.dart';
 import '../../core/utils/logger.dart';
 import 'model/training_session.dart';
@@ -27,6 +28,7 @@ class TrainingSessionController extends ChangeNotifier {
   final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
   bool _isRecordingConfigured = false;
   final bool _enableFitFileGeneration;
+  final StravaService _stravaService = StravaService();
 
   bool hasControl = false;
   bool sessionCompleted = false;
@@ -36,6 +38,9 @@ class TrainingSessionController extends ChangeNotifier {
   bool timerActive = false;
   List<dynamic>? _lastFtmsParams;
   String? lastGeneratedFitFile;
+  bool stravaUploadAttempted = false;
+  bool stravaUploadSuccessful = false;
+  String? stravaActivityId;
 
   // Allow injection of FTMSService for testing
   TrainingSessionController({
@@ -226,6 +231,11 @@ class TrainingSessionController extends ChangeNotifier {
           lastGeneratedFitFile = fitFilePath;
           logger.i('***************** Training session completed successfully. FIT file saved to: $fitFilePath');
           debugPrint('FIT file generated: $fitFilePath');
+          
+          // Attempt automatic Strava upload if user is authenticated
+          if (fitFilePath != null) {
+            await _attemptStravaUpload(fitFilePath);
+          }
         } else {
           logger.i('***************** Training session completed successfully. FIT file generation disabled.');
         }
@@ -234,6 +244,45 @@ class TrainingSessionController extends ChangeNotifier {
         debugPrint('***************** Failed to generate FIT file: $e');
       }
     }
+  }
+
+  Future<void> _attemptStravaUpload(String fitFilePath) async {
+    stravaUploadAttempted = true;
+    
+    try {
+      // Check if user is authenticated with Strava
+      final isAuthenticated = await _stravaService.isAuthenticated();
+      if (!isAuthenticated) {
+        logger.i('Strava upload skipped: User not authenticated');
+        notifyListeners();
+        return;
+      }
+
+      logger.i('Attempting automatic Strava upload...');
+      
+      // Create activity name based on session
+      final activityName = '${session.title} - FTMS Training';
+      
+      // Upload to Strava
+      final uploadResult = await _stravaService.uploadActivity(fitFilePath, activityName);
+      
+      if (uploadResult != null) {
+        stravaUploadSuccessful = true;
+        stravaActivityId = uploadResult['id']?.toString();
+        logger.i('✅ Successfully uploaded activity to Strava: ${uploadResult['id']}');
+        debugPrint('Strava upload successful: ${uploadResult['id']}');
+      } else {
+        stravaUploadSuccessful = false;
+        logger.w('❌ Failed to upload activity to Strava');
+        debugPrint('Strava upload failed');
+      }
+    } catch (e) {
+      stravaUploadSuccessful = false;
+      logger.e('Error during Strava upload: $e');
+      debugPrint('Strava upload error: $e');
+    }
+    
+    notifyListeners();
   }
 
   @override
