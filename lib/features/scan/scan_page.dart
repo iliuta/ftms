@@ -190,10 +190,12 @@ class _ScanPageState extends State<ScanPage> {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () async {
+                      // Capture the ScaffoldMessengerState before async operations
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
                       await _stravaService.signOut();
                       await _checkStravaStatus();
                       if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           const SnackBar(content: Text('Disconnected from Strava')),
                         );
                       }

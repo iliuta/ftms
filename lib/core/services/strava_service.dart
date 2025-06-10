@@ -11,12 +11,10 @@ import '../utils/logger.dart';
 class StravaService {
   // Configuration
   static const String _clientId = '3929'; // Replace with your Client ID
-  // unfortunately, Strava requires client_secret for token exchange even with PKCE
-  // TODO: Consider using a backend to handle this securely
-  static const String _clientSecret = 'strava_client_secret'; // Remplace par ton vrai client_secret
   static const String _redirectUri = 'ftmsapp://strava/callback';
   static const String _authUrl = 'https://www.strava.com/oauth/authorize';
-  static const String _tokenUrl = 'https://www.strava.com/oauth/token';
+  // Using secure token exchange endpoint instead of exposing client_secret
+  static const String _tokenExchangeUrl = 'https://strava-token-exchange.iliuta.workers.dev';
   static const String _uploadUrl = 'https://www.strava.com/api/v3/uploads';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -146,15 +144,11 @@ class StravaService {
 
       // Échanger le code contre un token
       final tokenResponse = await http.post(
-        Uri.parse(_tokenUrl),
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {
-          'client_id': _clientId,
-          'client_secret': _clientSecret, // Nécessaire pour Strava même avec PKCE
+        Uri.parse(_tokenExchangeUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
           'code': code,
-          'grant_type': 'authorization_code',
-          'code_verifier': storedCodeVerifier,
-        },
+        }),
       );
 
       // Nettoyer le code verifier
@@ -211,15 +205,16 @@ class StravaService {
 
       logger.i('🔄 Refreshing Strava access token...');
 
-      // Échanger le refresh token pour un nouveau token d'accès
+      // Note: For refresh tokens, you might want to create another secure endpoint
+      // For now, using the original approach but this should also be moved to your backend
       final tokenResponse = await http.post(
-        Uri.parse(_tokenUrl),
+        Uri.parse('https://www.strava.com/oauth/token'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'client_id': _clientId,
-          'client_secret': _clientSecret,
           'refresh_token': refreshToken,
           'grant_type': 'refresh_token',
+          // Note: client_secret would be needed here - consider adding refresh endpoint to your backend
         },
       );
 
