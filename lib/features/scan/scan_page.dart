@@ -47,14 +47,32 @@ class _ScanPageState extends State<ScanPage> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.refresh),
-              label: const Text('Scan for devices'),
-              onPressed: () {
-                setState(() {
-                  FTMS.scanForBluetoothDevices();
-                });
-              },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Scan for devices'),
+                  onPressed: () {
+                    setState(() {
+                      FTMS.scanForBluetoothDevices();
+                    });
+                  },
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.link),
+                  label: const Text('Connect to Strava'),
+                  onPressed: () {
+                    // TODO: Implement Strava connection
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Strava connection not implemented yet'),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           Expanded(
