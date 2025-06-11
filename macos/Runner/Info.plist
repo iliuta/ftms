@@ -34,5 +34,18 @@
 	<string>We need access to Bluetooth to connect to devices.</string>
 	<key>NSBluetoothUsageDescription</key>
 	<string>This app uses Bluetooth to discover and communicate with nearby devices.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>ftmsapp</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ftmsapp</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
