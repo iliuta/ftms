@@ -29,8 +29,34 @@ class StravaService {
   Future<void> signOut() => _tokenManager.clearTokens();
   
   // Activity upload methods - delegates to activity uploader
-  Future<Map<String, dynamic>?> uploadActivity(String fitFilePath, String activityName) =>
-      _activityUploader.uploadActivity(fitFilePath, activityName);
+  /// Uploads a FIT file activity to Strava with specified activity type
+  /// 
+  /// [fitFilePath] - Path to the FIT file
+  /// [activityName] - Name of the activity
+  /// [activityType] - Type of activity (e.g., 'ride' for cycling, 'rowing' for rowing)
+  /// 
+  /// Returns the upload response or null if failed
+  /// 
+  /// Example:
+  /// ```dart
+  /// // Upload a cycling activity
+  /// await stravaService.uploadActivity('/path/to/ride.fit', 'Morning Ride', activityType: 'ride');
+  /// 
+  /// // Upload a rowing activity
+  /// await stravaService.uploadActivity('/path/to/row.fit', 'Evening Row', activityType: 'rowing');
+  /// 
+  /// // Upload a running activity
+  /// await stravaService.uploadActivity('/path/to/run.fit', 'Park Run', activityType: 'run');
+  /// ```
+  Future<Map<String, dynamic>?> uploadActivity(
+    String fitFilePath, 
+    String activityName, {
+    String activityType = 'workout',
+  }) => _activityUploader.uploadActivity(
+    fitFilePath, 
+    activityName, 
+    activityType: activityType,
+  );
       
   Future<Map<String, dynamic>?> uploadActivityWithMetadata({
     required String fitFilePath,

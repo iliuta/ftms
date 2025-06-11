@@ -7,6 +7,7 @@ import '../../core/bloc/ftms_bloc.dart';
 import '../../core/services/training_data_recorder.dart';
 import '../../core/services/ftms_data_processor.dart';
 import '../../core/services/strava_service.dart';
+import '../../core/services/strava/strava_activity_types.dart';
 import '../../core/config/ftms_display_config.dart';
 import '../../core/utils/logger.dart';
 import 'model/training_session.dart';
@@ -134,6 +135,18 @@ class TrainingSessionController extends ChangeNotifier {
         return DeviceDataType.indoorBike;
     }
   }
+
+  String _getStravaActivityType(DeviceDataType deviceType) {
+    switch (deviceType) {
+      case DeviceDataType.rower:
+        return StravaActivityTypes.rowing;
+      case DeviceDataType.indoorBike:
+        return StravaActivityTypes.ride;
+      default:
+        return StravaActivityTypes.workout;
+    }
+  }
+
 
   /* Future<void> setResistanceWithControl(int resistance) async {
     try {
@@ -263,8 +276,16 @@ class TrainingSessionController extends ChangeNotifier {
       // Create activity name based on session
       final activityName = '${session.title} - FTMS Training';
       
-      // Upload to Strava
-      final uploadResult = await _stravaService.uploadActivity(fitFilePath, activityName);
+      // Determine the appropriate activity type based on the device type
+      final deviceType = _parseDeviceType(session.ftmsMachineType);
+      final activityType = _getStravaActivityType(deviceType);
+      
+      // Upload to Strava with the correct activity type
+      final uploadResult = await _stravaService.uploadActivity(
+        fitFilePath, 
+        activityName,
+        activityType: activityType,
+      );
       
       if (uploadResult != null) {
         stravaUploadSuccessful = true;
