@@ -5,8 +5,7 @@ class StravaConfig {
   static const String authUrl = 'https://www.strava.com/oauth/authorize';
   static const String tokenExchangeUrl = 'https://strava-token-exchange.iliuta.workers.dev';
   static const String uploadUrl = 'https://www.strava.com/api/v3/uploads';
-  static const String tokenRefreshUrl = 'https://www.strava.com/oauth/token';
-  
+
   // Authentication timeouts and scopes
   static const Duration authTimeout = Duration(minutes: 3);
   static const String authScope = 'activity:write,read';

@@ -77,7 +77,6 @@ void main() {
         verify(mockStorage.delete(key: 'strava_expires_at')).called(1);
         verify(mockStorage.delete(key: 'strava_athlete_name')).called(1);
         verify(mockStorage.delete(key: 'strava_athlete_id')).called(1);
-        verify(mockStorage.delete(key: 'strava_code_verifier')).called(1);
       });
     });
 

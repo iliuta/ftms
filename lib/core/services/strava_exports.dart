@@ -1,4 +1,3 @@
-export 'strava/pkce_generator.dart';
 export 'strava/strava_activity_types.dart';
 export 'strava/strava_activity_uploader.dart';
 export 'strava/strava_config.dart';

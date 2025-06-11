@@ -17,8 +17,7 @@ class StravaTokenManager {
   static const String _expiresAtKey = 'strava_expires_at';
   static const String _athleteNameKey = 'strava_athlete_name';
   static const String _athleteIdKey = 'strava_athlete_id';
-  static const String _codeVerifierKey = 'strava_code_verifier';
-  
+
   /// Checks if user has a valid access token
   Future<bool> isAuthenticated() async {
     final accessToken = await _storage.read(key: _accessTokenKey);
@@ -65,20 +64,7 @@ class StravaTokenManager {
     return await _storage.read(key: _accessTokenKey);
   }
   
-  /// Stores code verifier temporarily during OAuth flow
-  Future<void> storeCodeVerifier(String verifier) async {
-    await _storage.write(key: _codeVerifierKey, value: verifier);
-  }
-  
-  /// Retrieves and removes code verifier
-  Future<String?> getAndRemoveCodeVerifier() async {
-    final verifier = await _storage.read(key: _codeVerifierKey);
-    if (verifier != null) {
-      await _storage.delete(key: _codeVerifierKey);
-    }
-    return verifier;
-  }
-  
+
   /// Refreshes access token if needed
   Future<bool> _refreshTokenIfNeeded() async {
     try {
@@ -97,13 +83,12 @@ class StravaTokenManager {
       logger.i('🔄 Refreshing Strava access token...');
       
       final response = await http.post(
-        Uri.parse(StravaConfig.tokenRefreshUrl),
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {
-          'client_id': StravaConfig.clientId,
+        Uri.parse(StravaConfig.tokenExchangeUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
           'refresh_token': refreshToken,
           'grant_type': 'refresh_token',
-        },
+        }),
       );
       
       if (response.statusCode != 200) {
@@ -125,6 +110,45 @@ class StravaTokenManager {
     }
   }
   
+  /// Exchanges authorization code for access tokens
+  Future<bool> exchangeCodeForTokens(String code) async {
+    try {
+      // Exchange code for tokens
+      final response = await http.post(
+        Uri.parse(StravaConfig.tokenExchangeUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'code': code}),
+      );
+      
+      if (response.statusCode != 200) {
+        logger.e('❌ Failed to exchange code for token: ${response.statusCode}');
+        logger.e('Response: ${response.body}');
+        return false;
+      }
+      
+      // Parse and store tokens
+      final tokenData = jsonDecode(response.body);
+      
+      await storeTokens(
+        accessToken: tokenData['access_token'],
+        refreshToken: tokenData['refresh_token'],
+        expiresAt: tokenData['expires_at'],
+        athleteInfo: tokenData['athlete'],
+      );
+      
+      final athleteName = tokenData['athlete'] != null 
+          ? '${tokenData['athlete']['firstname']} ${tokenData['athlete']['lastname']}'
+          : 'Unknown';
+          
+      logger.i('✅ Authentication successful for athlete: $athleteName');
+      return true;
+      
+    } catch (e) {
+      logger.e('❌ Error exchanging code for tokens: $e');
+      return false;
+    }
+  }
+
   /// Clears all stored authentication data
   Future<void> clearTokens() async {
     logger.i('🚪 Clearing Strava tokens');
@@ -133,6 +157,5 @@ class StravaTokenManager {
     await _storage.delete(key: _expiresAtKey);
     await _storage.delete(key: _athleteNameKey);
     await _storage.delete(key: _athleteIdKey);
-    await _storage.delete(key: _codeVerifierKey);
   }
 }
