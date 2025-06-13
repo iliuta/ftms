@@ -4,7 +4,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/services/ftms_service.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
-import '../../core/services/training_data_recorder.dart';
+import '../../core/services/fit/training_data_recorder.dart';
 import '../../core/services/ftms_data_processor.dart';
 import '../../core/services/strava_service.dart';
 import '../../core/services/strava/strava_activity_types.dart';

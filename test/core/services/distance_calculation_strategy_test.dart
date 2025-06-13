@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import 'package:ftms/core/services/distance_calculation_strategy.dart';
+import 'package:ftms/core/services/fit/distance_calculation_strategy.dart';
 import 'package:ftms/core/models/ftms_parameter.dart';
 
 /// Mock class for testing dynamic object handling

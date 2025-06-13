@@ -43,20 +43,30 @@ class FtmsDataProcessor {
       _averagingService.addValue(fieldName, param.value);
       
       // Use averaged value if configured, otherwise use raw value
-      if (_averagingService.isFieldAveraged(fieldName)) {
-        final averagedValue = _averagingService.getAveragedValue(fieldName);
-        if (averagedValue != null) {
-          // Create a new parameter with averaged value
-          paramValueMap[fieldName] = param.copyWith(value: averagedValue);
-        } else {
-          paramValueMap[fieldName] = param;
-        }
-      } else {
-        paramValueMap[fieldName] = param;
-      }
+      _useAveragedValueIfConfigured(fieldName, paramValueMap, param);
     }
     
     // Override heart rate with HRM data if available
+    _overrideHeartRateFromHRMIfAvailable(paramValueMap);
+    
+    return paramValueMap;
+  }
+
+  void _useAveragedValueIfConfigured(String fieldName, Map<String, FtmsParameter> paramValueMap, FtmsParameter param) {
+    if (_averagingService.isFieldAveraged(fieldName)) {
+      final averagedValue = _averagingService.getAveragedValue(fieldName);
+      if (averagedValue != null) {
+        // Create a new parameter with averaged value
+        paramValueMap[fieldName] = param.copyWith(value: averagedValue);
+      } else {
+        paramValueMap[fieldName] = param;
+      }
+    } else {
+      paramValueMap[fieldName] = param;
+    }
+  }
+
+  void _overrideHeartRateFromHRMIfAvailable(Map<String, FtmsParameter> paramValueMap) {
     if (_heartRateService.isHrmConnected && _heartRateService.currentHeartRate != null) {
       // Check if Heart Rate field exists in the configuration
       if (paramValueMap.containsKey('Heart Rate')) {
@@ -75,8 +85,6 @@ class FtmsDataProcessor {
         );
       }
     }
-    
-    return paramValueMap;
   }
 
   /// Reset the processor state (useful for testing or switching devices)

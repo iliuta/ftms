@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fit_tool/fit_tool.dart';
-import '../models/training_record.dart';
-import '../models/ftms_parameter.dart';
+import '../../models/training_record.dart';
+import '../../models/ftms_parameter.dart';
 import 'distance_calculation_strategy.dart';
-import '../utils/logger.dart';
+import '../../utils/logger.dart';
 
 /// Service for recording training session data and generating FIT files
 class TrainingDataRecorder {
