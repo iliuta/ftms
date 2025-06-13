@@ -1,9 +1,9 @@
 // This file was moved from lib/scan_page.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/utils/logger.dart';
 import '../../core/services/strava_service.dart';
+import '../../core/widgets/hrm_status_widget.dart';
 import 'dart:io';
 
 import 'scan_widgets.dart';
@@ -138,7 +138,7 @@ class _ScanPageState extends State<ScanPage> {
     ];
     
     FlutterBluePlus.startScan(
-      timeout: const Duration(seconds: 4),
+      timeout: const Duration(seconds: 10),
       withServices: withServices,
     );
   }
@@ -221,6 +221,8 @@ class _ScanPageState extends State<ScanPage> {
                 ],
               ),
             ),
+          // HRM Status Widget
+          const HrmStatusWidget(),
           Expanded(
             child: StreamBuilder<List<ScanResult>>(
               stream: FlutterBluePlus.scanResults,
