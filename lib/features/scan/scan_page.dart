@@ -128,7 +128,19 @@ class _ScanPageState extends State<ScanPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Start scanning for FTMS devices as soon as the page is shown
-    FTMS.scanForBluetoothDevices();
+    _scanForDevices();
+  }
+
+  void _scanForDevices() {
+    final List<Guid> withServices = [
+      Guid.fromString("00001826"), // FTMS Service UUID
+      Guid.fromString("0000180D"), // Heart Rate Service UUID
+    ];
+    
+    FlutterBluePlus.startScan(
+      timeout: const Duration(seconds: 4),
+      withServices: withServices,
+    );
   }
 
   @override
@@ -147,7 +159,7 @@ class _ScanPageState extends State<ScanPage> {
                   label: const Text('Scan for devices'),
                   onPressed: () {
                     setState(() {
-                      FTMS.scanForBluetoothDevices();
+                      _scanForDevices();
                     });
                   },
                 ),
@@ -211,7 +223,7 @@ class _ScanPageState extends State<ScanPage> {
             ),
           Expanded(
             child: StreamBuilder<List<ScanResult>>(
-              stream: FTMS.scanResults,
+              stream: FlutterBluePlus.scanResults,
               initialData: const [],
               builder: (c, snapshot) => scanResultsToWidget(
                   (snapshot.data ?? [])
