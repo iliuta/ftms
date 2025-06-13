@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import 'package:ftms/core/services/training_data_recorder.dart';
+import 'package:ftms/core/services/fit/training_data_recorder.dart';
 import 'package:ftms/core/models/ftms_parameter.dart';
 import 'package:ftms/core/utils/logger.dart';
 

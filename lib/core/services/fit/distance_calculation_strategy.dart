@@ -1,5 +1,5 @@
 import 'package:flutter_ftms/flutter_ftms.dart';
-import '../models/ftms_parameter.dart';
+import '../../models/ftms_parameter.dart';
 
 /// Abstract base class for distance calculation strategies
 abstract class DistanceCalculationStrategy {

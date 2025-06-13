@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import 'features/scan/scan_page.dart';
+import 'features/scan/scan_widgets.dart';
 
 void main() {
   FlutterBluePlus.setLogLevel(LogLevel.none); // Disable flutter_blue_plus logs
+  
+  // Initialize device navigation callbacks to avoid circular dependencies
+  initializeDeviceNavigation();
+  
   runApp(const MyApp());
 }
 

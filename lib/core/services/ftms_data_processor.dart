@@ -2,11 +2,13 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import '../config/ftms_display_config.dart';
 import '../models/ftms_parameter.dart';
 import 'value_averaging_service.dart';
+import 'heart_rate_service.dart';
 
 /// Service for processing FTMS device data with averaging capabilities.
 /// Can be used by both FTMSDataTab and training sessions.
 class FtmsDataProcessor {
   final ValueAveragingService _averagingService = ValueAveragingService();
+  final HeartRateService _heartRateService = HeartRateService();
   bool _isConfigured = false;
 
   /// Configure the processor with display config to set up averaging fields
@@ -41,20 +43,48 @@ class FtmsDataProcessor {
       _averagingService.addValue(fieldName, param.value);
       
       // Use averaged value if configured, otherwise use raw value
-      if (_averagingService.isFieldAveraged(fieldName)) {
-        final averagedValue = _averagingService.getAveragedValue(fieldName);
-        if (averagedValue != null) {
-          // Create a new parameter with averaged value
-          paramValueMap[fieldName] = param.copyWith(value: averagedValue);
-        } else {
-          paramValueMap[fieldName] = param;
-        }
+      _useAveragedValueIfConfigured(fieldName, paramValueMap, param);
+    }
+    
+    // Override heart rate with HRM data if available
+    _overrideHeartRateFromHRMIfAvailable(paramValueMap);
+    
+    return paramValueMap;
+  }
+
+  void _useAveragedValueIfConfigured(String fieldName, Map<String, FtmsParameter> paramValueMap, FtmsParameter param) {
+    if (_averagingService.isFieldAveraged(fieldName)) {
+      final averagedValue = _averagingService.getAveragedValue(fieldName);
+      if (averagedValue != null) {
+        // Create a new parameter with averaged value
+        paramValueMap[fieldName] = param.copyWith(value: averagedValue);
       } else {
         paramValueMap[fieldName] = param;
       }
+    } else {
+      paramValueMap[fieldName] = param;
     }
-    
-    return paramValueMap;
+  }
+
+  void _overrideHeartRateFromHRMIfAvailable(Map<String, FtmsParameter> paramValueMap) {
+    if (_heartRateService.isHrmConnected && _heartRateService.currentHeartRate != null) {
+      // Check if Heart Rate field exists in the configuration
+      if (paramValueMap.containsKey('Heart Rate')) {
+        // Replace with HRM data, keeping the same configuration as the FTMS heart rate field
+        final originalHeartRateParam = paramValueMap['Heart Rate']!;
+        paramValueMap['Heart Rate'] = originalHeartRateParam.copyWith(
+          value: _heartRateService.currentHeartRate!.toDouble(),
+        );
+      } else {
+        // Add HRM heart rate data if not present in FTMS data
+        paramValueMap['Heart Rate'] = FtmsParameter(
+          name: 'Heart Rate',
+          value: _heartRateService.currentHeartRate!.toDouble(),
+          unit: 'bpm',
+          factor: 1,
+        );
+      }
+    }
   }
 
   /// Reset the processor state (useful for testing or switching devices)
