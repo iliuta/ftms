@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Base configuration for all HTTPS traffic -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Specific domain configuration for Strava services -->
+    <domain-config cleartextTrafficPermitted="false">
+        <!-- Strava domains -->
+        <domain includeSubdomains="true">strava.com</domain>
+        <domain includeSubdomains="true">www.strava.com</domain>
+        <domain includeSubdomains="true">api.strava.com</domain>
+        <!-- Strava token exchange service -->
+        <domain includeSubdomains="true">strava-token-exchange.iliuta.workers.dev</domain>
+        <!-- Cloudflare Workers domain -->
+        <domain includeSubdomains="true">workers.dev</domain>
+        <domain includeSubdomains="true">cloudflare.com</domain>
+        
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </domain-config>
+    
+    <!-- Debug overrides for development -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

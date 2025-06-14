@@ -20,6 +20,13 @@ android/local.properties
 android/build/
 android/app/build/
 
+# Android signing files
+android/key.properties
+android/*.keystore
+android/*.jks
+
+test_fit_output/*
+
 # Linux related
 linux/flutter/
 linux/build/

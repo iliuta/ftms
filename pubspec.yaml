@@ -42,6 +42,7 @@ dependencies:
   fit_tool: ^1.0.5
   wakelock_plus: ^1.2.8
   flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.2
   http: ^1.2.0
   url_launcher: ^6.3.1
   app_links: ^6.4.0
