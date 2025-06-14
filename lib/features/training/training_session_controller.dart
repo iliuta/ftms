@@ -29,10 +29,11 @@ class TrainingSessionController extends ChangeNotifier {
   final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
   bool _isRecordingConfigured = false;
   final bool _enableFitFileGeneration;
-  final StravaService _stravaService = StravaService();
+  late final StravaService _stravaService;
 
   bool hasControl = false;
   bool sessionCompleted = false;
+  bool sessionPaused = false; // Add pause state
   int elapsed = 0;
   int intervalElapsed = 0;
   int currentInterval = 0;
@@ -43,14 +44,18 @@ class TrainingSessionController extends ChangeNotifier {
   bool stravaUploadSuccessful = false;
   String? stravaActivityId;
 
-  // Allow injection of FTMSService for testing
+  // Allow injection of dependencies for testing
   TrainingSessionController({
     required this.session,
     required this.ftmsDevice,
     FTMSService? ftmsService,
+    StravaService? stravaService,
+    TrainingDataRecorder? dataRecorder,
     bool enableFitFileGeneration = true, // Allow disabling for tests
   }) : _enableFitFileGeneration = enableFitFileGeneration {
     _ftmsService = ftmsService ?? FTMSService(ftmsDevice);
+    _stravaService = stravaService ?? StravaService();
+    _dataRecorder = dataRecorder; // Can be null, will be created in _initDataRecording if needed
     _intervals = session.intervals;
     _intervalStartTimes = [];
     int acc = 0;
@@ -112,11 +117,11 @@ class TrainingSessionController extends ChangeNotifier {
         _isRecordingConfigured = true;
       }
 
-      // Initialize data recorder
-      _dataRecorder = TrainingDataRecorder(
-        sessionName: session.title,
-        deviceType: deviceType,
-      );
+      // Initialize data recorder only if not injected for testing
+      _dataRecorder ??= TrainingDataRecorder(
+          sessionName: session.title,
+          deviceType: deviceType,
+        );
       _dataRecorder!.startRecording();
     } catch (e) {
       debugPrint('Failed to initialize data recording: $e');
@@ -163,18 +168,19 @@ class TrainingSessionController extends ChangeNotifier {
   void _onFtmsData(DeviceData? data) {
     if (data == null) return;
     
-    // Record training data if recording is active and configured
-    if (_dataRecorder != null && _isRecordingConfigured && timerActive) {
-      try {
-        final paramValueMap = _dataProcessor.processDeviceData(data);
-        // Pass FtmsParameter map directly to training data recorder
-        _dataRecorder!.recordDataPoint(ftmsParams: paramValueMap);
-      } catch (e) {
-        debugPrint('Failed to record data point: $e');
+    if (timerActive || sessionPaused) {
+      // Record training data if recording is active and configured
+      if (_dataRecorder != null && _isRecordingConfigured && timerActive) {
+        try {
+          final paramValueMap = _dataProcessor.processDeviceData(data);
+          // Pass FtmsParameter map directly to training data recorder
+          _dataRecorder!.recordDataPoint(ftmsParams: paramValueMap);
+        } catch (e) {
+          debugPrint('Failed to record data point: $e');
+        }
       }
+      return;
     }
-    
-    if (timerActive) return;
     
     final params = data.getDeviceDataParameterValues();
     // Only start timer if at least one value has changed since last update
@@ -190,6 +196,15 @@ class TrainingSessionController extends ChangeNotifier {
       }
       if (changed) {
         _startTimer();
+        // Record the data point that triggered the timer start
+        if (_dataRecorder != null && _isRecordingConfigured && timerActive) {
+          try {
+            final paramValueMap = _dataProcessor.processDeviceData(data);
+            _dataRecorder!.recordDataPoint(ftmsParams: paramValueMap);
+          } catch (e) {
+            debugPrint('Failed to record data point: $e');
+          }
+        }
       }
     }
     // Store current values for next comparison
@@ -197,13 +212,13 @@ class TrainingSessionController extends ChangeNotifier {
   }
 
   void _startTimer() {
-    if (timerActive) return;
+    if (timerActive || sessionPaused) return;
     timerActive = true;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
   }
 
   void _onTick() {
-    if (sessionCompleted) return;
+    if (sessionCompleted || sessionPaused) return;
     elapsed++;
     if (elapsed >= _totalDuration) {
       _timer?.cancel();
@@ -307,8 +322,71 @@ class TrainingSessionController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Pause the current training session
+  void pauseSession() {
+    if (sessionCompleted || sessionPaused) return;
+    
+    sessionPaused = true;
+    timerActive = false;
+    _timer?.cancel();
+    
+    // Send pause command to FTMS device
+    try {
+      _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+    } catch (e) {
+      debugPrint('Failed to send pause command: $e');
+    }
+    
+    notifyListeners();
+  }
+
+  /// Resume the paused training session
+  void resumeSession() {
+    if (sessionCompleted || !sessionPaused) return;
+    
+    sessionPaused = false;
+    
+    // Send resume command to FTMS device
+    try {
+      _ftmsService.writeCommand(MachineControlPointOpcodeType.startOrResume);
+    } catch (e) {
+      debugPrint('Failed to send resume command: $e');
+    }
+    
+    // Restart timer - it will start automatically when FTMS data changes
+    notifyListeners();
+  }
+
+  /// Stop the training session completely
+  void stopSession() {
+    if (sessionCompleted) return;
+    
+    sessionCompleted = true;
+    sessionPaused = false;
+    timerActive = false;
+    _timer?.cancel();
+    
+    // Send stop command to FTMS device
+    try {
+      _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+    } catch (e) {
+      debugPrint('Failed to send stop command: $e');
+    }
+    
+    // Finish recording and generate FIT file (async)
+    _finishRecording().then((_) {
+      // Only notify listeners if not disposed
+      if (!_disposed) {
+        notifyListeners();
+      }
+    });
+  }
+
+  bool _disposed = false;
+
   @override
   void dispose() {
+    _disposed = true;
     _ftmsSub.cancel();
     _timer?.cancel();
     

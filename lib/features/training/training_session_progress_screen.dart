@@ -1,206 +1,54 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'model/training_session.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import '../../core/bloc/ftms_bloc.dart';
 import '../../core/config/ftms_display_config.dart';
-import '../../core/widgets/ftms_live_data_display_widget.dart';
-import '../../core/services/ftms_data_processor.dart';
+import 'model/training_session.dart';
 import 'training_session_controller.dart';
-import 'session_progress_bar.dart';
-import 'training_interval_list.dart';
+import 'widgets/training_session_scaffold.dart';
 
+/// Main screen for displaying training session progress
 class TrainingSessionProgressScreen extends StatefulWidget {
   final TrainingSessionDefinition session;
   final BluetoothDevice ftmsDevice;
 
-  const TrainingSessionProgressScreen(
-      {super.key, required this.session, required this.ftmsDevice});
+  const TrainingSessionProgressScreen({
+    super.key,
+    required this.session,
+    required this.ftmsDevice,
+  });
 
   @override
   State<TrainingSessionProgressScreen> createState() => _TrainingSessionProgressScreenState();
 }
 
 class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressScreen> {
-  bool _congratulationsDialogShown = false;
-
-  String formatHHMMSS(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    final s = seconds % 60;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-  }
-
-  String formatMMSS(int seconds) {
-    final m = seconds ~/ 60;
-    final s = seconds % 60;
-    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<FtmsDisplayConfig?>(
-      future:
-          loadFtmsDisplayConfig(_normalizeMachineType(widget.session.ftmsMachineType)),
+      future: _loadConfig(),
       builder: (context, snapshot) {
-        final config = snapshot.data;
         return ChangeNotifierProvider(
           create: (_) => TrainingSessionController(
-              session: widget.session, ftmsDevice: widget.ftmsDevice),
+            session: widget.session,
+            ftmsDevice: widget.ftmsDevice,
+          ),
           child: Consumer<TrainingSessionController>(
             builder: (context, controller, _) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (controller.sessionCompleted && !_congratulationsDialogShown) {
-                  _congratulationsDialogShown = true;
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Congratulations!'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                              'You have completed the training session.'),
-                          if (controller.lastGeneratedFitFile != null) ...[
-                            if (controller.stravaUploadAttempted) ...[
-                              const SizedBox(height: 16),
-                              if (controller.stravaUploadSuccessful) ...[
-                                Row(
-                                  children: [
-                                    const Icon(Icons.check_circle,
-                                        color: Colors.green, size: 20),
-                                    const SizedBox(width: 8),
-                                    const Text(
-                                        'Successfully uploaded to Strava!'),
-                                  ],
-                                ),
-                                if (controller.stravaActivityId != null) ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Activity ID: ${controller.stravaActivityId}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                          color: Colors.grey[600],
-                                        ),
-                                  ),
-                                ],
-                              ] else if (controller.stravaActivityId != null) ...[
-                                // Show success if we have an activity ID, even if the flag wasn't set properly
-                                Row(
-                                  children: [
-                                    const Icon(Icons.check_circle,
-                                        color: Colors.green, size: 20),
-                                    const SizedBox(width: 8),
-                                    const Text(
-                                        'Successfully uploaded to Strava!'),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Activity ID: ${controller.stravaActivityId}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Colors.grey[600],
-                                      ),
-                                ),
-                              ] else ...[
-                                Row(
-                                  children: [
-                                    const Icon(Icons.info_outline,
-                                        color: Colors.orange, size: 20),
-                                    const SizedBox(width: 8),
-                                    const Text('Strava upload in progress or failed'),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Make sure you\'re connected to Strava in settings',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Colors.grey[600],
-                                      ),
-                                ),
-                              ],
-                            ] else ...[
-                              const SizedBox(height: 8),
-                              const Text(
-                                  'You can manually upload this file to Strava or other fitness apps.'),
-                            ],
-                          ],
-                        ],
-                      ),
-                      actions: [
-                        if (controller.lastGeneratedFitFile != null)
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Close'),
-                          ),
-                      ],
-                    ),
-                  );
-                }
-              });
-              return Scaffold(
-                appBar: AppBar(
-                  title: Text(widget.session.title),
-                  toolbarHeight: 40,
-                ),
-                body: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      SessionProgressBar(
-                        progress: controller.elapsed / controller.totalDuration,
-                        timeLeft: controller.mainTimeLeft,
-                        formatTime: formatHHMMSS,
-                      ),
-                      const SizedBox(height: 4),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: TrainingIntervalList(
-                                intervals: controller.intervals,
-                                currentInterval: controller.currentInterval,
-                                intervalElapsed: controller.intervalElapsed,
-                                intervalTimeLeft: controller.intervalTimeLeft,
-                                formatMMSS: formatMMSS,
-                                config: config,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              flex: 3,
-                              child: _LiveFTMSDataWidget(
-                                ftmsDevice: widget.ftmsDevice,
-                                targets: controller.current.targets,
-                                machineType: widget.session.ftmsMachineType,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              return TrainingSessionScaffold(
+                session: widget.session,
+                controller: controller,
+                config: snapshot.data,
+                ftmsDevice: widget.ftmsDevice,
               );
             },
           ),
         );
       },
     );
+  }
+
+  Future<FtmsDisplayConfig?> _loadConfig() {
+    return loadFtmsDisplayConfig(_normalizeMachineType(widget.session.ftmsMachineType));
   }
 
   DeviceDataType _normalizeMachineType(String machineType) {
@@ -214,98 +62,5 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
       default:
         return DeviceDataType.indoorBike;
     }
-  }
-}
-
-class _LiveFTMSDataWidget extends StatefulWidget {
-  final BluetoothDevice ftmsDevice;
-  final Map<String, dynamic>? targets;
-  final String machineType;
-
-  const _LiveFTMSDataWidget(
-      {required this.ftmsDevice, this.targets, required this.machineType});
-
-  @override
-  State<_LiveFTMSDataWidget> createState() => _LiveFTMSDataWidgetState();
-}
-
-class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
-  FtmsDisplayConfig? _config;
-  String? _configError;
-  final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadConfig();
-  }
-
-  Future<void> _loadConfig() async {
-    final type = await _getDeviceType();
-    if (type == null) return;
-    final config = await loadFtmsDisplayConfig(type);
-    setState(() {
-      _config = config;
-      _configError = config == null ? 'No config for this machine type' : null;
-    });
-
-    // Configure data processor for averaging
-    if (config != null) {
-      _dataProcessor.configure(config);
-    }
-  }
-
-  Future<DeviceDataType?> _getDeviceType() async {
-    // Try to get the latest device data from the stream
-    final snapshot = await ftmsBloc.ftmsDeviceDataControllerStream
-        .firstWhere((d) => d != null);
-    return snapshot?.deviceDataType;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_configError != null) {
-      return Text(_configError!, style: const TextStyle(color: Colors.red));
-    }
-    if (_config == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: SizedBox.expand(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: StreamBuilder<DeviceData?>(
-                  stream: ftmsBloc.ftmsDeviceDataControllerStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Text('No FTMS data'),
-                      );
-                    }
-                    final deviceData = snapshot.data!;
-
-                    // Process device data with averaging
-                    final paramValueMap =
-                        _dataProcessor.processDeviceData(deviceData);
-
-                    return FtmsLiveDataDisplayWidget(
-                      config: _config!,
-                      paramValueMap: paramValueMap,
-                      targets: widget.targets,
-                      machineType: widget.machineType,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
