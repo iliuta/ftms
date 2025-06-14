@@ -3,12 +3,14 @@ import '../config/ftms_display_config.dart';
 import '../models/ftms_parameter.dart';
 import 'value_averaging_service.dart';
 import 'heart_rate_service.dart';
+import 'cadence_service.dart';
 
 /// Service for processing FTMS device data with averaging capabilities.
 /// Can be used by both FTMSDataTab and training sessions.
 class FtmsDataProcessor {
   final ValueAveragingService _averagingService = ValueAveragingService();
   final HeartRateService _heartRateService = HeartRateService();
+  final CadenceService _cadenceService = CadenceService();
   bool _isConfigured = false;
 
   /// Configure the processor with display config to set up averaging fields
@@ -49,6 +51,9 @@ class FtmsDataProcessor {
     // Override heart rate with HRM data if available
     _overrideHeartRateFromHRMIfAvailable(paramValueMap);
     
+    // Override cadence with cadence sensor data if available
+    _overrideCadenceFromCadenceSensorIfAvailable(paramValueMap);
+    
     return paramValueMap;
   }
 
@@ -81,6 +86,28 @@ class FtmsDataProcessor {
           name: 'Heart Rate',
           value: _heartRateService.currentHeartRate!.toDouble(),
           unit: 'bpm',
+          factor: 1,
+        );
+      }
+    }
+  }
+
+  void _overrideCadenceFromCadenceSensorIfAvailable(Map<String, FtmsParameter> paramValueMap) {
+    if (_cadenceService.isCadenceConnected && _cadenceService.currentCadence != null) {
+      // Check if Instantaneous Cadence field exists in the configuration
+      if (paramValueMap.containsKey('Instantaneous Cadence')) {
+        // Replace with cadence sensor data, but use factor 1 since cadence sensor already provides correct RPM
+        final originalCadenceParam = paramValueMap['Instantaneous Cadence']!;
+        paramValueMap['Instantaneous Cadence'] = originalCadenceParam.copyWith(
+          value: _cadenceService.currentCadence!.toDouble(),
+          factor: 1, // Always use factor 1 for cadence sensor data
+        );
+      } else {
+        // Add cadence sensor data if not present in FTMS data
+        paramValueMap['Instantaneous Cadence'] = FtmsParameter(
+          name: 'Instantaneous Cadence',
+          value: _cadenceService.currentCadence!.toDouble(),
+          unit: 'rpm',
           factor: 1,
         );
       }

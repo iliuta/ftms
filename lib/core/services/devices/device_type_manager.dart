@@ -1,4 +1,5 @@
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:ftms/core/services/devices/cadence_device_service.dart';
 import 'device_type_service.dart';
 import 'hrm_device_service.dart';
 import 'ftms_device_service.dart';
@@ -12,6 +13,7 @@ class DeviceTypeManager {
   /// List of all supported device type services
   final List<DeviceTypeService> _deviceServices = [
     HrmDeviceService(),
+    CadenceDeviceService(),
     FtmsDeviceService(),
   ];
 
