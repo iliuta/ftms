@@ -211,10 +211,11 @@ class TrainingSessionController extends ChangeNotifier {
       sessionCompleted = true;
       _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
       
-      // Finish recording and generate FIT file
-      _finishRecording();
-      
-      notifyListeners();
+      // Finish recording and generate FIT file (async)
+      _finishRecording().then((_) {
+        // Only notify listeners after recording is completely finished
+        notifyListeners();
+      });
     } else {
       // Update current interval
       int previousInterval = currentInterval;

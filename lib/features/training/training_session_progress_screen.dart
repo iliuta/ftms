@@ -11,12 +11,19 @@ import 'training_session_controller.dart';
 import 'session_progress_bar.dart';
 import 'training_interval_list.dart';
 
-class TrainingSessionProgressScreen extends StatelessWidget {
+class TrainingSessionProgressScreen extends StatefulWidget {
   final TrainingSessionDefinition session;
   final BluetoothDevice ftmsDevice;
 
   const TrainingSessionProgressScreen(
       {super.key, required this.session, required this.ftmsDevice});
+
+  @override
+  State<TrainingSessionProgressScreen> createState() => _TrainingSessionProgressScreenState();
+}
+
+class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressScreen> {
+  bool _congratulationsDialogShown = false;
 
   String formatHHMMSS(int seconds) {
     final h = seconds ~/ 3600;
@@ -35,16 +42,17 @@ class TrainingSessionProgressScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder<FtmsDisplayConfig?>(
       future:
-          loadFtmsDisplayConfig(_normalizeMachineType(session.ftmsMachineType)),
+          loadFtmsDisplayConfig(_normalizeMachineType(widget.session.ftmsMachineType)),
       builder: (context, snapshot) {
         final config = snapshot.data;
         return ChangeNotifierProvider(
           create: (_) => TrainingSessionController(
-              session: session, ftmsDevice: ftmsDevice),
+              session: widget.session, ftmsDevice: widget.ftmsDevice),
           child: Consumer<TrainingSessionController>(
             builder: (context, controller, _) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (controller.sessionCompleted) {
+                if (controller.sessionCompleted && !_congratulationsDialogShown) {
+                  _congratulationsDialogShown = true;
                   showDialog(
                     context: context,
                     barrierDismissible: false,
@@ -81,13 +89,34 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                                         ),
                                   ),
                                 ],
+                              ] else if (controller.stravaActivityId != null) ...[
+                                // Show success if we have an activity ID, even if the flag wasn't set properly
+                                Row(
+                                  children: [
+                                    const Icon(Icons.check_circle,
+                                        color: Colors.green, size: 20),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                        'Successfully uploaded to Strava!'),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Activity ID: ${controller.stravaActivityId}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Colors.grey[600],
+                                      ),
+                                ),
                               ] else ...[
                                 Row(
                                   children: [
                                     const Icon(Icons.info_outline,
                                         color: Colors.orange, size: 20),
                                     const SizedBox(width: 8),
-                                    const Text('Strava upload not available'),
+                                    const Text('Strava upload in progress or failed'),
                                   ],
                                 ),
                                 const SizedBox(height: 4),
@@ -114,7 +143,6 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               Navigator.of(context).pop();
-                              Navigator.of(context).pop();
                             },
                             child: const Text('Close'),
                           ),
@@ -125,7 +153,7 @@ class TrainingSessionProgressScreen extends StatelessWidget {
               });
               return Scaffold(
                 appBar: AppBar(
-                  title: Text(session.title),
+                  title: Text(widget.session.title),
                   toolbarHeight: 40,
                 ),
                 body: Padding(
@@ -156,9 +184,9 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                             Expanded(
                               flex: 3,
                               child: _LiveFTMSDataWidget(
-                                ftmsDevice: ftmsDevice,
+                                ftmsDevice: widget.ftmsDevice,
                                 targets: controller.current.targets,
-                                machineType: session.ftmsMachineType,
+                                machineType: widget.session.ftmsMachineType,
                               ),
                             ),
                           ],
