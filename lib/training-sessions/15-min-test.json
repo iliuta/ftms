@@ -1,0 +1,115 @@
+{
+    "title": "15 min test",
+    "ftmsMachineType": "DeviceDataType.indoorBike",
+    "intervals": [
+        {
+            "title": "Warm Up",
+            "duration": 60,
+            "targets": {
+                "Instantaneous Power": "50%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Warm Up",
+            "duration": 60,
+            "targets": {
+                "Instantaneous Power": "55%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Warm Up",
+            "duration": 60,
+            "targets": {
+                "Instantaneous Power": "60%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Warm Up",
+            "duration": 60,
+            "targets": {
+                "Instantaneous Power": "65%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Warm Up",
+            "duration": 60,
+            "targets": {
+                "Instantaneous Power": "70%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "repeat": 4,
+            "intervals": [
+                {
+                    "title": "Steady State",
+                    "duration": 60,
+                    "targets": {
+                        "Instantaneous Power": "100%",
+                        "Instantaneous Cadence": 100
+                    }
+                },
+                {
+                    "title": "Recovery",
+                    "duration": 60,
+                    "targets": {
+                        "Instantaneous Power": "50%",
+                        "Instantaneous Cadence": 85
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Cool Down",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Power": "80%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Cool Down",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Power": "75%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Cool Down",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Power": "70%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Cool Down",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Power": "65%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Cool Down",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Power": "60%",
+                "Instantaneous Cadence": 85
+            }
+        },
+        {
+            "title": "Cool Down",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Power": "55%",
+                "Instantaneous Cadence": 85
+            }
+        }
+    ]
+}

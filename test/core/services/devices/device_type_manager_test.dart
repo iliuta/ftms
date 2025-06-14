@@ -25,7 +25,7 @@ void main() {
     test('should return device services list', () {
       final services = manager.deviceServices;
       expect(services, isNotEmpty);
-      expect(services.length, equals(2)); // HRM and FTMS services
+      expect(services.length, equals(3)); // HRM, Cadence, and FTMS services
     });
 
     test('should return immutable device services list', () {

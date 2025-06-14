@@ -165,6 +165,7 @@ class _ScanPageState extends State<ScanPage> {
     final List<Guid> withServices = [
       Guid.fromString("00001826"), // FTMS Service UUID
       Guid.fromString("0000180D"), // Heart Rate Service UUID
+      Guid.fromString("00001816"), // Cycling Speed and Cadence Service UUID
     ];
     
     try {

@@ -4,6 +4,7 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../ftms/ftms_page.dart';
 import '../../core/services/heart_rate_service.dart';
+import '../../core/services/cadence_service.dart';
 import '../../core/services/devices/device_type_manager.dart';
 import '../../core/services/devices/device_navigation_registry.dart';
 
@@ -194,6 +195,10 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                       // Also disconnect from HRM if connected
                       final heartRateService = HeartRateService();
                       await heartRateService.disconnectHrmDevice();
+
+                      // Also disconnect from Cadence if connected
+                      final cadenceService = CadenceService();
+                      await cadenceService.disconnectCadenceDevice();
 
                       // Disable wakelock when disconnecting
                       WakelockPlus.disable();
