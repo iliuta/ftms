@@ -1,0 +1,104 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_ftms/flutter_ftms.dart';
+import '../../../core/bloc/ftms_bloc.dart';
+import '../../../core/config/ftms_display_config.dart';
+import '../../../core/widgets/ftms_live_data_display_widget.dart';
+import '../../../core/services/ftms_data_processor.dart';
+
+/// Widget for displaying live FTMS data during training
+class LiveFTMSDataWidget extends StatefulWidget {
+  final BluetoothDevice ftmsDevice;
+  final Map<String, dynamic>? targets;
+  final String machineType;
+
+  const LiveFTMSDataWidget({
+    super.key,
+    required this.ftmsDevice,
+    this.targets,
+    required this.machineType,
+  });
+
+  @override
+  State<LiveFTMSDataWidget> createState() => _LiveFTMSDataWidgetState();
+}
+
+class _LiveFTMSDataWidgetState extends State<LiveFTMSDataWidget> {
+  FtmsDisplayConfig? _config;
+  String? _configError;
+  final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadConfig();
+  }
+
+  Future<void> _loadConfig() async {
+    final type = await _getDeviceType();
+    if (type == null) return;
+    final config = await loadFtmsDisplayConfig(type);
+    setState(() {
+      _config = config;
+      _configError = config == null ? 'No config for this machine type' : null;
+    });
+
+    // Configure data processor for averaging
+    if (config != null) {
+      _dataProcessor.configure(config);
+    }
+  }
+
+  Future<DeviceDataType?> _getDeviceType() async {
+    // Try to get the latest device data from the stream
+    final snapshot = await ftmsBloc.ftmsDeviceDataControllerStream
+        .firstWhere((d) => d != null);
+    return snapshot?.deviceDataType;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_configError != null) {
+      return Text(_configError!, style: const TextStyle(color: Colors.red));
+    }
+    if (_config == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: SizedBox.expand(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: StreamBuilder<DeviceData?>(
+                  stream: ftmsBloc.ftmsDeviceDataControllerStream,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Text('No FTMS data'),
+                      );
+                    }
+                    final deviceData = snapshot.data!;
+
+                    // Process device data with averaging
+                    final paramValueMap =
+                        _dataProcessor.processDeviceData(deviceData);
+
+                    return FtmsLiveDataDisplayWidget(
+                      config: _config!,
+                      paramValueMap: paramValueMap,
+                      targets: widget.targets,
+                      machineType: widget.machineType,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
