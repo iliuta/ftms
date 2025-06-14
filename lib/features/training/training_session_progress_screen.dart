@@ -163,6 +163,7 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
                       SessionProgressBar(
                         progress: controller.elapsed / controller.totalDuration,
                         timeLeft: controller.mainTimeLeft,
+                        elapsed: controller.elapsed,
                         formatTime: formatHHMMSS,
                       ),
                       const SizedBox(height: 4),

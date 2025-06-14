@@ -10,12 +10,13 @@ void main() {
           body: SessionProgressBar(
             progress: 0.5,
             timeLeft: 90,
-            formatTime: (s) => '01:30',
+            elapsed: 90,
+            formatTime: (s) => s == 90 ? '01:30' : '01:30',
           ),
         ),
       ),
     );
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
-    expect(find.text('01:30'), findsOneWidget);
+    expect(find.text('01:30'), findsNWidgets(2)); // Now we expect 2 instances (elapsed and timeLeft)
   });
 }

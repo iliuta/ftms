@@ -46,6 +46,12 @@ class TrainingIntervalList extends StatelessWidget {
               children: [
                 Row(
                   children: [
+                    if (isCurrent)
+                      Text(
+                        formatMMSS(intervalElapsed),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    if (isCurrent) const SizedBox(width: 8),
                     Expanded(
                       child: LinearProgressIndicator(
                         value: intervalProgress,
