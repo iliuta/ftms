@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/utils/logger.dart';
 import '../../core/services/strava_service.dart';
+import '../../core/services/permission_service.dart';
 import 'dart:io';
 
 import 'scan_widgets.dart';
@@ -18,6 +19,7 @@ class _ScanPageState extends State<ScanPage> {
   // Helper to detect test environment
   bool get isInTest => Platform.environment['FLUTTER_TEST'] == 'true';
   final StravaService _stravaService = StravaService();
+  final PermissionService _permissionService = PermissionService();
   bool _isConnectingStrava = false;
   String? _stravaStatus;
   
@@ -121,6 +123,12 @@ class _ScanPageState extends State<ScanPage> {
     });
     // Also print the last known state immediately
     logger.i('Bluetooth adapter state (now): ${FlutterBluePlus.adapterStateNow.toString()}');
+    
+    // Log platform information
+    logger.i('Platform: ${Platform.operatingSystem}');
+    if (Platform.isAndroid) {
+      logger.i('Running on Android - will request runtime permissions');
+    }
   }
 
   @override
@@ -130,16 +138,49 @@ class _ScanPageState extends State<ScanPage> {
     _scanForDevices();
   }
 
-  void _scanForDevices() {
+  Future<void> _scanForDevices() async {
+    logger.i('Starting Bluetooth scan process...');
+    
+    // Request Bluetooth permissions first
+    logger.i('Requesting Bluetooth permissions...');
+    final hasPermissions = await _permissionService.requestBluetoothPermissions();
+    
+    if (!hasPermissions) {
+      logger.w('Bluetooth permissions denied');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Bluetooth permissions are required to scan for devices'),
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: () => PermissionService.openAppSettings(),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    logger.i('Bluetooth permissions granted, starting scan...');
     final List<Guid> withServices = [
       Guid.fromString("00001826"), // FTMS Service UUID
       Guid.fromString("0000180D"), // Heart Rate Service UUID
     ];
     
-    FlutterBluePlus.startScan(
-      timeout: const Duration(seconds: 10),
-      withServices: withServices,
-    );
+    try {
+      await FlutterBluePlus.startScan(
+        timeout: const Duration(seconds: 10),
+        withServices: withServices,
+      );
+      logger.i('Bluetooth scan started successfully');
+    } catch (e) {
+      logger.e('Failed to start Bluetooth scan: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to start Bluetooth scan: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -156,10 +197,8 @@ class _ScanPageState extends State<ScanPage> {
                 ElevatedButton.icon(
                   icon: const Icon(Icons.refresh),
                   label: const Text('Scan for devices'),
-                  onPressed: () {
-                    setState(() {
-                      _scanForDevices();
-                    });
+                  onPressed: () async {
+                    await _scanForDevices();
                   },
                 ),
                 const SizedBox(width: 16),

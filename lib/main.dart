@@ -6,7 +6,8 @@ import 'features/scan/scan_page.dart';
 import 'features/scan/scan_widgets.dart';
 
 void main() {
-  FlutterBluePlus.setLogLevel(LogLevel.none); // Disable flutter_blue_plus logs
+  // Set log level for production
+  FlutterBluePlus.setLogLevel(LogLevel.info);
   
   // Initialize device navigation callbacks to avoid circular dependencies
   initializeDeviceNavigation();
