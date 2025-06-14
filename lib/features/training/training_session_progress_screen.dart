@@ -11,32 +11,36 @@ import 'training_session_controller.dart';
 import 'session_progress_bar.dart';
 import 'training_interval_list.dart';
 
-
 class TrainingSessionProgressScreen extends StatelessWidget {
   final TrainingSessionDefinition session;
   final BluetoothDevice ftmsDevice;
-  const TrainingSessionProgressScreen({super.key, required this.session, required this.ftmsDevice});
+
+  const TrainingSessionProgressScreen(
+      {super.key, required this.session, required this.ftmsDevice});
 
   String formatHHMMSS(int seconds) {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
     final s = seconds % 60;
-    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}' ;
+    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
+
   String formatMMSS(int seconds) {
     final m = seconds ~/ 60;
     final s = seconds % 60;
-    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}' ;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<FtmsDisplayConfig?>(
-      future: loadFtmsDisplayConfig(_normalizeMachineType(session.ftmsMachineType)),
+      future:
+          loadFtmsDisplayConfig(_normalizeMachineType(session.ftmsMachineType)),
       builder: (context, snapshot) {
         final config = snapshot.data;
         return ChangeNotifierProvider(
-          create: (_) => TrainingSessionController(session: session, ftmsDevice: ftmsDevice),
+          create: (_) => TrainingSessionController(
+              session: session, ftmsDevice: ftmsDevice),
           child: Consumer<TrainingSessionController>(
             builder: (context, controller, _) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,41 +54,38 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('You have completed the training session.'),
+                          const Text(
+                              'You have completed the training session.'),
                           if (controller.lastGeneratedFitFile != null) ...[
-                            const SizedBox(height: 16),
-                            const Text('Training data has been saved as a FIT file:'),
-                            const SizedBox(height: 8),
-                            Text(
-                              controller.lastGeneratedFitFile!,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontFamily: 'monospace',
-                                color: Colors.grey[600],
-                              ),
-                            ),
                             if (controller.stravaUploadAttempted) ...[
                               const SizedBox(height: 16),
                               if (controller.stravaUploadSuccessful) ...[
                                 Row(
                                   children: [
-                                    const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                                    const Icon(Icons.check_circle,
+                                        color: Colors.green, size: 20),
                                     const SizedBox(width: 8),
-                                    const Text('Successfully uploaded to Strava!'),
+                                    const Text(
+                                        'Successfully uploaded to Strava!'),
                                   ],
                                 ),
                                 if (controller.stravaActivityId != null) ...[
                                   const SizedBox(height: 4),
                                   Text(
                                     'Activity ID: ${controller.stravaActivityId}',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[600],
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
                                   ),
                                 ],
                               ] else ...[
                                 Row(
                                   children: [
-                                    const Icon(Icons.info_outline, color: Colors.orange, size: 20),
+                                    const Icon(Icons.info_outline,
+                                        color: Colors.orange, size: 20),
                                     const SizedBox(width: 8),
                                     const Text('Strava upload not available'),
                                   ],
@@ -92,14 +93,18 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   'Make sure you\'re connected to Strava in settings',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Colors.grey[600],
+                                      ),
                                 ),
                               ],
                             ] else ...[
                               const SizedBox(height: 8),
-                              const Text('You can manually upload this file to Strava or other fitness apps.'),
+                              const Text(
+                                  'You can manually upload this file to Strava or other fitness apps.'),
                             ],
                           ],
                         ],
@@ -108,22 +113,11 @@ class TrainingSessionProgressScreen extends StatelessWidget {
                         if (controller.lastGeneratedFitFile != null)
                           TextButton(
                             onPressed: () {
-                              // TODO: Implement file sharing
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('File sharing feature coming soon!'),
-                                ),
-                              );
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
                             },
-                            child: const Text('Share FIT File'),
+                            child: const Text('Close'),
                           ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Close'),
-                        ),
                       ],
                     ),
                   );
@@ -195,12 +189,13 @@ class TrainingSessionProgressScreen extends StatelessWidget {
   }
 }
 
-
 class _LiveFTMSDataWidget extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
   final Map<String, dynamic>? targets;
   final String machineType;
-  const _LiveFTMSDataWidget({required this.ftmsDevice, this.targets, required this.machineType});
+
+  const _LiveFTMSDataWidget(
+      {required this.ftmsDevice, this.targets, required this.machineType});
 
   @override
   State<_LiveFTMSDataWidget> createState() => _LiveFTMSDataWidgetState();
@@ -225,7 +220,7 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
       _config = config;
       _configError = config == null ? 'No config for this machine type' : null;
     });
-    
+
     // Configure data processor for averaging
     if (config != null) {
       _dataProcessor.configure(config);
@@ -234,7 +229,8 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
 
   Future<DeviceDataType?> _getDeviceType() async {
     // Try to get the latest device data from the stream
-    final snapshot = await ftmsBloc.ftmsDeviceDataControllerStream.firstWhere((d) => d != null);
+    final snapshot = await ftmsBloc.ftmsDeviceDataControllerStream
+        .firstWhere((d) => d != null);
     return snapshot?.deviceDataType;
   }
 
@@ -264,10 +260,11 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
                       );
                     }
                     final deviceData = snapshot.data!;
-                    
+
                     // Process device data with averaging
-                    final paramValueMap = _dataProcessor.processDeviceData(deviceData);
-                    
+                    final paramValueMap =
+                        _dataProcessor.processDeviceData(deviceData);
+
                     return FtmsLiveDataDisplayWidget(
                       config: _config!,
                       paramValueMap: paramValueMap,
@@ -284,4 +281,3 @@ class _LiveFTMSDataWidgetState extends State<_LiveFTMSDataWidget> {
     );
   }
 }
-
