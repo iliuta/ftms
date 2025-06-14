@@ -24,6 +24,7 @@ class TrainingSessionProgressScreen extends StatefulWidget {
 
 class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressScreen> {
   bool _congratulationsDialogShown = false;
+  bool _pauseSnackBarShown = false;
 
   String formatHHMMSS(int seconds) {
     final h = seconds ~/ 3600;
@@ -51,6 +52,7 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
           child: Consumer<TrainingSessionController>(
             builder: (context, controller, _) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                // Handle completion dialog
                 if (controller.sessionCompleted && !_congratulationsDialogShown) {
                   _congratulationsDialogShown = true;
                   showDialog(
@@ -150,11 +152,113 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
                     ),
                   );
                 }
+                
+                // Handle pause SnackBar
+                if (controller.sessionPaused && !_pauseSnackBarShown && !controller.sessionCompleted) {
+                  _pauseSnackBarShown = true;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          Icon(Icons.pause_circle, color: Colors.white, size: 20),
+                          SizedBox(width: 8),
+                          Text('Session Paused - Press Resume to continue'),
+                        ],
+                      ),
+                      backgroundColor: Colors.orange,
+                      duration: const Duration(days: 1), // Keep it visible until manually dismissed
+                      action: SnackBarAction(
+                        label: 'Resume',
+                        textColor: Colors.white,
+                        onPressed: () {
+                          controller.resumeSession();
+                        },
+                      ),
+                    ),
+                  );
+                } else if (!controller.sessionPaused && _pauseSnackBarShown) {
+                  _pauseSnackBarShown = false;
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                }
               });
               return Scaffold(
                 appBar: AppBar(
-                  title: Text(widget.session.title),
-                  toolbarHeight: 40,
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.session.title,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (controller.sessionPaused) ...[
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.pause_circle,
+                          color: Colors.orange,
+                          size: 16,
+                        ),
+                        const Text(
+                          'PAUSED',
+                          style: TextStyle(
+                            color: Colors.orange,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  actions: [
+                    if (!controller.sessionCompleted) ...[
+                      IconButton(
+                        onPressed: controller.sessionPaused 
+                            ? controller.resumeSession 
+                            : controller.pauseSession,
+                        icon: Icon(controller.sessionPaused 
+                            ? Icons.play_arrow 
+                            : Icons.pause),
+                        tooltip: controller.sessionPaused ? 'Resume' : 'Pause',
+                        color: controller.sessionPaused 
+                            ? Colors.green 
+                            : Colors.orange,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          // Show confirmation dialog before stopping
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Stop Training Session'),
+                              content: const Text(
+                                  'Are you sure you want to stop the training session? This action cannot be undone.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    controller.stopSession();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Stop'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.stop),
+                        tooltip: 'Stop Session',
+                        color: Colors.red,
+                      ),
+                    ],
+                  ],
+                  toolbarHeight: 56,
                 ),
                 body: Padding(
                   padding: const EdgeInsets.all(16),
@@ -166,7 +270,7 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
                         elapsed: controller.elapsed,
                         formatTime: formatHHMMSS,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Expanded(
                         child: Row(
                           children: [

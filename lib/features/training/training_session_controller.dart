@@ -33,6 +33,7 @@ class TrainingSessionController extends ChangeNotifier {
 
   bool hasControl = false;
   bool sessionCompleted = false;
+  bool sessionPaused = false; // Add pause state
   int elapsed = 0;
   int intervalElapsed = 0;
   int currentInterval = 0;
@@ -174,7 +175,7 @@ class TrainingSessionController extends ChangeNotifier {
       }
     }
     
-    if (timerActive) return;
+    if (timerActive || sessionPaused) return;
     
     final params = data.getDeviceDataParameterValues();
     // Only start timer if at least one value has changed since last update
@@ -197,13 +198,13 @@ class TrainingSessionController extends ChangeNotifier {
   }
 
   void _startTimer() {
-    if (timerActive) return;
+    if (timerActive || sessionPaused) return;
     timerActive = true;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _onTick());
   }
 
   void _onTick() {
-    if (sessionCompleted) return;
+    if (sessionCompleted || sessionPaused) return;
     elapsed++;
     if (elapsed >= _totalDuration) {
       _timer?.cancel();
@@ -305,6 +306,52 @@ class TrainingSessionController extends ChangeNotifier {
     }
     
     notifyListeners();
+  }
+
+  /// Pause the current training session
+  void pauseSession() {
+    if (sessionCompleted || sessionPaused) return;
+    
+    sessionPaused = true;
+    timerActive = false;
+    _timer?.cancel();
+    
+    // Send pause command to FTMS device
+    _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+    
+    notifyListeners();
+  }
+
+  /// Resume the paused training session
+  void resumeSession() {
+    if (sessionCompleted || !sessionPaused) return;
+    
+    sessionPaused = false;
+    
+    // Send resume command to FTMS device
+    _ftmsService.writeCommand(MachineControlPointOpcodeType.startOrResume);
+    
+    // Restart timer - it will start automatically when FTMS data changes
+    notifyListeners();
+  }
+
+  /// Stop the training session completely
+  void stopSession() {
+    if (sessionCompleted) return;
+    
+    sessionCompleted = true;
+    sessionPaused = false;
+    timerActive = false;
+    _timer?.cancel();
+    
+    // Send stop command to FTMS device
+    _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+    
+    // Finish recording and generate FIT file (async)
+    _finishRecording().then((_) {
+      // Only notify listeners after recording is completely finished
+      notifyListeners();
+    });
   }
 
   @override
