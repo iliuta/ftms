@@ -3,7 +3,7 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../../core/config/ftms_display_config.dart';
 import '../model/training_session.dart';
 import '../training_session_controller.dart';
-import '../session_progress_bar.dart';
+import 'session_progress_bar.dart';
 import '../training_interval_list.dart';
 import 'live_ftms_data_widget.dart';
 
