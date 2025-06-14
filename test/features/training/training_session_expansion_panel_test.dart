@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/features/training/training_session_expansion_panel.dart';
 import 'package:ftms/features/training/model/unit_training_interval.dart';
 import 'package:ftms/features/training/model/training_session.dart';
+import 'package:ftms/features/training/widgets/training_session_chart.dart';
 import 'package:flutter/services.dart';
 
 void main() {
@@ -61,14 +62,15 @@ void main() {
     // Expand the panel
     await tester.tap(find.byType(ExpansionPanelList));
     await tester.pumpAndSettle();
-    // Should show interval titles and durations
-    expect(find.textContaining('Warmup: 60s'), findsOneWidget);
-    expect(find.textContaining('Main: 300s'), findsOneWidget);
-    // Should show pretty targets (label and value, not raw JSON)
-    expect(find.textContaining('Stroke Rate:'), findsOneWidget);
-    expect(find.textContaining('Heart rate:'), findsOneWidget);
-    expect(find.textContaining('Power:'), findsOneWidget);
-    // Should not show raw JSON curly braces
+    
+    // Should show the chart title
+    expect(find.text('Training Intensity'), findsOneWidget);
+    
+    // Should show the interactive chart
+    expect(find.byType(TrainingSessionChart), findsOneWidget);
+    
+    // Should show the start button
+    expect(find.text('Start This Session'), findsOneWidget);
     expect(find.textContaining('{'), findsNothing);
     expect(find.textContaining('}'), findsNothing);
   });

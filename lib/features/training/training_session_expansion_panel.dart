@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'model/training_session.dart';
-import 'model/unit_training_interval.dart';
 import '../../core/config/ftms_display_config.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import 'interval_target_fields_display.dart';
+import 'widgets/training_session_chart.dart';
 
 class TrainingSessionExpansionPanelList extends StatefulWidget {
   final List<TrainingSessionDefinition> sessions;
@@ -59,14 +58,28 @@ class _TrainingSessionExpansionPanelListState extends State<TrainingSessionExpan
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ...session.intervals.map((interval) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: _IntervalDetails(
-                              interval: interval,
-                              config: config,
-                            ),
-                          )),
-                      const SizedBox(height: 8),
+                      // Add the visual chart
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Training Intensity',
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              const SizedBox(height: 8),                      TrainingSessionChart(
+                        intervals: session.intervals,
+                        machineType: session.ftmsMachineType,
+                        height: 120,
+                        config: config,
+                      ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       Align(
                         alignment: Alignment.centerRight,
                         child: ElevatedButton.icon(
@@ -110,29 +123,6 @@ class _TrainingSessionExpansionPanelListState extends State<TrainingSessionExpan
     final config = await loadFtmsDisplayConfig(type);
     _configCache[machineType] = config;
     return config;
-  }
-}
-
-class _IntervalDetails extends StatelessWidget {
-  final UnitTrainingInterval interval;
-  final FtmsDisplayConfig? config;
-  const _IntervalDetails({required this.interval, required this.config});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '${interval.title ?? 'Interval'}: ${interval.duration}s',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        IntervalTargetFieldsDisplay(
-          targets: interval.targets,
-          config: config,
-        ),
-      ],
-    );
   }
 }
 
