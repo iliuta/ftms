@@ -14,33 +14,34 @@ I was looking for a way to learn Flutter and this seemed like a good project to 
 
 It is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutter package for FTMS Bluetooth connectivity. Nice work, BTW, it saves a lot of time for translating complicated hex bluetooth codes into meaningful, human readable data.
 
-## embed the images from doc directory here
+## Screenshots
 ![App Screenshot](doc/screen1.png)
 ![App Screenshot](doc/screen2.png)
 ![App Screenshot](doc/screen3.png)
+![App Screenshot](doc/screen4.png)
 
 
 ## Main Features
 
 - **FTMS Bluetooth Connectivity**: scan for and connect to FTMS-compatible fitness machines ( bikes, rowers) using Bluetooth Low Energy (BLE).
+- **Heart rate monitoring**: connect to heart rate monitors (HRMs) via Bluetooth and display real-time heart rate data.
 - **Live Data Display**: View real-time metrics from your connected machine.
-- **Structured Training Sessions**: load and execute interval-based training sessions with support for both simple and grouped intervals (unit/group model).
+- **Structured Training Sessions**: load and execute interval-based training sessions with support for both simple and grouped intervals.
 - **Session Progress Tracking**: Visual progress bar and detailed feedback during workouts, including interval targets and completion status.
-- **FIT file generation**: When a training session is over, a FIT file is generated for the moment in the application private storage. 
+- **FIT file generation**: When a training session is over, a FIT file is generated in the application private storage and automatically sent to Strava. 
 
 For build, test, and usage instructions, see the rest of this README.
 
 ## Features I'm thinking about
 
-- Control the machine resistance. I tried to implement this but for some reason it doesn't work. I'm still digging into it.
+- Control the machine resistance (ERG mode). I tried to implement this but for some reason it doesn't work. I'm still digging into it.
 - Training session editor (for the moment, the training sessions are manually defined files in `lib/training-sessions/`)
-- Upload training sessions FIT files to Strava.
-- User preferences: FTP, max heart rate, etc
+- User preferences: FTP, max heart rate, etc (hardcoded for the moment)
 
 ## Getting Started
 
 ### Prerequisites
-- [Flutter SDK](https://flutter.dev/docs/get-started/install) (3.6.0 or newer recommended)
+- [Flutter SDK](https://flutter.dev/docs/get-started/install) 
 - Java 21 for Android builds
 - Android Studio and/or Xcode for mobile builds (I'm on a Mac M4, I don't really know if it works on other platforms)
 - Bluetooth activated on your device
