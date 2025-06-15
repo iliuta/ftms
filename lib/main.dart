@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_ftms/flutter_ftms.dart';
 
 import 'features/scan/scan_page.dart';
 import 'features/scan/scan_widgets.dart';
 import 'features/common/burger_menu.dart';
+import 'core/services/connected_devices_service.dart';
 
 void main() {
   // Set log level for production
@@ -14,6 +14,9 @@ void main() {
   // Initialize device navigation callbacks to avoid circular dependencies
   initializeDeviceNavigation();
   
+  // Initialize connected devices service
+  connectedDevicesService.initialize();
+
   runApp(const MyApp());
 }
 
@@ -57,48 +60,29 @@ class _FlutterFTMSAppState extends State<FlutterFTMSApp> {
   @override
   void initState() {
     super.initState();
-    _findConnectedFtmsDevice();
     
-    // Check for connected devices periodically
-    _startPeriodicCheck();
-  }
-
-  void _startPeriodicCheck() {
-    // Check every 5 seconds for connected FTMS devices
-    Stream.periodic(const Duration(seconds: 5)).listen((_) {
-      if (mounted) {
-        _findConnectedFtmsDevice();
-      }
+    // Listen to connected devices changes
+    connectedDevicesService.devicesStream.listen((devices) {
+      _updateConnectedFtmsDevice(devices);
     });
+
+    // Get initial connected device if any
+    _updateConnectedFtmsDevice(connectedDevicesService.connectedDevices);
   }
 
-  Future<void> _findConnectedFtmsDevice() async {
+  void _updateConnectedFtmsDevice(List<ConnectedDevice> devices) {
+    // Find the first FTMS device
+    ConnectedDevice? ftmsDevice;
     try {
-      final connectedDevices = FlutterBluePlus.connectedDevices;
-      _updateConnectedFtmsDevice(connectedDevices);
+      ftmsDevice = devices.firstWhere((device) => device.deviceType == 'FTMS');
     } catch (e) {
-      // Handle error silently
-    }
-  }
-
-  void _updateConnectedFtmsDevice(List<BluetoothDevice> devices) async {
-    BluetoothDevice? ftmsDevice;
-    
-    for (final device in devices) {
-      try {
-        final isFtms = await FTMS.isBluetoothDeviceFTMSDevice(device);
-        if (isFtms) {
-          ftmsDevice = device;
-          break;
-        }
-      } catch (e) {
-        // Continue checking other devices
-      }
+      ftmsDevice = null;
     }
     
-    if (mounted && _connectedFtmsDevice != ftmsDevice) {
+    final newFtmsDevice = ftmsDevice?.device;
+    if (mounted && _connectedFtmsDevice != newFtmsDevice) {
       setState(() {
-        _connectedFtmsDevice = ftmsDevice;
+        _connectedFtmsDevice = newFtmsDevice;
       });
     }
   }

@@ -2,21 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'model/training_session.dart';
 import '../../core/config/ftms_display_config.dart';
+import '../../core/services/connected_devices_service.dart';
 import 'widgets/training_session_chart.dart';
 
 class TrainingSessionExpansionPanelList extends StatefulWidget {
   final List<TrainingSessionDefinition> sessions;
   final ScrollController scrollController;
   final Function(TrainingSessionDefinition)? onSessionSelected;
-  final bool
-      showStartButton; // Controls whether to show the Start Session button
 
   const TrainingSessionExpansionPanelList({
     super.key,
     required this.sessions,
     required this.scrollController,
     this.onSessionSelected,
-    this.showStartButton = false, // Default to false (hidden)
   });
 
   @override
@@ -96,14 +94,12 @@ class _TrainingSessionExpansionPanelListState
                         ),
                       ),
                       const SizedBox(height: 16),
-                      if (widget
-                          .showStartButton) // Only show button when enabled
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            _buildStartSessionButton(context, session),
-                          ],
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          _buildStartSessionButton(context, session),
+                        ],
+                      ),
                     ],
                   ),
                 );
@@ -141,16 +137,37 @@ class _TrainingSessionExpansionPanelListState
 
   Widget _buildStartSessionButton(
       BuildContext context, TrainingSessionDefinition session) {
-    // Compatible device connected - show enabled button
-    return ElevatedButton.icon(
-      icon: const Icon(Icons.play_arrow, size: 16),
-      label: const Text('Start Session', style: TextStyle(fontSize: 13)),
-      onPressed: () async {
-        if (widget.onSessionSelected != null) {
-          widget.onSessionSelected!(session);
-        } else {
-          Navigator.pop(context, session);
-        }
+    return StreamBuilder<List<ConnectedDevice>>(
+      stream: connectedDevicesService.devicesStream,
+      initialData: connectedDevicesService.connectedDevices,
+      builder: (context, snapshot) {
+        final devices = snapshot.data ?? [];
+        final ftmsDevices = devices
+            .where((d) =>
+                d.deviceType == 'FTMS' &&
+                session.ftmsMachineType == d.ftmsMachineType)
+            .toList();
+
+        final hasCompatibleDevice = ftmsDevices.isNotEmpty;
+
+        return ElevatedButton.icon(
+          icon: const Icon(Icons.play_arrow, size: 16),
+          label: Text(
+            hasCompatibleDevice
+                ? 'Start Session'
+                : 'Fitness machine not connected',
+            style: const TextStyle(fontSize: 13),
+          ),
+          onPressed: hasCompatibleDevice
+              ? () async {
+                  if (widget.onSessionSelected != null) {
+                    widget.onSessionSelected!(session);
+                  } else {
+                    Navigator.pop(context, session);
+                  }
+                }
+              : null,
+        );
       },
     );
   }
