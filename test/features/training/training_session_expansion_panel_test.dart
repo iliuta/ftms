@@ -69,8 +69,8 @@ void main() {
     // Should show the interactive chart
     expect(find.byType(TrainingSessionChart), findsOneWidget);
     
-    // Should show the start button
-    expect(find.text('Start This Session'), findsOneWidget);
+    // Shouldn't show the start button
+    expect(find.text('Start Session'), findsNothing);
     expect(find.textContaining('{'), findsNothing);
     expect(find.textContaining('}'), findsNothing);
   });

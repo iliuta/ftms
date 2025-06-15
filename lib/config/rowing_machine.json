@@ -1,7 +1,7 @@
 {
   "fields": [
     {
-      "name": "Instantaneous Speed",
+      "name": "Instantaneous Pace",
       "label": "Speed",
       "display": "speedometer",
       "formatter": "rowerPaceFormatter",

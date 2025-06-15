@@ -4,6 +4,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/utils/logger.dart';
 import '../../core/services/strava_service.dart';
 import '../../core/services/permission_service.dart';
+import '../../core/services/connected_devices_service.dart';
 import 'dart:io';
 
 import 'scan_widgets.dart';
@@ -265,11 +266,19 @@ class _ScanPageState extends State<ScanPage> {
             child: StreamBuilder<List<ScanResult>>(
               stream: FlutterBluePlus.scanResults,
               initialData: const [],
-              builder: (c, snapshot) => scanResultsToWidget(
-                  (snapshot.data ?? [])
-                      .where((element) => element.device.platformName.isNotEmpty)
-                      .toList(),
-                  context),
+              builder: (c, scanSnapshot) {
+                return StreamBuilder<List<ConnectedDevice>>(
+                  stream: connectedDevicesService.devicesStream,
+                  initialData: connectedDevicesService.connectedDevices,
+                  builder: (context, connectedSnapshot) {
+                    final scanResults = (scanSnapshot.data ?? [])
+                        .where((element) => element.device.platformName.isNotEmpty)
+                        .toList();
+                    
+                    return scanResultsToWidget(scanResults, context);
+                  },
+                );
+              },
             ),
           ),
         ],

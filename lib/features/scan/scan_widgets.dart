@@ -7,6 +7,7 @@ import '../../core/services/heart_rate_service.dart';
 import '../../core/services/cadence_service.dart';
 import '../../core/services/devices/device_type_manager.dart';
 import '../../core/services/devices/device_navigation_registry.dart';
+import '../../core/services/connected_devices_service.dart';
 
 /// Button for scanning Bluetooth devices
 Widget scanBluetoothButton(bool? isScanning) {
@@ -25,44 +26,100 @@ Widget scanBluetoothButton(bool? isScanning) {
 Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
   final deviceTypeManager = DeviceTypeManager();
 
-  // Sort data by device type priority
-  final sortedData = deviceTypeManager.sortDevicesByPriority(data);
-
-  return Column(
-    children: sortedData
-        .map(
-          (d) => ListTile(
-            title: Builder(builder: (c) {
-              final deviceService =
-                  deviceTypeManager.getDeviceService(d.device, data);
-              return Row(
-                children: [
-                  if (deviceService != null) ...[
-                    deviceService.getDeviceIcon(context) ?? Container(),
-                    const SizedBox(width: 4),
-                  ],
-                  Expanded(
-                    child: Text(
-                      d.device.platformName.isEmpty
-                          ? "(unknown device)"
-                          : d.device.platformName,
-                    ),
-                  ),
-                ],
-              );
-            }),
-            subtitle: Text(d.device.remoteId.str),
-            leading: SizedBox(
-              width: 40,
-              child: Center(
-                child: Text(d.rssi.toString()),
+  // Get connected devices
+  final connectedDevices = connectedDevicesService.connectedDevices;
+  
+  // Create a set of connected device IDs for quick lookup
+  final connectedDeviceIds = connectedDevices.map((d) => d.device.remoteId.str).toSet();
+  
+  // Filter out scan results that are already connected to avoid duplicates
+  final availableDevices = data.where((scanResult) => 
+    !connectedDeviceIds.contains(scanResult.device.remoteId.str)
+  ).toList();
+  
+  // Sort available devices by device type priority
+  final sortedAvailableDevices = deviceTypeManager.sortDevicesByPriority(availableDevices);
+  
+  // Create a combined list: connected devices first, then available devices
+  final List<Widget> deviceWidgets = [];
+  
+  // Add connected devices first
+  for (final connectedDevice in connectedDevices) {
+    deviceWidgets.add(
+      ListTile(
+        title: Row(
+          children: [
+            connectedDevice.service.getDeviceIcon(context) ?? Container(),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                connectedDevice.name,
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
             ),
-            trailing: getButtonForBluetoothDevice(d.device, context, data),
+            // Connected indicator
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                'Connected',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        subtitle: Text(connectedDevice.device.remoteId.str),
+        leading: const SizedBox(
+          width: 40,
+          child: Center(
+            child: Icon(Icons.bluetooth_connected, color: Colors.green),
           ),
-        )
-        .toList(),
-  );
+        ),
+        trailing: getButtonForConnectedDevice(connectedDevice, context),
+      ),
+    );
+  }
+  
+  // Add available devices
+  for (final scanResult in sortedAvailableDevices) {
+    final deviceService = deviceTypeManager.getDeviceService(scanResult.device, data);
+    deviceWidgets.add(
+      ListTile(
+        title: Row(
+          children: [
+            if (deviceService != null) ...[
+              deviceService.getDeviceIcon(context) ?? Container(),
+              const SizedBox(width: 4),
+            ],
+            Expanded(
+              child: Text(
+                scanResult.device.platformName.isEmpty
+                    ? "(unknown device)"
+                    : scanResult.device.platformName,
+              ),
+            ),
+          ],
+        ),
+        subtitle: Text(scanResult.device.remoteId.str),
+        leading: SizedBox(
+          width: 40,
+          child: Center(
+            child: Text(scanResult.rssi.toString()),
+          ),
+        ),
+        trailing: getButtonForBluetoothDevice(scanResult.device, context, data),
+      ),
+    );
+  }
+
+  return Column(children: deviceWidgets);
 }
 
 /// Button for connecting/disconnecting to a Bluetooth device and opening FTMS page
@@ -91,18 +148,27 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                 // Get the primary device service for this device
                 final deviceService =
                     deviceTypeManager.getDeviceService(device, scanResults);
+                
+                debugPrint('🔍 Device service for ${device.platformName}: ${deviceService?.deviceTypeName ?? 'null'}');
 
                 if (deviceService != null) {
+                  debugPrint('✅ Using primary device service: ${deviceService.deviceTypeName} for ${device.platformName}');
                   // Try to connect using the appropriate device service
                   final success = await deviceService.connectToDevice(device);
                   if (success && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Connected to ${deviceService.deviceTypeName}: ${device.platformName}'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
+                    // Add to connected devices service
+                    debugPrint('📱 Adding device via primary path: ${device.platformName}');
+                    await connectedDevicesService.addConnectedDevice(device, scanResults);
+                    
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Connected to ${deviceService.deviceTypeName}: ${device.platformName}'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
                   } else if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -113,15 +179,13 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                     );
                   }
                 } else {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content:
-                            Text('Failed to connect to ${device.platformName}'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                      Text('Unsupported device ${device.platformName}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
                 }
               },
             );
@@ -182,6 +246,9 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                   OutlinedButton(
                     child: const Text("Disconnect"),
                     onPressed: () async {
+                      // Remove from connected devices service first
+                      connectedDevicesService.removeConnectedDevice(device.remoteId.str);
+                      
                       // Disconnect using all matching services
                       final matchingServices = deviceTypeManager
                           .getAllMatchingServices(device, scanResults);
@@ -211,6 +278,35 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
             return Text(deviceState.name);
         }
       });
+}
+
+/// Button for actions on already connected devices
+Widget getButtonForConnectedDevice(ConnectedDevice connectedDevice, BuildContext context) {
+  return SizedBox(
+    width: 250,
+    child: Wrap(
+      spacing: 2,
+      alignment: WrapAlignment.end,
+      direction: Axis.horizontal,
+      children: [
+        // Get actions from the device service
+        ...connectedDevice.service.getConnectedActions(connectedDevice.device, context),
+        OutlinedButton(
+          child: const Text("Disconnect"),
+          onPressed: () async {
+            // Disconnect using the device service
+            await connectedDevice.service.disconnectFromDevice(connectedDevice.device);
+            
+            // Remove from connected devices service
+            connectedDevicesService.removeConnectedDevice(connectedDevice.device.remoteId.str);
+
+            // Disable wakelock when disconnecting
+            WakelockPlus.disable();
+          },
+        ),
+      ],
+    ),
+  );
 }
 
 /// Initialize device navigation callbacks

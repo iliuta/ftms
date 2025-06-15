@@ -3,6 +3,8 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'device_type_service.dart';
 import 'device_navigation_registry.dart';
+import '../connected_devices_service.dart';
+import '../../bloc/ftms_bloc.dart';
 
 /// Service for FTMS (Fitness Machine Service) devices
 class FtmsDeviceService extends DeviceTypeService {
@@ -75,10 +77,33 @@ class FtmsDeviceService extends DeviceTypeService {
   Future<bool> connectToDevice(BluetoothDevice device) async {
     try {
       await FTMS.connectToFTMSDevice(device);
+      
+      // Start listening to device data to detect machine type
+      startMachineTypeDetection(device);
+      
       return true;
     } catch (e) {
       return false;
     }
+  }
+
+  /// Start listening to FTMS device data to detect and store machine type
+  void startMachineTypeDetection(BluetoothDevice device) {
+    // Listen to FTMS data stream to detect machine type
+    FTMS.useDeviceDataCharacteristic(
+      device,
+      (DeviceData data) {
+        // Extract machine type from device data
+        final machineType = data.deviceDataType.toString();
+        
+        // Update the connected device with the detected machine type
+        final connectedDevicesService = ConnectedDevicesService();
+        connectedDevicesService.updateDeviceFtmsMachineType(device.remoteId.str, machineType);
+        
+        // Also forward to the global FTMS bloc for other consumers
+        ftmsBloc.ftmsDeviceDataControllerSink.add(data);
+      },
+    );
   }
 
   @override

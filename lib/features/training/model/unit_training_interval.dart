@@ -23,10 +23,13 @@ class UnitTrainingInterval extends TrainingInterval {
     Map<String, dynamic>? targets;
     if (json['targets'] != null) {
       targets = Map<String, dynamic>.from(json['targets']);
-      // Use strategy pattern for power target resolution
-      final strategy = TargetPowerStrategyFactory.getStrategy(machineType);
+      // Use targetPowerStrategy pattern for power target resolution
+      final targetPowerStrategy = TargetPowerStrategyFactory.getStrategy(machineType);
       if (targets.containsKey('Instantaneous Power')) {
-        targets['Instantaneous Power'] = strategy.resolvePower(targets['Instantaneous Power'], userSettings);
+        targets['Instantaneous Power'] = targetPowerStrategy.resolvePower(targets['Instantaneous Power'], userSettings);
+      }
+      if (targets.containsKey('Instantaneous Pace')) {
+        targets['Instantaneous Pace'] = targetPowerStrategy.resolvePower(targets['Instantaneous Pace'], userSettings);
       }
     }
     return UnitTrainingInterval(

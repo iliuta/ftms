@@ -42,37 +42,39 @@ class _TrainingSessionChartState extends State<TrainingSessionChart> {
     final totalDuration = widget.intervals.fold<int>(0, (sum, interval) => sum + interval.duration);
     final intensityKey = _getIntensityKey();
 
-    return Container(
+    return SizedBox(
       height: widget.height,
-      padding: const EdgeInsets.all(8),
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Stack(
             children: [
-              Column(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onPanUpdate: (details) => _handleHover(details.localPosition),
-                      onTapDown: (details) => _handleHover(details.localPosition),
-                      onTapUp: (_) => _clearHover(),
-                      onPanEnd: (_) => _clearHover(),
-                      child: CustomPaint(
-                        size: Size.infinite,
-                        painter: _TrainingChartPainter(
-                          intervals: widget.intervals,
-                          totalDuration: totalDuration,
-                          intensityKey: intensityKey,
-                          hoveredIndex: _hoveredIntervalIndex,
+              Container(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onPanUpdate: (details) => _handleHover(details.localPosition),
+                        onTapDown: (details) => _handleHover(details.localPosition),
+                        onTapUp: (_) => _clearHover(),
+                        onPanEnd: (_) => _clearHover(),
+                        child: CustomPaint(
+                          size: Size.infinite,
+                          painter: _TrainingChartPainter(
+                            intervals: widget.intervals,
+                            totalDuration: totalDuration,
+                            intensityKey: intensityKey,
+                            hoveredIndex: _hoveredIntervalIndex,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildTimeAxisLabels(totalDuration),
-                ],
+                    const SizedBox(height: 8),
+                    _buildTimeAxisLabels(totalDuration),
+                  ],
+                ),
               ),
-              // Hover tooltip
+              // Hover tooltip - now outside the padded container
               if (_hoveredIntervalIndex != null && _hoverPosition != null)
                 _buildHoverTooltip(constraints.biggest),
             ],
@@ -145,30 +147,23 @@ class _TrainingSessionChartState extends State<TrainingSessionChart> {
     
     // Calculate smart positioning to avoid truncation
     const tooltipWidth = 200.0;
-    const tooltipHeight = 120.0; // Estimated height
-    const padding = 12.0;
+    const tooltipHeight = 100.0; // Increased height to accommodate more content
+    const padding = 0.0; // Increased padding now that tooltip is outside container
     
-    // Calculate horizontal position
-    double left = position.dx + 10;
+    // Calculate horizontal position - adjust for the 8px padding
+    double left = position.dx + 8; // Add 8px to account for container padding
     if (left + tooltipWidth > containerSize.width - padding) {
       // Position to the left of the touch point if it would overflow
-      left = position.dx - tooltipWidth - 10;
+      left = (position.dx + 8) - tooltipWidth - 10; // Add 8px to account for container padding
     }
     // Ensure it doesn't go off the left edge
     if (left < padding) {
       left = padding;
     }
     
-    // Calculate vertical position
-    double top = position.dy - 80;
-    if (top < padding) {
-      // Position below the touch point if it would overflow at the top
-      top = position.dy + 20;
-    }
-    // Ensure it doesn't go off the bottom edge
-    if (top + tooltipHeight > containerSize.height - padding) {
-      top = containerSize.height - tooltipHeight - padding;
-    }
+  
+    double top = (containerSize.height - tooltipHeight) / 2 - 10; // Center vertically with a slight offset
+
     
     return Positioned(
       left: left,

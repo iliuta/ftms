@@ -4,6 +4,8 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import 'features/scan/scan_page.dart';
 import 'features/scan/scan_widgets.dart';
+import 'features/common/burger_menu.dart';
+import 'core/services/connected_devices_service.dart';
 
 void main() {
   // Set log level for production
@@ -12,6 +14,9 @@ void main() {
   // Initialize device navigation callbacks to avoid circular dependencies
   initializeDeviceNavigation();
   
+  // Initialize connected devices service
+  connectedDevicesService.initialize();
+
   runApp(const MyApp());
 }
 
@@ -42,14 +47,52 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class FlutterFTMSApp extends StatelessWidget {
+class FlutterFTMSApp extends StatefulWidget {
   const FlutterFTMSApp({super.key});
+
+  @override
+  State<FlutterFTMSApp> createState() => _FlutterFTMSAppState();
+}
+
+class _FlutterFTMSAppState extends State<FlutterFTMSApp> {
+  BluetoothDevice? _connectedFtmsDevice;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Listen to connected devices changes
+    connectedDevicesService.devicesStream.listen((devices) {
+      _updateConnectedFtmsDevice(devices);
+    });
+
+    // Get initial connected device if any
+    _updateConnectedFtmsDevice(connectedDevicesService.connectedDevices);
+  }
+
+  void _updateConnectedFtmsDevice(List<ConnectedDevice> devices) {
+    // Find the first FTMS device
+    ConnectedDevice? ftmsDevice;
+    try {
+      ftmsDevice = devices.firstWhere((device) => device.deviceType == 'FTMS');
+    } catch (e) {
+      ftmsDevice = null;
+    }
+    
+    final newFtmsDevice = ftmsDevice?.device;
+    if (mounted && _connectedFtmsDevice != newFtmsDevice) {
+      setState(() {
+        _connectedFtmsDevice = newFtmsDevice;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Fitness machines"),
+        leading: BurgerMenu(connectedDevice: _connectedFtmsDevice),
       ),
       body: const ScanPage(),
     );
