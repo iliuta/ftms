@@ -1,0 +1,13 @@
+{
+  "isDarkMode": false,
+  "temperatureUnit": "celsius",
+  "distanceUnit": "metric",
+  "enableHapticFeedback": true,
+  "enableNotifications": true,
+  "autoConnectToLastDevice": true,
+  "keepScreenOn": true,
+  "enableAutoPause": false,
+  "enableFitFileGeneration": true,
+  "enableStravaUpload": false,
+  "autoSaveInterval": 30
+}

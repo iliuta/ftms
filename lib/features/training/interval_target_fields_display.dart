@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ftms/core/models/ftms_display_field.dart';
 
 import '../../core/config/ftms_display_config.dart';
+import '../../core/config/field_format_strategy.dart';
 import '../../core/widgets/ftms_icon_registry.dart';
 
 class IntervalTargetFieldsDisplay extends StatelessWidget {
@@ -36,16 +37,40 @@ class IntervalTargetFieldsDisplay extends StatelessWidget {
           unit: '',
         ),
       );
+      
+      // Format the value using the field's formatter if available
+      String formattedValue = '${entry.value}${field.unit.isNotEmpty ? ' ${field.unit}' : ''}';
+      if (field.formatter != null) {
+        final formatterStrategy = FieldFormatter.getStrategy(field.formatter!);
+        if (formatterStrategy != null) {
+          formattedValue = formatterStrategy.format(
+            field: field, 
+            paramValue: entry.value
+          );
+        }
+      }
+      
       children.add(Row(
         children: [
           if (field.icon != null)
             Padding(
               padding: const EdgeInsets.only(right: 4),
-              child: Icon(getFtmsIcon(field.icon), size: 18),
+              child: Icon(getFtmsIcon(field.icon), size: 16),
             ),
-          Text('${field.label}: ', style: labelStyle ?? const TextStyle(fontWeight: FontWeight.w500)),
-          Text('${entry.value}', style: valueStyle),
-          if (field.unit.isNotEmpty) Text(' ${field.unit}', style: valueStyle),
+          Flexible(
+            child: Text(
+              '${field.label}: ', 
+              style: labelStyle ?? const TextStyle(fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              formattedValue, 
+              style: valueStyle,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ));
     }

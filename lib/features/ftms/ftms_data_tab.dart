@@ -134,6 +134,7 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                             return TrainingSessionExpansionPanelList(
                               sessions: sessions,
                               scrollController: scrollController,
+                              showStartButton: true, // Enable start button in FTMS device context
                             );
                           },
                         ),
