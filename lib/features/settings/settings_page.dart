@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/models/user_settings.dart';
 import '../../core/utils/logger.dart';
-import 'models/app_settings.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/user_preferences_section.dart';
-import 'widgets/app_preferences_section.dart';
-import 'widgets/training_preferences_section.dart';
 
 /// Comprehensive settings page for the FTMS application
 class SettingsPage extends StatefulWidget {
@@ -18,7 +15,6 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   UserSettings? _userSettings;
-  AppSettings? _appSettings;
   bool _isLoading = true;
   bool _hasChanges = false;
 
@@ -31,11 +27,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _loadSettings() async {
     try {
       final userSettings = await UserSettings.loadDefault();
-      final appSettings = await AppSettings.loadDefault();
-      
+
       setState(() {
         _userSettings = userSettings;
-        _appSettings = appSettings;
         _isLoading = false;
       });
     } catch (e) {
@@ -56,12 +50,11 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _saveSettings() async {
-    if (_userSettings == null || _appSettings == null) return;
+    if (_userSettings == null) return;
     
     try {
       await _userSettings!.save();
-      await _appSettings!.save();
-      
+
       setState(() {
         _hasChanges = false;
       });
@@ -92,13 +85,6 @@ class _SettingsPageState extends State<SettingsPage> {
   void _onUserSettingsChanged(UserSettings newSettings) {
     setState(() {
       _userSettings = newSettings;
-      _hasChanges = true;
-    });
-  }
-
-  void _onAppSettingsChanged(AppSettings newSettings) {
-    setState(() {
-      _appSettings = newSettings;
       _hasChanges = true;
     });
   }
@@ -174,7 +160,7 @@ class _SettingsPageState extends State<SettingsPage> {
       );
     }
 
-    if (_userSettings == null || _appSettings == null) {
+    if (_userSettings == null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -209,16 +195,6 @@ class _SettingsPageState extends State<SettingsPage> {
             onChanged: _onUserSettingsChanged,
           ),
           const SizedBox(height: 24),
-          AppPreferencesSection(
-            appSettings: _appSettings!,
-            onChanged: _onAppSettingsChanged,
-          ),
-          const SizedBox(height: 24),
-          TrainingPreferencesSection(
-            appSettings: _appSettings!,
-            onChanged: _onAppSettingsChanged,
-          ),
-          const SizedBox(height: 24),
           SettingsSection(
             title: 'About',
             children: [
@@ -227,29 +203,32 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: const Text('App Version'),
                 subtitle: const Text('1.0.0'),
                 onTap: () {
-                  showAboutDialog(
+                  showDialog(
                     context: context,
-                    applicationName: 'FTMS Trainer',
-                    applicationVersion: '1.0.0',
-                    applicationLegalese: '© 2024 FTMS Trainer App',
-                    children: [
-                      const SizedBox(height: 16),
-                      const Text(
-                        'A comprehensive fitness machine trainer app supporting FTMS protocol for indoor bikes and rowing machines.',
+                    builder: (context) => AlertDialog(
+                      title: const Text('FTMS Trainer'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Version: 1.0.0',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text('© 2024 https://github.com/iliuta'),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'A comprehensive fitness machine trainer app supporting FTMS protocol for indoor bikes and rowing machines.',
+                          ),
+                        ],
                       ),
-                    ],
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.bug_report_outlined),
-                title: const Text('Report Issue'),
-                subtitle: const Text('Send feedback or report a bug'),
-                onTap: () {
-                  // TODO: Implement feedback mechanism
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Feedback feature coming soon!'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Close'),
+                        ),
+                      ],
                     ),
                   );
                 },
