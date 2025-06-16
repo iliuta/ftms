@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'device_type_service.dart';
-import '../cadence_service.dart';
+import 'bt_device.dart';
+import 'cadence_service.dart';
 
 /// Service for Cadence Sensor devices (example for future extensibility)
-class CadenceDeviceService extends DeviceTypeService {
-  static final CadenceDeviceService _instance = CadenceDeviceService._internal();
-  factory CadenceDeviceService() => _instance;
-  CadenceDeviceService._internal();
+class Cadence extends BTDevice {
+  static final Cadence _instance = Cadence._internal();
+  factory Cadence() => _instance;
+  Cadence._internal();
 
   final CadenceService _cadenceService = CadenceService();
 
@@ -15,7 +15,7 @@ class CadenceDeviceService extends DeviceTypeService {
   String get deviceTypeName => 'Cadence';
 
   @override
-  int get listPriority => 30; // Lower priority than HRM and FTMS
+  int get listPriority => 15; // Lower priority than HRM and FTMS
 
   @override
   Widget? getDeviceIcon(BuildContext context) {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'device_type_service.dart';
-import '../heart_rate_service.dart';
+import 'bt_device.dart';
+import 'heart_rate_service.dart';
 
 /// Service for Heart Rate Monitor (HRM) devices
-class HrmDeviceService extends DeviceTypeService {
-  static final HrmDeviceService _instance = HrmDeviceService._internal();
-  factory HrmDeviceService() => _instance;
-  HrmDeviceService._internal();
+class Hrm extends BTDevice {
+  static final Hrm _instance = Hrm._internal();
+  factory Hrm() => _instance;
+  Hrm._internal();
 
   final HeartRateService _heartRateService = HeartRateService();
 

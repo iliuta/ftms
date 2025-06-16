@@ -4,7 +4,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/utils/logger.dart';
 import '../../core/services/strava_service.dart';
 import '../../core/services/permission_service.dart';
-import '../../core/services/connected_devices_service.dart';
+import '../../core/services/devices/connected_devices_service.dart';
 import 'dart:io';
 
 import 'scan_widgets.dart';

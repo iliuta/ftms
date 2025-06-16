@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/services/connected_devices_service.dart';
+import '../../../core/services/devices/connected_devices_service.dart';
 
 /// Widget that displays the current connected devices status
 class ConnectedDevicesStatusWidget extends StatelessWidget {
@@ -62,7 +62,7 @@ class ConnectedDevicesStatusWidget extends StatelessWidget {
         }
 
         if (showDeviceTypes) {
-          final types = devices.map((d) => d.deviceType).toSet().toList();
+          final types = devices.map((d) => d.deviceTypeName).toSet().toList();
           types.sort();
           
           children.add(
@@ -79,7 +79,7 @@ class ConnectedDevicesStatusWidget extends StatelessWidget {
               Chip(
                 avatar: device.service.getDeviceIcon(context),
                 label: Text(
-                  '${device.name} (${device.deviceType})',
+                  '${device.name} (${device.deviceTypeName})',
                   style: const TextStyle(fontSize: 12),
                 ),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -212,7 +212,7 @@ class ConnectedDevicesList extends StatelessWidget {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Type: ${device.deviceType}'),
+                    Text('Type: ${device.deviceTypeName}'),
                     Text(
                       'Connected: ${_formatDuration(DateTime.now().difference(device.connectedAt))}',
                       style: Theme.of(context).textTheme.bodySmall,

@@ -3,10 +3,10 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// Registry for device-specific navigation callbacks
 /// This helps avoid circular dependencies between device services and UI components
-class DeviceNavigationRegistry {
-  static final DeviceNavigationRegistry _instance = DeviceNavigationRegistry._internal();
-  factory DeviceNavigationRegistry() => _instance;
-  DeviceNavigationRegistry._internal();
+class BTDeviceNavigationRegistry {
+  static final BTDeviceNavigationRegistry _instance = BTDeviceNavigationRegistry._internal();
+  factory BTDeviceNavigationRegistry() => _instance;
+  BTDeviceNavigationRegistry._internal();
 
   final Map<String, void Function(BuildContext context, BluetoothDevice device)> _navigationCallbacks = {};
 

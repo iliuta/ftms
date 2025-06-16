@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ftms/core/models/device_types.dart';
 import 'model/training_session.dart';
 import '../../core/config/live_data_display_config.dart';
-import '../../core/services/connected_devices_service.dart';
+import '../../core/services/devices/connected_devices_service.dart';
 import 'widgets/training_session_chart.dart';
 
 class TrainingSessionExpansionPanelList extends StatefulWidget {
@@ -125,8 +125,8 @@ class _TrainingSessionExpansionPanelListState
         final devices = snapshot.data ?? [];
         final ftmsDevices = devices
             .where((d) =>
-                d.deviceType == 'FTMS' &&
-                session.ftmsMachineType == d.ftmsMachineType)
+                d.deviceTypeName == 'FTMS' &&
+                session.ftmsMachineType == d.deviceType)
             .toList();
 
         final hasCompatibleDevice = ftmsDevices.isNotEmpty;

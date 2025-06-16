@@ -2,8 +2,8 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import '../config/live_data_display_config.dart';
 import '../models/live_data_field_value.dart';
 import 'value_averaging_service.dart';
-import 'heart_rate_service.dart';
-import 'cadence_service.dart';
+import 'devices/heart_rate_service.dart';
+import 'devices/cadence_service.dart';
 
 /// Service for processing FTMS device data with averaging capabilities.
 /// Can be used by both FTMSDataTab and training sessions.

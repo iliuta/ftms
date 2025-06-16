@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/services/cadence_service.dart';
+import 'package:ftms/core/services/devices/cadence_service.dart';
 
 void main() {
   group('CadenceService Data Parsing', () {

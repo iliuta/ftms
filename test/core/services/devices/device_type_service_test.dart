@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:ftms/core/services/devices/device_type_service.dart';
+import 'package:ftms/core/services/devices/bt_device.dart';
 
 void main() {
   group('DeviceTypeService', () {
@@ -88,7 +88,7 @@ void main() {
   });
 }
 
-class TestDeviceTypeService extends DeviceTypeService {
+class TestDeviceTypeService extends BTDevice {
   BluetoothDevice? lastConnectedDevice;
   BluetoothDevice? lastDisconnectedDevice;
   bool hasDevicePage = true;

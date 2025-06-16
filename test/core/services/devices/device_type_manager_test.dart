@@ -1,24 +1,24 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:ftms/core/services/devices/device_type_manager.dart';
-import 'package:ftms/core/services/devices/device_type_service.dart';
+import 'package:ftms/core/services/devices/bt_device_manager.dart';
+import 'package:ftms/core/services/devices/bt_device.dart';
 
 void main() {
   group('DeviceTypeManager', () {
-    late DeviceTypeManager manager;
+    late SupportedBTDeviceManager manager;
     late MockBluetoothDevice mockDevice;
     late List<ScanResult> mockScanResults;
 
     setUp(() {
-      manager = DeviceTypeManager();
+      manager = SupportedBTDeviceManager();
       mockDevice = MockBluetoothDevice();
       mockScanResults = <ScanResult>[MockScanResult(mockDevice)];
     });
 
     test('should be a singleton', () {
-      final manager1 = DeviceTypeManager();
-      final manager2 = DeviceTypeManager();
+      final manager1 = SupportedBTDeviceManager();
+      final manager2 = SupportedBTDeviceManager();
       expect(manager1, same(manager2));
     });
 
@@ -34,7 +34,7 @@ void main() {
     });
 
     test('should find primary device service', () {
-      final service = manager.getDeviceService(mockDevice, mockScanResults);
+      final service = manager.getBTDevice(mockDevice, mockScanResults);
       expect(service, isNotNull);
       expect(service!.deviceTypeName, equals('HRM')); // HRM has higher priority
     });
@@ -44,7 +44,7 @@ void main() {
       // Create scan results that include the device but with no matching service UUIDs
       final nonMatchingScanResults = <ScanResult>[MockScanResult(nonMatchingDevice, serviceUuids: ['ffff'])];
       
-      final service = manager.getDeviceService(nonMatchingDevice, nonMatchingScanResults);
+      final service = manager.getBTDevice(nonMatchingDevice, nonMatchingScanResults);
       expect(service, isNull);
     });
 
@@ -58,7 +58,7 @@ void main() {
         )
       ];
       
-      final services = manager.getAllMatchingServices(multiServiceDevice, multiServiceScanResults);
+      final services = manager.getAllMatchingBTDevices(multiServiceDevice, multiServiceScanResults);
       expect(services, hasLength(2));
       expect(services.map((s) => s.deviceTypeName), containsAll(['HRM', 'FTMS']));
     });
@@ -68,7 +68,7 @@ void main() {
       // Create scan results that include the device but with no matching service UUIDs
       final nonMatchingScanResults = <ScanResult>[MockScanResult(nonMatchingDevice, serviceUuids: ['ffff'])];
       
-      final services = manager.getAllMatchingServices(nonMatchingDevice, nonMatchingScanResults);
+      final services = manager.getAllMatchingBTDevices(nonMatchingDevice, nonMatchingScanResults);
       expect(services, isEmpty);
     });
 
@@ -84,10 +84,10 @@ void main() {
           MockScanResult(hrmDevice, serviceUuids: ['180d'], rssi: -50),
         ];
         
-        final sorted = manager.sortDevicesByPriority(scanResults);
+        final sorted = manager.sortBTDevicesByPriority(scanResults);
         
-        expect(sorted[0].device.remoteId.str, equals('11:11:11:11:11:11')); // HRM first
-        expect(sorted[1].device.remoteId.str, equals('22:22:22:22:22:22')); // FTMS second
+        expect(sorted[0].device.remoteId.str, equals('22:22:22:22:22:22')); // FTMS second
+        expect(sorted[1].device.remoteId.str, equals('11:11:11:11:11:11')); // HRM first
         expect(sorted[2].device.remoteId.str, equals('33:33:33:33:33:33')); // Unknown last
       });
 
@@ -100,7 +100,7 @@ void main() {
           MockScanResult(device2, serviceUuids: ['eeee'], rssi: -40), // Non-matching service
         ];
         
-        final sorted = manager.sortDevicesByPriority(scanResults);
+        final sorted = manager.sortBTDevicesByPriority(scanResults);
         
         expect(sorted[0].device.remoteId.str, equals('22:22:22:22:22:22')); // Better signal first
         expect(sorted[1].device.remoteId.str, equals('11:11:11:11:11:11'));
@@ -115,36 +115,10 @@ void main() {
           MockScanResult(ftmsDevice2, serviceUuids: ['1826'], rssi: -40),
         ];
         
-        final sorted = manager.sortDevicesByPriority(scanResults);
+        final sorted = manager.sortBTDevicesByPriority(scanResults);
         
         expect(sorted[0].device.remoteId.str, equals('22:22:22:22:22:22')); // Better signal first
         expect(sorted[1].device.remoteId.str, equals('11:11:11:11:11:11'));
-      });
-    });
-
-    group('registerDeviceService', () {
-      test('should add new device service', () {
-        final initialCount = manager.deviceServices.length;
-        final newService = MockDeviceTypeService();
-        
-        manager.registerDeviceService(newService);
-        
-        expect(manager.deviceServices.length, equals(initialCount + 1));
-        expect(manager.deviceServices, contains(newService));
-      });
-
-      test('should sort services by priority after registration', () {
-        final highPriorityService = MockDeviceTypeService(priority: 5);
-        final lowPriorityService = MockDeviceTypeService(priority: 50);
-        
-        manager.registerDeviceService(lowPriorityService);
-        manager.registerDeviceService(highPriorityService);
-        
-        final services = manager.deviceServices;
-        final highPriorityIndex = services.indexOf(highPriorityService);
-        final lowPriorityIndex = services.indexOf(lowPriorityService);
-        
-        expect(highPriorityIndex, lessThan(lowPriorityIndex));
       });
     });
   });
@@ -175,7 +149,7 @@ class MockScanResult extends ScanResult {
   );
 }
 
-class MockDeviceTypeService extends DeviceTypeService {
+class MockDeviceTypeService extends BTDevice {
   final int priority;
   final String name;
 

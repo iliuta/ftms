@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import '../utils/logger.dart';
+import '../../utils/logger.dart';
 
 /// Service for managing Heart Rate Monitor (HRM) devices
 class HeartRateService {
@@ -173,7 +173,7 @@ class HeartRateService {
       }
       
       // Validate heart rate value
-      if (heartRate > 0 && heartRate <= 220) {
+      if (heartRate > 0 && heartRate <= 250) {
         _currentHeartRate = heartRate;
         _heartRateController.add(heartRate);
         logger.d('Received heart rate from HRM: $heartRate bpm');

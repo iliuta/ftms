@@ -1,15 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:ftms/core/services/devices/device_navigation_registry.dart';
+import 'package:ftms/core/services/devices/bt_device_navigation_registry.dart';
 
 void main() {
   group('DeviceNavigationRegistry', () {
-    late DeviceNavigationRegistry registry;
+    late BTDeviceNavigationRegistry registry;
     late MockBluetoothDevice mockDevice;
 
     setUp(() {
-      registry = DeviceNavigationRegistry();
+      registry = BTDeviceNavigationRegistry();
       registry.clear(); // Clear any previous registrations
       mockDevice = MockBluetoothDevice();
     });
@@ -19,8 +19,8 @@ void main() {
     });
 
     test('should be a singleton', () {
-      final registry1 = DeviceNavigationRegistry();
-      final registry2 = DeviceNavigationRegistry();
+      final registry1 = BTDeviceNavigationRegistry();
+      final registry2 = BTDeviceNavigationRegistry();
       expect(registry1, same(registry2));
     });
 

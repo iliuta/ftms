@@ -2,35 +2,35 @@ import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:ftms/core/models/device_types.dart';
-import '../utils/logger.dart';
-import 'devices/device_type_manager.dart';
-import 'devices/device_type_service.dart';
-import 'devices/ftms_device_service.dart';
+import '../../utils/logger.dart';
+import 'bt_device_manager.dart';
+import 'bt_device.dart';
+import 'ftms.dart';
 
 /// Model representing a connected device with its metadata
 class ConnectedDevice {
   final BluetoothDevice device;
-  final String deviceType;
-  final DeviceTypeService service;
+  final String deviceTypeName;
+  final BTDevice service;
   final DateTime connectedAt;
   BluetoothConnectionState connectionState;
-  DeviceType? ftmsMachineType;
+  DeviceType? deviceType;
 
   ConnectedDevice({
     required this.device,
-    required this.deviceType,
+    required this.deviceTypeName,
     required this.service,
     required this.connectedAt,
     this.connectionState = BluetoothConnectionState.connected,
-    this.ftmsMachineType,
+    this.deviceType,
   });
 
   String get name => device.platformName.isEmpty ? '(unknown device)' : device.platformName;
   String get id => device.remoteId.str;
 
   /// Update the FTMS machine type for this device
-  void updateFtmsMachineType(DeviceType deviceType) {
-    ftmsMachineType = deviceType;
+  void updateDeviceType(DeviceType deviceType) {
+    this.deviceType = deviceType;
   }
 
   @override
@@ -44,7 +44,7 @@ class ConnectedDevice {
   int get hashCode => device.remoteId.hashCode;
 
   @override
-  String toString() => 'ConnectedDevice(name: $name, type: $deviceType, state: $connectionState, ftmsMachineType: $ftmsMachineType)';
+  String toString() => 'ConnectedDevice(name: $name, type: $deviceTypeName, state: $connectionState, ftmsMachineType: $deviceType)';
 }
 
 /// Service for managing all connected Bluetooth devices throughout the application lifetime
@@ -53,7 +53,7 @@ class ConnectedDevicesService {
   factory ConnectedDevicesService() => _instance;
   ConnectedDevicesService._internal();
 
-  final DeviceTypeManager _deviceTypeManager = DeviceTypeManager();
+  final SupportedBTDeviceManager _deviceTypeManager = SupportedBTDeviceManager();
   final Map<String, ConnectedDevice> _connectedDevices = {};
   final StreamController<List<ConnectedDevice>> _devicesController = 
       StreamController<List<ConnectedDevice>>.broadcast();
@@ -92,7 +92,7 @@ class ConnectedDevicesService {
   Future<void> addConnectedDevice(BluetoothDevice device, List<ScanResult> scanResults) async {
     logger.i('🔄 addConnectedDevice called for ${device.platformName}');
     
-    final deviceService = _deviceTypeManager.getDeviceService(device, scanResults);
+    final deviceService = _deviceTypeManager.getBTDevice(device, scanResults);
     if (deviceService == null) {
       logger.w('❌ No device service found for ${device.platformName}');
       return;
@@ -102,7 +102,7 @@ class ConnectedDevicesService {
 
     final connectedDevice = ConnectedDevice(
       device: device,
-      deviceType: deviceService.deviceTypeName,
+      deviceTypeName: deviceService.deviceTypeName,
       service: deviceService,
       connectedAt: DateTime.now(),
     );
@@ -115,16 +115,16 @@ class ConnectedDevicesService {
     logger.i('🔔 Subscribed to connection state changes');
     
     _notifyDevicesChanged();
-    logger.i('✅ Added connected device: ${connectedDevice.name} (${connectedDevice.deviceType}) - Total devices: ${_connectedDevices.length}');
+    logger.i('✅ Added connected device: ${connectedDevice.name} (${connectedDevice.deviceTypeName}) - Total devices: ${_connectedDevices.length}');
   }
 
   /// Manually add a device with known type and service
-  void _addConnectedDeviceWithService(BluetoothDevice device, String deviceType, DeviceTypeService service) {
+  void _addConnectedDeviceWithService(BluetoothDevice device, String deviceType, BTDevice service) {
     logger.i('🔄 addConnectedDeviceWithService called for ${device.platformName} type: $deviceType');
     
     final connectedDevice = ConnectedDevice(
       device: device,
-      deviceType: deviceType,
+      deviceTypeName: deviceType,
       service: service,
       connectedAt: DateTime.now(),
     );
@@ -137,7 +137,7 @@ class ConnectedDevicesService {
     logger.i('🔔 Subscribed to connection state changes');
     
     _notifyDevicesChanged();
-    logger.i('✅ Added connected device: ${connectedDevice.name} (${connectedDevice.deviceType}) - Total devices: ${_connectedDevices.length}');
+    logger.i('✅ Added connected device: ${connectedDevice.name} (${connectedDevice.deviceTypeName}) - Total devices: ${_connectedDevices.length}');
   }
 
   /// Remove a device when disconnected
@@ -145,7 +145,7 @@ class ConnectedDevicesService {
     final removedDevice = _connectedDevices.remove(deviceId);
     if (removedDevice != null) {
       _notifyDevicesChanged();
-      logger.i('Removed connected device: ${removedDevice.name} (${removedDevice.deviceType})');
+      logger.i('Removed connected device: ${removedDevice.name} (${removedDevice.deviceTypeName})');
     }
   }
 
@@ -168,10 +168,10 @@ class ConnectedDevicesService {
   /// Update the FTMS machine type for a connected device
   void updateDeviceFtmsMachineType(String deviceId, DeviceType machineType) {
     final device = _connectedDevices[deviceId];
-    if (device != null && device.deviceType == 'FTMS') {
+    if (device != null && device.deviceTypeName == 'FTMS') {
       // Only update and log if the machine type has actually changed
-      if (device.ftmsMachineType != machineType) {
-        device.updateFtmsMachineType(machineType);
+      if (device.deviceType != machineType) {
+        device.updateDeviceType(machineType);
         _notifyDevicesChanged();
         logger.i('Updated FTMS machine type for ${device.name}: $machineType');
       }
@@ -254,7 +254,7 @@ class ConnectedDevicesService {
       if (isFtmsDevice) {
         logger.i('✅ Device confirmed as FTMS via async check');
         final ftmsService = _deviceTypeManager.deviceServices
-            .whereType<FtmsDeviceService>()
+            .whereType<Ftms>()
             .first;
         
         _addConnectedDeviceWithService(device, 'FTMS', ftmsService);

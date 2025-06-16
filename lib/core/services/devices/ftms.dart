@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:ftms/core/models/device_types.dart';
-import 'device_type_service.dart';
-import 'device_navigation_registry.dart';
-import '../connected_devices_service.dart';
+import 'bt_device.dart';
+import 'bt_device_navigation_registry.dart';
+import 'connected_devices_service.dart';
 import '../../bloc/ftms_bloc.dart';
 
 /// Service for FTMS (Fitness Machine Service) devices
-class FtmsDeviceService extends DeviceTypeService {
-  static final FtmsDeviceService _instance = FtmsDeviceService._internal();
-  factory FtmsDeviceService() => _instance;
-  FtmsDeviceService._internal();
+class Ftms extends BTDevice {
+  static final Ftms _instance = Ftms._internal();
+  factory Ftms() => _instance;
+  Ftms._internal();
 
   @override
   String get deviceTypeName => 'FTMS';
 
   @override
-  int get listPriority => 20; // Medium priority - show after HRM devices
+  int get listPriority => 5; // Medium priority - show after HRM devices
 
   @override
   Widget? getDeviceIcon(BuildContext context) {
@@ -63,8 +63,6 @@ class FtmsDeviceService extends DeviceTypeService {
       }
     }
 
-    // Check in manufacturer data as fallback
-    // This is less reliable but some devices advertise this way
     return false;
   }
 
@@ -120,7 +118,7 @@ class FtmsDeviceService extends DeviceTypeService {
 
   @override
   void Function(BuildContext context, BluetoothDevice device)? getNavigationCallback() {
-    return DeviceNavigationRegistry().getNavigationCallback('FTMS');
+    return BTDeviceNavigationRegistry().getNavigationCallback('FTMS');
   }
 
   @override

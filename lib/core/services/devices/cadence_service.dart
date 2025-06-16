@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import '../utils/logger.dart';
+import '../../utils/logger.dart';
 
 /// Service for managing Cadence Sensor devices
 class CadenceService {

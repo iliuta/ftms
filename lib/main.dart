@@ -5,7 +5,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'features/scan/scan_page.dart';
 import 'features/scan/scan_widgets.dart';
 import 'features/common/burger_menu.dart';
-import 'core/services/connected_devices_service.dart';
+import 'core/services/devices/connected_devices_service.dart';
 
 void main() {
   // Set log level for production
@@ -74,7 +74,7 @@ class _FlutterFTMSAppState extends State<FlutterFTMSApp> {
     // Find the first FTMS device
     ConnectedDevice? ftmsDevice;
     try {
-      ftmsDevice = devices.firstWhere((device) => device.deviceType == 'FTMS');
+      ftmsDevice = devices.firstWhere((device) => device.deviceTypeName == 'FTMS');
     } catch (e) {
       ftmsDevice = null;
     }

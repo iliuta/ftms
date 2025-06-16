@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// Abstract service interface for different types of Bluetooth devices
-abstract class DeviceTypeService {
+abstract class BTDevice {
   /// Human-readable name for this device type
   String get deviceTypeName;
 

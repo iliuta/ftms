@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:ftms/core/models/device_types.dart';
-import 'package:ftms/core/services/connected_devices_service.dart';
-import 'package:ftms/core/services/devices/device_type_service.dart';
+import 'package:ftms/core/services/devices/connected_devices_service.dart';
+import 'package:ftms/core/services/devices/bt_device.dart';
 
 // Mock classes for testing
 class MockBluetoothDevice extends BluetoothDevice {
@@ -17,7 +17,7 @@ class MockBluetoothDevice extends BluetoothDevice {
   String get platformName => _name;
 }
 
-class MockDeviceTypeService extends DeviceTypeService {
+class MockDeviceTypeService extends BTDevice {
   @override
   String get deviceTypeName => 'Mock';
 
@@ -83,13 +83,13 @@ void main() {
     test('should create connected device correctly', () {
       final connectedDevice = ConnectedDevice(
         device: mockDevice,
-        deviceType: 'FTMS',
+        deviceTypeName: 'FTMS',
         service: mockService,
         connectedAt: DateTime.now(),
       );
 
       expect(connectedDevice.name, equals('Test Device'));
-      expect(connectedDevice.deviceType, equals('FTMS'));
+      expect(connectedDevice.deviceTypeName, equals('FTMS'));
       expect(connectedDevice.id, equals('00:00:00:00:00:00'));
       expect(connectedDevice.connectionState, equals(BluetoothConnectionState.connected));
     });
@@ -98,7 +98,7 @@ void main() {
       final unknownDevice = MockBluetoothDevice(name: '');
       final connectedDevice = ConnectedDevice(
         device: unknownDevice,
-        deviceType: 'HRM',
+        deviceTypeName: 'HRM',
         service: mockService,
         connectedAt: DateTime.now(),
       );
@@ -109,21 +109,21 @@ void main() {
     test('should compare devices by ID', () {
       final device1 = ConnectedDevice(
         device: MockBluetoothDevice(id: '11:11:11:11:11:11'),
-        deviceType: 'FTMS',
+        deviceTypeName: 'FTMS',
         service: mockService,
         connectedAt: DateTime.now(),
       );
 
       final device2 = ConnectedDevice(
         device: MockBluetoothDevice(id: '11:11:11:11:11:11'),
-        deviceType: 'HRM', // Different type, same ID
+        deviceTypeName: 'HRM', // Different type, same ID
         service: mockService,
         connectedAt: DateTime.now(),
       );
 
       final device3 = ConnectedDevice(
         device: MockBluetoothDevice(id: '22:22:22:22:22:22'),
-        deviceType: 'FTMS',
+        deviceTypeName: 'FTMS',
         service: mockService,
         connectedAt: DateTime.now(),
       );
@@ -135,27 +135,27 @@ void main() {
     test('should handle FTMS machine type updates', () {
       final connectedDevice = ConnectedDevice(
         device: mockDevice,
-        deviceType: 'FTMS',
+        deviceTypeName: 'FTMS',
         service: mockService,
         connectedAt: DateTime.now(),
       );
 
       // Initially no machine type
-      expect(connectedDevice.ftmsMachineType, isNull);
+      expect(connectedDevice.deviceType, isNull);
 
       // Update machine type
-      connectedDevice.updateFtmsMachineType(DeviceType.rower);
-      expect(connectedDevice.ftmsMachineType, equals(DeviceType.rower));
+      connectedDevice.updateDeviceType(DeviceType.rower);
+      expect(connectedDevice.deviceType, equals(DeviceType.rower));
 
       // Update to different machine type
-      connectedDevice.updateFtmsMachineType(DeviceType.indoorBike);
-      expect(connectedDevice.ftmsMachineType, equals(DeviceType.indoorBike));
+      connectedDevice.updateDeviceType(DeviceType.indoorBike);
+      expect(connectedDevice.deviceType, equals(DeviceType.indoorBike));
     });
 
     test('should include FTMS machine type in toString', () {
       final connectedDevice = ConnectedDevice(
         device: mockDevice,
-        deviceType: 'FTMS',
+        deviceTypeName: 'FTMS',
         service: mockService,
         connectedAt: DateTime.now(),
       );
@@ -167,7 +167,7 @@ void main() {
       expect(result, contains('ftmsMachineType: null'));
 
       // With machine type
-      connectedDevice.updateFtmsMachineType(DeviceType.rower);
+      connectedDevice.updateDeviceType(DeviceType.rower);
       result = connectedDevice.toString();
       expect(result, contains('ftmsMachineType: DeviceType.rower'));
     });
