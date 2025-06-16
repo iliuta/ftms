@@ -1,9 +1,9 @@
-import 'package:ftms/core/models/ftms_display_field.dart';
-import 'field_format_strategy.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
+import 'live_data_field_format_strategy.dart';
 
 /// Strategy for formatting rower pace in mm:ss/500m.
-class RowerPaceFormatStrategy implements FieldFormatStrategy {
-  const RowerPaceFormatStrategy();
+class LiveDataRowerPaceFormatStrategy implements LiveDataFieldFormatStrategy {
+  const LiveDataRowerPaceFormatStrategy();
 
   String _formatPace(num value) {
     if (value <= 0) return '--:--';
@@ -15,7 +15,7 @@ class RowerPaceFormatStrategy implements FieldFormatStrategy {
 
   @override
   String format({
-    required FtmsDisplayField field,
+    required LiveDataFieldConfig field,
     required dynamic paramValue
   }) {
     final value = paramValue is num ? paramValue : num.tryParse(paramValue.toString()) ?? 0;

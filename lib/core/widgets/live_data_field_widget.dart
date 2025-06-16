@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import '../models/ftms_display_field.dart';
-import '../models/ftms_parameter.dart';
-import 'ftms_display_widget_registry.dart';
+import 'package:ftms/core/models/device_types.dart';
+import '../config/live_data_field_config.dart';
+import '../models/live_data_field_value.dart';
+import 'live_data_field_widget_registry.dart';
 
 /// Widget for displaying a single FTMS field.
-class FtmsFieldDisplay extends StatelessWidget {
-  final FtmsDisplayField field;
-  final FtmsParameter? param;
+class LiveDataFieldWidget extends StatelessWidget {
+  final LiveDataFieldConfig field;
+  final LiveDataFieldValue? param;
   final dynamic target;
   final Color? defaultColor;
-  final String? machineType;
+  final DeviceType? machineType;
 
-  const FtmsFieldDisplay({
+  const LiveDataFieldWidget({
     super.key,
     required this.field,
     required this.param,
@@ -32,7 +33,7 @@ class FtmsFieldDisplay extends StatelessWidget {
 
     color = _getFieldColor(value, factor, color);
 
-    final widgetBuilder = ftmsDisplayWidgetRegistry[field.display];
+    final widgetBuilder = liveDataFieldWidgetRegistry[field.display];
     if (widgetBuilder != null) {
       return widgetBuilder(
         displayField: field,

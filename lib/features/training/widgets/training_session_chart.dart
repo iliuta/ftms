@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'dart:async';
 import '../model/unit_training_interval.dart';
-import '../../../core/config/ftms_display_config.dart';
+import '../../../core/config/live_data_display_config.dart';
 import '../interval_target_fields_display.dart';
 
 /// A visual chart showing training session intensity over time with interactive hover
 class TrainingSessionChart extends StatefulWidget {
   final List<UnitTrainingInterval> intervals;
-  final String machineType;
+  final DeviceType machineType;
   final double height;
-  final FtmsDisplayConfig? config;
+  final LiveDataDisplayConfig? config;
 
   const TrainingSessionChart({
     super.key,
@@ -211,11 +212,9 @@ class _TrainingSessionChartState extends State<TrainingSessionChart> {
 
   String _getIntensityKey() {
     switch (widget.machineType) {
-      case 'DeviceDataType.rower':
+      case DeviceType.rower:
         return 'Instantaneous Pace';
-      case 'DeviceDataType.indoorBike':
-        return 'Instantaneous Power';
-      default:
+      case DeviceType.indoorBike:
         return 'Instantaneous Power';
     }
   }

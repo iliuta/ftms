@@ -1,4 +1,4 @@
-import 'ftms_parameter.dart';
+import '../../models/live_data_field_value.dart';
 
 /// Model for a single training data record
 class TrainingRecord {
@@ -32,7 +32,7 @@ class TrainingRecord {
   factory TrainingRecord.fromFtmsParameters({
     required DateTime timestamp,
     required int elapsedTime,
-    required Map<String, FtmsParameter> ftmsParams,
+    required Map<String, LiveDataFieldValue> ftmsParams,
     double? calculatedDistance,
     double? resistanceLevel,
   }) {
@@ -50,7 +50,7 @@ class TrainingRecord {
     );
   }
   
-  static double? _getParameterValue(Map<String, FtmsParameter> params, String key) {
+  static double? _getParameterValue(Map<String, LiveDataFieldValue> params, String key) {
     final param = params[key];
     if (param == null) return null;
     return param.getScaledValue().toDouble();

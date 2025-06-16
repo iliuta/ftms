@@ -1,4 +1,4 @@
-import '../models/ftms_parameter.dart';
+import '../models/live_data_field_value.dart';
 import 'logger.dart';
 
 void logFtmsParameterAttributes(List parameterValues) {
@@ -12,7 +12,7 @@ void logFtmsParameterAttributes(List parameterValues) {
   }
 }
 
-void logFtmsParameters(Map<String, FtmsParameter> paramValueMap) {
+void logFtmsParameters(Map<String, LiveDataFieldValue> paramValueMap) {
   logger.i('Processed FTMS parameters:');
   for (final entry in paramValueMap.entries) {
     final param = entry.value;

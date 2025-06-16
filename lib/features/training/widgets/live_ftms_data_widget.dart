@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/device_types.dart';
 import '../../../core/bloc/ftms_bloc.dart';
-import '../../../core/config/ftms_display_config.dart';
+import '../../../core/config/live_data_display_config.dart';
 import '../../../core/widgets/ftms_live_data_display_widget.dart';
 import '../../../core/services/ftms_data_processor.dart';
 
@@ -9,7 +10,7 @@ import '../../../core/services/ftms_data_processor.dart';
 class LiveFTMSDataWidget extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
   final Map<String, dynamic>? targets;
-  final String machineType;
+  final DeviceType machineType;
 
   const LiveFTMSDataWidget({
     super.key,
@@ -23,7 +24,7 @@ class LiveFTMSDataWidget extends StatefulWidget {
 }
 
 class _LiveFTMSDataWidgetState extends State<LiveFTMSDataWidget> {
-  FtmsDisplayConfig? _config;
+  LiveDataDisplayConfig? _config;
   String? _configError;
   final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
 
@@ -34,15 +35,21 @@ class _LiveFTMSDataWidgetState extends State<LiveFTMSDataWidget> {
   }
 
   Future<void> _loadConfig() async {
-    final type = await _getDeviceType();
-    if (type == null) return;
-    final config = await loadFtmsDisplayConfig(type);
+    final deviceDataType = await _getDeviceType();
+    if (deviceDataType == null) {
+      setState(() {
+        _config = null;
+        _configError = 'Device type not detected';
+      });
+      return;
+    }
+    final deviceType = DeviceType.fromFtms(deviceDataType);
+    final config = await LiveDataDisplayConfig.loadForFtmsMachineType(deviceType);
     setState(() {
       _config = config;
-      _configError = config == null ? 'No config for this machine type' : null;
+      _configError = config == null ? 'No config for this machine ftmsMachineType' : null;
     });
 
-    // Configure data processor for averaging
     if (config != null) {
       _dataProcessor.configure(config);
     }

@@ -1,8 +1,7 @@
 import 'package:flutter_ftms/flutter_ftms.dart';
 
-/// Model class representing an FTMS parameter with all its properties
-/// This replaces the dynamic param usage throughout the codebase
-class FtmsParameter {
+/// Holder for a live data field value coming from the FTMS device.
+class LiveDataFieldValue {
   final String name;
   final num value;
   final num factor;
@@ -11,7 +10,7 @@ class FtmsParameter {
   final int size;
   final bool signed;
 
-  const FtmsParameter({
+  const LiveDataFieldValue({
     required this.name,
     required this.value,
     this.factor = 1,
@@ -22,8 +21,8 @@ class FtmsParameter {
   });
 
   /// Create an FtmsParameter from a DeviceDataParameterValue
-  factory FtmsParameter.fromDeviceDataParameterValue(DeviceDataParameterValue paramValue) {
-    return FtmsParameter(
+  factory LiveDataFieldValue.fromDeviceDataParameterValue(DeviceDataParameterValue paramValue) {
+    return LiveDataFieldValue(
       name: paramValue.name.name,
       value: paramValue.value,
       factor: paramValue.factor,
@@ -35,7 +34,7 @@ class FtmsParameter {
   }
 
   /// Create a new FtmsParameter with a different value (for averaging)
-  FtmsParameter copyWith({
+  LiveDataFieldValue copyWith({
     String? name,
     num? value,
     num? factor,
@@ -44,7 +43,7 @@ class FtmsParameter {
     int? size,
     bool? signed,
   }) {
-    return FtmsParameter(
+    return LiveDataFieldValue(
       name: name ?? this.name,
       value: value ?? this.value,
       factor: factor ?? this.factor,
@@ -80,7 +79,7 @@ class FtmsParameter {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is FtmsParameter &&
+    return other is LiveDataFieldValue &&
         other.name == name &&
         other.value == value &&
         other.factor == factor &&

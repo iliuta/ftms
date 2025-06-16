@@ -1,5 +1,7 @@
+import 'package:ftms/core/models/device_types.dart';
+
 /// Common Strava activity types for fitness activities
-/// 
+///
 /// These are the most commonly used activity types in Strava.
 /// You can use these constants when uploading activities to ensure
 /// they are categorized correctly.
@@ -17,7 +19,7 @@ class StravaActivityTypes {
   static const String crossfit = 'crossfit';
   static const String elliptical = 'elliptical';
   static const String stairStepper = 'stairstepper';
-  
+
   /// List of all available activity types
   static const List<String> all = [
     ride,
@@ -34,9 +36,18 @@ class StravaActivityTypes {
     elliptical,
     stairStepper,
   ];
-  
+
   /// Check if an activity type is valid
   static bool isValid(String activityType) {
     return all.contains(activityType);
+  }
+
+  static String fromFtmsMachineType(DeviceType deviceType) {
+    switch (deviceType) {
+      case DeviceType.rower:
+        return StravaActivityTypes.rowing;
+      case DeviceType.indoorBike:
+        return StravaActivityTypes.ride;
+    }
   }
 }

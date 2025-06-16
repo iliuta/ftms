@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/config/rower_pace_format_strategy.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
+import 'package:ftms/core/config/live_data_rower_pace_format_strategy.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
 
 void main() {
   group('RowerPaceFormatStrategy', () {
-    final strategy = const RowerPaceFormatStrategy();
-    final field = FtmsDisplayField(
+    final strategy = const LiveDataRowerPaceFormatStrategy();
+    final field = LiveDataFieldConfig(
       name: 'Instantaneous Pace',
       label: 'Pace',
       display: 'number',

@@ -1,16 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
-import 'package:ftms/core/widgets/ftms_icon_registry.dart';
+import 'package:ftms/core/widgets/live_data_icon_registry.dart';
 
 void main() {
   group('ftmsIconRegistry', () {
     test('returns correct icon for known keys', () {
-      expect(getFtmsIcon('heart'), Icons.favorite);
-      expect(getFtmsIcon('bike'), Icons.pedal_bike);
-      expect(getFtmsIcon('rowing'), Icons.rowing);
+      expect(getLiveDataIcon('heart'), Icons.favorite);
+      expect(getLiveDataIcon('bike'), Icons.pedal_bike);
+      expect(getLiveDataIcon('rowing'), Icons.rowing);
     });
     test('returns null for unknown key', () {
-      expect(getFtmsIcon('unknown'), isNull);
+      expect(getLiveDataIcon('unknown'), isNull);
     });
   });
 }

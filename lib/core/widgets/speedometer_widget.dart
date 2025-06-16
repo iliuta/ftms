@@ -1,15 +1,15 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:ftms/core/config/field_format_strategy.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
+import 'package:ftms/core/config/live_data_field_format_strategy.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
 
-import '../models/ftms_parameter.dart';
+import '../models/live_data_field_value.dart';
 
 /// Widget for displaying a value as a speedometer (gauge).
 class SpeedometerWidget extends StatelessWidget {
-  final FtmsDisplayField displayField;
-  final FtmsParameter? param;
+  final LiveDataFieldConfig displayField;
+  final LiveDataFieldValue? param;
   final Color color;
 
   const SpeedometerWidget(
@@ -41,7 +41,7 @@ class SpeedometerWidget extends StatelessWidget {
     String formattedValue = '${scaledValue.toStringAsFixed(0)} ${displayField.unit}';
     if (displayField.formatter != null) {
       final formatterStrategy =
-          FieldFormatter.getStrategy(displayField.formatter!);
+          LiveDataFieldFormatter.getStrategy(displayField.formatter!);
       if (formatterStrategy != null) {
         formattedValue = formatterStrategy.format(
             field: displayField, paramValue: scaledValue);

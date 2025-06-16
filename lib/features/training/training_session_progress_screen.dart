@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import '../../core/config/ftms_display_config.dart';
+import '../../core/config/live_data_display_config.dart';
 import 'model/training_session.dart';
 import 'training_session_controller.dart';
 import 'widgets/training_session_scaffold.dart';
@@ -24,7 +24,7 @@ class TrainingSessionProgressScreen extends StatefulWidget {
 class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressScreen> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<FtmsDisplayConfig?>(
+    return FutureBuilder<LiveDataDisplayConfig?>(
       future: _loadConfig(),
       builder: (context, snapshot) {
         return ChangeNotifierProvider(
@@ -47,20 +47,7 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
     );
   }
 
-  Future<FtmsDisplayConfig?> _loadConfig() {
-    return loadFtmsDisplayConfig(_normalizeMachineType(widget.session.ftmsMachineType));
-  }
-
-  DeviceDataType _normalizeMachineType(String machineType) {
-    switch (machineType) {
-      case 'DeviceDataType.rower':
-      case 'rower':
-        return DeviceDataType.rower;
-      case 'DeviceDataType.indoorBike':
-      case 'indoorBike':
-        return DeviceDataType.indoorBike;
-      default:
-        return DeviceDataType.indoorBike;
-    }
+  Future<LiveDataDisplayConfig?> _loadConfig() {
+    return LiveDataDisplayConfig.loadForFtmsMachineType(widget.session.ftmsMachineType);
   }
 }

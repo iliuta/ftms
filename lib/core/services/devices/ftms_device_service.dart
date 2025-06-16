@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'device_type_service.dart';
 import 'device_navigation_registry.dart';
 import '../connected_devices_service.dart';
@@ -94,7 +95,7 @@ class FtmsDeviceService extends DeviceTypeService {
       device,
       (DeviceData data) {
         // Extract machine type from device data
-        final machineType = data.deviceDataType.toString();
+        final machineType = DeviceType.fromFtms(data.deviceDataType);
         
         // Update the connected device with the detected machine type
         final connectedDevicesService = ConnectedDevicesService();

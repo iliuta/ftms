@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fit_tool/fit_tool.dart';
-import '../../models/training_record.dart';
-import '../../models/ftms_parameter.dart';
+import 'training_record.dart';
+import '../../models/live_data_field_value.dart';
 import 'distance_calculation_strategy.dart';
 import '../../utils/logger.dart';
 
@@ -13,14 +13,14 @@ class TrainingDataRecorder {
   final List<TrainingRecord> _records = [];
   final DistanceCalculationStrategy _distanceStrategy;
   final String _sessionName;
-  final DeviceDataType _deviceType;
+  final DeviceType _deviceType;
 
   DateTime? _sessionStartTime;
   DateTime? _lastRecordTime;
   bool _isRecording = false;
 
   TrainingDataRecorder({
-    required DeviceDataType deviceType,
+    required DeviceType deviceType,
     String? sessionName,
   })  : _deviceType = deviceType,
         _sessionName =
@@ -50,7 +50,7 @@ class TrainingDataRecorder {
 
   /// Add a new data point from FTMS device
   void recordDataPoint({
-    required Map<String, FtmsParameter> ftmsParams,
+    required Map<String, LiveDataFieldValue> ftmsParams,
     double? resistanceLevel,
     DateTime? timestamp, // Optional timestamp for testing
   }) {
@@ -92,11 +92,11 @@ class TrainingDataRecorder {
     }
   }
 
-  Map<String, FtmsParameter> _convertRecordToMap(TrainingRecord record) {
-    final convertedMap = <String, FtmsParameter>{};
+  Map<String, LiveDataFieldValue> _convertRecordToMap(TrainingRecord record) {
+    final convertedMap = <String, LiveDataFieldValue>{};
 
     if (record.instantaneousPower != null) {
-      convertedMap['Instantaneous Power'] = FtmsParameter(
+      convertedMap['Instantaneous Power'] = LiveDataFieldValue(
         name: 'Instantaneous Power',
         value: record.instantaneousPower!,
         unit: 'W',
@@ -104,7 +104,7 @@ class TrainingDataRecorder {
     }
 
     if (record.instantaneousSpeed != null) {
-      convertedMap['Instantaneous Speed'] = FtmsParameter(
+      convertedMap['Instantaneous Speed'] = LiveDataFieldValue(
         name: 'Instantaneous Speed',
         value: record.instantaneousSpeed!,
         unit: 'km/h',
@@ -112,7 +112,7 @@ class TrainingDataRecorder {
     }
 
     if (record.instantaneousCadence != null) {
-      convertedMap['Instantaneous Cadence'] = FtmsParameter(
+      convertedMap['Instantaneous Cadence'] = LiveDataFieldValue(
         name: 'Instantaneous Cadence',
         value: record.instantaneousCadence!,
         unit: 'rpm',
@@ -120,7 +120,7 @@ class TrainingDataRecorder {
     }
 
     if (record.heartRate != null) {
-      convertedMap['Heart Rate'] = FtmsParameter(
+      convertedMap['Heart Rate'] = LiveDataFieldValue(
         name: 'Heart Rate',
         value: record.heartRate!,
         unit: 'bpm',
@@ -128,7 +128,7 @@ class TrainingDataRecorder {
     }
 
     if (record.strokeRate != null) {
-      convertedMap['Stroke Rate'] = FtmsParameter(
+      convertedMap['Stroke Rate'] = LiveDataFieldValue(
         name: 'Stroke Rate',
         value: record.strokeRate!,
         unit: 'spm',
@@ -249,7 +249,7 @@ class TrainingDataRecorder {
       
       // For rowing, use stroke rate as cadence; for cycling, use instantaneous cadence
       int? cadenceValue;
-      if (_deviceType == DeviceDataType.rower) {
+      if (_deviceType == DeviceType.rower) {
         cadenceValue = record.strokeRate?.round();
       } else {
         cadenceValue = record.instantaneousCadence?.round();
@@ -283,23 +283,19 @@ class TrainingDataRecorder {
 
   Sport _getSport() {
     switch (_deviceType) {
-      case DeviceDataType.indoorBike:
+      case DeviceType.indoorBike:
         return Sport.cycling;
-      case DeviceDataType.rower:
+      case DeviceType.rower:
         return Sport.rowing;
-      default:
-        return Sport.fitnessEquipment;
     }
   }
 
   SubSport _getSubSport() {
     switch (_deviceType) {
-      case DeviceDataType.indoorBike:
+      case DeviceType.indoorBike:
         return SubSport.indoorCycling;
-      case DeviceDataType.rower:
+      case DeviceType.rower:
         return SubSport.indoorRowing;
-      default:
-        return SubSport.generic;
     }
   }
 

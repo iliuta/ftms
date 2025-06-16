@@ -1,5 +1,6 @@
-import 'package:flutter_ftms/flutter_ftms.dart';
-import '../../models/ftms_parameter.dart';
+import 'package:ftms/core/models/device_types.dart';
+
+import '../../models/live_data_field_value.dart';
 
 /// Abstract base class for distance calculation strategies
 abstract class DistanceCalculationStrategy {
@@ -52,7 +53,7 @@ class IndoorBikeDistanceStrategy implements DistanceCalculationStrategy {
       final param = data[key];
       if (param != null) {
         // Handle FtmsParameter objects - use scaled value
-        if (param is FtmsParameter) {
+        if (param is LiveDataFieldValue) {
           return param.getScaledValue().toDouble();
         }
         // Handle raw numeric values
@@ -124,7 +125,7 @@ class RowerDistanceStrategy implements DistanceCalculationStrategy {
       final param = data[key];
       if (param != null) {
         // Handle FtmsParameter objects - use scaled value
-        if (param is FtmsParameter) {
+        if (param is LiveDataFieldValue) {
           return param.getScaledValue().toDouble();
         }
         // Handle raw numeric values
@@ -152,7 +153,7 @@ class RowerDistanceStrategy implements DistanceCalculationStrategy {
       final param = data[key];
       if (param != null) {
         // Handle FtmsParameter objects - use scaled value
-        if (param is FtmsParameter) {
+        if (param is LiveDataFieldValue) {
           return param.getScaledValue().toDouble();
         }
         // Handle raw numeric values
@@ -180,15 +181,12 @@ class RowerDistanceStrategy implements DistanceCalculationStrategy {
 
 /// Factory for creating appropriate distance calculation strategy
 class DistanceCalculationStrategyFactory {
-  static DistanceCalculationStrategy createStrategy(DeviceDataType deviceType) {
+  static DistanceCalculationStrategy createStrategy(DeviceType deviceType) {
     switch (deviceType) {
-      case DeviceDataType.indoorBike:
+      case DeviceType.indoorBike:
         return IndoorBikeDistanceStrategy();
-      case DeviceDataType.rower:
+      case DeviceType.rower:
         return RowerDistanceStrategy();
-      default:
-        // Default to indoor bike strategy
-        return IndoorBikeDistanceStrategy();
     }
   }
 }

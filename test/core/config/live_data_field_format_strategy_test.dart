@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/config/field_format_strategy.dart';
-import 'package:ftms/core/config/rower_pace_format_strategy.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
+import 'package:ftms/core/config/live_data_field_format_strategy.dart';
+import 'package:ftms/core/config/live_data_rower_pace_format_strategy.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
 
 class DummyParam {
   final int value;
@@ -14,17 +14,17 @@ class DummyParam {
 void main() {
   group('FieldFormatter', () {
     test('getStrategy returns correct strategy for known formatter', () {
-      final strategy = FieldFormatter.getStrategy('rowerPaceFormatter');
-      expect(strategy, isA<RowerPaceFormatStrategy>());
+      final strategy = LiveDataFieldFormatter.getStrategy('rowerPaceFormatter');
+      expect(strategy, isA<LiveDataRowerPaceFormatStrategy>());
     });
 
     test('getStrategy returns null for unknown formatter', () {
-      final strategy = FieldFormatter.getStrategy('unknownFormatter');
+      final strategy = LiveDataFieldFormatter.getStrategy('unknownFormatter');
       expect(strategy, isNull);
     });
 
     test('rowerPaceFormatter formats pace correctly', () {
-      final field = FtmsDisplayField(
+      final field = LiveDataFieldConfig(
         name: 'Instantaneous Pace',
         label: 'Pace',
         display: 'number',
@@ -32,7 +32,7 @@ void main() {
         unit: 's/500m',
       );
       final param = DummyParam(120);
-      final strategy = FieldFormatter.getStrategy('rowerPaceFormatter');
+      final strategy = LiveDataFieldFormatter.getStrategy('rowerPaceFormatter');
       final formatted = strategy!.format(field: field, paramValue: param.value);
       expect(formatted, '02:00/500m');
     });

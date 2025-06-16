@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/core/services/fit/training_data_recorder.dart';
-import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/models/live_data_field_value.dart';
 import 'package:ftms/core/utils/logger.dart';
 
 // Import fit_tool library for FIT file parsing and validation
@@ -42,7 +43,7 @@ void main() {
     test('should record data and validate statistics', () async {
       // Create recorder for indoor bike
       final recorder = TrainingDataRecorder(
-        deviceType: DeviceDataType.indoorBike,
+        deviceType: DeviceType.indoorBike,
         sessionName: 'Test_Session',
       );
 
@@ -54,25 +55,25 @@ void main() {
         await Future.delayed(Duration(milliseconds: 100));
         recorder.recordDataPoint(
           ftmsParams: {
-            'Instantaneous Power': FtmsParameter(
+            'Instantaneous Power': LiveDataFieldValue(
               name: 'Instantaneous Power',
               value: 100 + i * 10,
               factor: 1,
               unit: 'W',
             ),
-            'Instantaneous Speed': FtmsParameter(
+            'Instantaneous Speed': LiveDataFieldValue(
               name: 'Instantaneous Speed',
               value: 20.0 + i * 2,
               factor: 0.01,
               unit: 'km/h',
             ),
-            'Instantaneous Cadence': FtmsParameter(
+            'Instantaneous Cadence': LiveDataFieldValue(
               name: 'Instantaneous Cadence',
               value: 80 + i * 2,
               factor: 0.5,
               unit: 'rpm',
             ),
-            'Heart Rate': FtmsParameter(
+            'Heart Rate': LiveDataFieldValue(
               name: 'Heart Rate',
               value: 120 + i * 5,
               factor: 1,
@@ -104,7 +105,7 @@ void main() {
     test('Generate realistic cycling workout FIT file', () async {
       // Initialize recorder for indoor bike
       recorder = TrainingDataRecorder(
-        deviceType: DeviceDataType.indoorBike,
+        deviceType: DeviceType.indoorBike,
         sessionName: 'Test_Cycling_Workout',
       );
 
@@ -151,26 +152,26 @@ void main() {
         final heartRate = 120 + (power - 100) * 0.4; // bpm
 
         // Create FTMS parameters
-        final ftmsParams = <String, FtmsParameter>{
-          'Instantaneous Power': FtmsParameter(
+        final ftmsParams = <String, LiveDataFieldValue>{
+          'Instantaneous Power': LiveDataFieldValue(
             name: 'Instantaneous Power',
             value: power.round(),
             unit: 'W',
             factor: 1,
           ),
-          'Instantaneous Speed': FtmsParameter(
+          'Instantaneous Speed': LiveDataFieldValue(
             name: 'Instantaneous Speed',
             value: speed,
             unit: 'km/h',
             factor: 1,
           ),
-          'Instantaneous Cadence': FtmsParameter(
+          'Instantaneous Cadence': LiveDataFieldValue(
             name: 'Instantaneous Cadence',
             value: cadence.round(),
             unit: 'rpm',
             factor: 0.5,
           ),
-          'Heart Rate': FtmsParameter(
+          'Heart Rate': LiveDataFieldValue(
             name: 'Heart Rate',
             value: heartRate.round(),
             unit: 'bpm',
@@ -260,7 +261,7 @@ void main() {
     test('Generate realistic rowing workout FIT file', () async {
       // Initialize recorder for rower
       recorder = TrainingDataRecorder(
-        deviceType: DeviceDataType.rower,
+        deviceType: DeviceType.rower,
         sessionName: 'Test_Rowing_Workout',
       );
 
@@ -301,32 +302,32 @@ void main() {
         final heartRate = 110 + (power - 80) * 0.6; // bpm
 
           // Create FTMS parameters for rowing
-          final ftmsParams = <String, FtmsParameter>{
-            'Instantaneous Power': FtmsParameter(
+          final ftmsParams = <String, LiveDataFieldValue>{
+            'Instantaneous Power': LiveDataFieldValue(
               name: 'Instantaneous Power',
               value: power.round(),
               unit: 'W',
               factor: 1,
             ),
-            'Instantaneous Speed': FtmsParameter(
+            'Instantaneous Speed': LiveDataFieldValue(
               name: 'Instantaneous Speed',
               value: speed * 3.6, // Convert m/s to km/h
               unit: 'km/h',
               factor: 1,
             ),
-            'Stroke Rate': FtmsParameter(
+            'Stroke Rate': LiveDataFieldValue(
               name: 'Stroke Rate',
               value: strokeRate.round(),
               unit: 'spm',
               factor: 0.5,
             ),
-            'Instantaneous Cadence': FtmsParameter(
+            'Instantaneous Cadence': LiveDataFieldValue(
               name: 'Instantaneous Cadence',
               value: strokeRate.round(),
               unit: 'rpm',
               factor: 0.5,
             ),
-            'Heart Rate': FtmsParameter(
+            'Heart Rate': LiveDataFieldValue(
               name: 'Heart Rate',
               value: heartRate.round(),
               unit: 'bpm',
@@ -405,7 +406,7 @@ void main() {
     test('Generate minimal FIT file with basic data', () async {
       // Test with minimal data to ensure file generation works with sparse data
       recorder = TrainingDataRecorder(
-        deviceType: DeviceDataType.indoorBike,
+        deviceType: DeviceType.indoorBike,
         sessionName: 'Minimal_Test',
       );
 
@@ -413,8 +414,8 @@ void main() {
 
       // Add just a few data points
       for (int i = 0; i < 5; i++) {
-        final ftmsParams = <String, FtmsParameter>{
-          'Instantaneous Power': FtmsParameter(
+        final ftmsParams = <String, LiveDataFieldValue>{
+          'Instantaneous Power': LiveDataFieldValue(
             name: 'Instantaneous Power',
             value: 150 + i * 10,
             unit: 'W',

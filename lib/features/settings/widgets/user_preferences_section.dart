@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../core/models/user_settings.dart';
+import '../model/user_settings.dart';
 import 'settings_section.dart';
 
 /// Widget for editing user fitness preferences

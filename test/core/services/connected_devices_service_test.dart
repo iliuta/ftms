@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/core/services/connected_devices_service.dart';
 import 'package:ftms/core/services/devices/device_type_service.dart';
 
@@ -59,13 +60,13 @@ void main() {
 
     test('should handle FTMS machine type operations', () {
       // Test updateDeviceFtmsMachineType with non-existent device
-      expect(() => service.updateDeviceFtmsMachineType('non-existent', 'DeviceDataType.rower'), 
+      expect(() => service.updateDeviceFtmsMachineType('non-existent', DeviceType.rower),
              returnsNormally);
 
       // Test that method doesn't throw errors when called multiple times with same value
-      expect(() => service.updateDeviceFtmsMachineType('non-existent', 'DeviceDataType.rower'), 
+      expect(() => service.updateDeviceFtmsMachineType('non-existent', DeviceType.rower),
              returnsNormally);
-      expect(() => service.updateDeviceFtmsMachineType('non-existent', 'DeviceDataType.indoorBike'), 
+      expect(() => service.updateDeviceFtmsMachineType('non-existent', DeviceType.indoorBike),
              returnsNormally);
     });
   });
@@ -143,12 +144,12 @@ void main() {
       expect(connectedDevice.ftmsMachineType, isNull);
 
       // Update machine type
-      connectedDevice.updateFtmsMachineType('DeviceDataType.rower');
-      expect(connectedDevice.ftmsMachineType, equals('DeviceDataType.rower'));
+      connectedDevice.updateFtmsMachineType(DeviceType.rower);
+      expect(connectedDevice.ftmsMachineType, equals(DeviceType.rower));
 
       // Update to different machine type
-      connectedDevice.updateFtmsMachineType('DeviceDataType.indoorBike');
-      expect(connectedDevice.ftmsMachineType, equals('DeviceDataType.indoorBike'));
+      connectedDevice.updateFtmsMachineType(DeviceType.indoorBike);
+      expect(connectedDevice.ftmsMachineType, equals(DeviceType.indoorBike));
     });
 
     test('should include FTMS machine type in toString', () {
@@ -166,9 +167,9 @@ void main() {
       expect(result, contains('ftmsMachineType: null'));
 
       // With machine type
-      connectedDevice.updateFtmsMachineType('DeviceDataType.rower');
+      connectedDevice.updateFtmsMachineType(DeviceType.rower);
       result = connectedDevice.toString();
-      expect(result, contains('ftmsMachineType: DeviceDataType.rower'));
+      expect(result, contains('ftmsMachineType: DeviceType.rower'));
     });
   });
 }

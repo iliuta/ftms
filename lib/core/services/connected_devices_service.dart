@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/device_types.dart';
 import '../utils/logger.dart';
 import 'devices/device_type_manager.dart';
 import 'devices/device_type_service.dart';
@@ -13,8 +14,7 @@ class ConnectedDevice {
   final DeviceTypeService service;
   final DateTime connectedAt;
   BluetoothConnectionState connectionState;
-  // FTMS-specific machine type (e.g., "DeviceDataType.rower", "DeviceDataType.indoorBike")
-  String? ftmsMachineType;
+  DeviceType? ftmsMachineType;
 
   ConnectedDevice({
     required this.device,
@@ -29,8 +29,8 @@ class ConnectedDevice {
   String get id => device.remoteId.str;
 
   /// Update the FTMS machine type for this device
-  void updateFtmsMachineType(String machineType) {
-    ftmsMachineType = machineType;
+  void updateFtmsMachineType(DeviceType deviceType) {
+    ftmsMachineType = deviceType;
   }
 
   @override
@@ -166,7 +166,7 @@ class ConnectedDevicesService {
 
 
   /// Update the FTMS machine type for a connected device
-  void updateDeviceFtmsMachineType(String deviceId, String machineType) {
+  void updateDeviceFtmsMachineType(String deviceId, DeviceType machineType) {
     final device = _connectedDevices[deviceId];
     if (device != null && device.deviceType == 'FTMS') {
       // Only update and log if the machine type has actually changed

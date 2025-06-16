@@ -11,7 +11,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart' as _i8;
 import 'package:flutter_blue_plus_platform_interface/flutter_blue_plus_platform_interface.dart'
     as _i2;
 import 'package:flutter_ftms/flutter_ftms.dart' as _i3;
-import 'package:ftms/core/models/ftms_parameter.dart' as _i13;
+import 'package:ftms/core/models/live_data_field_value.dart' as _i13;
 import 'package:ftms/core/services/fit/training_data_recorder.dart' as _i12;
 import 'package:ftms/core/services/ftms_service.dart' as _i11;
 import 'package:ftms/core/services/strava/strava_activity_uploader.dart' as _i6;
@@ -513,7 +513,7 @@ class MockTrainingDataRecorder extends _i1.Mock
 
   @override
   void recordDataPoint({
-    required Map<String, _i13.FtmsParameter>? ftmsParams,
+    required Map<String, _i13.LiveDataFieldValue>? ftmsParams,
     double? resistanceLevel,
     DateTime? timestamp,
   }) =>

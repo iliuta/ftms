@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/utils/ftms_debug_utils.dart';
-import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/models/live_data_field_value.dart';
 
 class DummyParam {
   final dynamic flag;
@@ -27,8 +27,8 @@ void main() {
   });
 
   test('logFtmsParameters does not throw', () {
-    final params = <String, FtmsParameter>{
-      'speed': FtmsParameter(
+    final params = <String, LiveDataFieldValue>{
+      'speed': LiveDataFieldValue(
         name: 'speed',
         value: 25,
         factor: 1,
@@ -37,7 +37,7 @@ void main() {
         size: 2,
         signed: false,
       ),
-      'power': FtmsParameter(
+      'power': LiveDataFieldValue(
         name: 'power',
         value: 250,
         factor: 1,

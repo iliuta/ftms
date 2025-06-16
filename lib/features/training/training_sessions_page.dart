@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'training_session_loader.dart';
 import 'training_session_expansion_panel.dart';
 import 'training_session_progress_screen.dart';
@@ -22,7 +23,7 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
   List<TrainingSessionDefinition>? _sessions;
   bool _isLoading = true;
   String? _error;
-  String _selectedMachineType = 'DeviceDataType.indoorBike';
+  DeviceType _selectedMachineType = DeviceType.indoorBike;
 
   @override
   void initState() {
@@ -50,7 +51,7 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
     }
   }
 
-  void _onMachineTypeChanged(String? newType) {
+  void _onMachineTypeChanged(DeviceType? newType) {
     if (newType != null && newType != _selectedMachineType) {
       setState(() {
         _selectedMachineType = newType;
@@ -113,16 +114,16 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
               children: [
                 const Text('Machine Type: ', style: TextStyle(fontWeight: FontWeight.bold)),
                 Expanded(
-                  child: DropdownButton<String>(
+                  child: DropdownButton<DeviceType>(
                     value: _selectedMachineType,
                     isExpanded: true,
                     items: const [
                       DropdownMenuItem(
-                        value: 'DeviceDataType.indoorBike',
+                        value: DeviceType.indoorBike,
                         child: Text('Indoor Bike'),
                       ),
                       DropdownMenuItem(
-                        value: 'DeviceDataType.rower',
+                        value: DeviceType.rower,
                         child: Text('Rowing Machine'),
                       ),
                     ],

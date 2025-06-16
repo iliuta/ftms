@@ -1,11 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/config/ftms_display_config.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
+import 'package:ftms/core/config/live_data_display_config.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
+import 'package:ftms/core/models/device_types.dart';
 
 void main() {
   group('FtmsDisplayConfig', () {
     test('can parse from JSON', () {
       final json = {
+        "ftmsMachineType": "DeviceDataType.indoorBike",
         'fields': [
           {
             'name': 'Speed',
@@ -18,7 +20,8 @@ void main() {
           }
         ]
       };
-      final config = FtmsDisplayConfig.fromJson(json);
+      final config = LiveDataDisplayConfig.fromJson(json);
+      expect(config.deviceType, DeviceType.indoorBike);
       expect(config.fields.length, 1);
       expect(config.fields.first.name, 'Speed');
       expect(config.fields.first.icon, 'bike');
@@ -27,6 +30,7 @@ void main() {
 
     test('can parse field with samplePeriodSeconds', () {
       final json = {
+        "ftmsMachineType": "DeviceDataType.indoorBike",
         'fields': [
           {
             'name': 'Power',
@@ -39,7 +43,8 @@ void main() {
           }
         ]
       };
-      final config = FtmsDisplayConfig.fromJson(json);
+      final config = LiveDataDisplayConfig.fromJson(json);
+      expect(config.deviceType, DeviceType.indoorBike);
       expect(config.fields.length, 1);
       expect(config.fields.first.name, 'Power');
       expect(config.fields.first.samplePeriodSeconds, equals(3));
@@ -47,6 +52,7 @@ void main() {
 
     test('can parse mixed fields with and without averaging', () {
       final json = {
+        "ftmsMachineType": "DeviceDataType.indoorBike",
         'fields': [
           {
             'name': 'Power',
@@ -70,7 +76,7 @@ void main() {
           }
         ]
       };
-      final config = FtmsDisplayConfig.fromJson(json);
+      final config = LiveDataDisplayConfig.fromJson(json);
       expect(config.fields.length, 3);
       
       final powerField = config.fields.firstWhere((f) => f.name == 'Power');
@@ -84,6 +90,7 @@ void main() {
 
     test('handles zero samplePeriodSeconds', () {
       final json = {
+        "ftmsMachineType": "DeviceDataType.rower",
         'fields': [
           {
             'name': 'Power',
@@ -94,12 +101,13 @@ void main() {
           }
         ]
       };
-      final config = FtmsDisplayConfig.fromJson(json);
+      final config = LiveDataDisplayConfig.fromJson(json);
       expect(config.fields.first.samplePeriodSeconds, equals(0));
     });
 
     test('handles negative samplePeriodSeconds', () {
       final json = {
+        "ftmsMachineType": "DeviceDataType.indoorBike",
         'fields': [
           {
             'name': 'Power',
@@ -110,14 +118,14 @@ void main() {
           }
         ]
       };
-      final config = FtmsDisplayConfig.fromJson(json);
+      final config = LiveDataDisplayConfig.fromJson(json);
       expect(config.fields.first.samplePeriodSeconds, equals(-1));
     });
   });
 
   group('FtmsDisplayField', () {
     test('can be created with all properties', () {
-      final field = FtmsDisplayField(
+      final field = LiveDataFieldConfig(
         name: 'Power',
         label: 'Power',
         display: 'speedometer',
@@ -139,7 +147,7 @@ void main() {
     });
 
     test('can be created without optional properties', () {
-      final field = FtmsDisplayField(
+      final field = LiveDataFieldConfig(
         name: 'Speed',
         label: 'Speed',
         display: 'number',

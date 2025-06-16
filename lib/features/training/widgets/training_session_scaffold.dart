@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import '../../../core/config/ftms_display_config.dart';
+import '../../../core/config/live_data_display_config.dart';
 import '../model/training_session.dart';
 import '../training_session_controller.dart';
 import '../managers/session_dialog_manager.dart';
@@ -12,7 +12,7 @@ import 'training_session_body.dart';
 class TrainingSessionScaffold extends StatefulWidget {
   final TrainingSessionDefinition session;
   final TrainingSessionController controller;
-  final FtmsDisplayConfig? config;
+  final LiveDataDisplayConfig? config;
   final BluetoothDevice ftmsDevice;
 
   const TrainingSessionScaffold({

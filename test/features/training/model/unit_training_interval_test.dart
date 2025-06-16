@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/models/user_settings.dart';
+import 'package:ftms/core/models/device_types.dart';
+import 'package:ftms/features/settings/model/user_settings.dart';
 import 'package:ftms/features/training/model/unit_training_interval.dart';
 
 void main() {
@@ -14,7 +15,7 @@ void main() {
       };
       final interval = UnitTrainingInterval.fromJson(
         json,
-        machineType: 'DeviceDataType.indoorBike',
+        machineType: DeviceType.indoorBike,
         userSettings: userSettings,
       );
       // 120% of 250 = 300
@@ -30,7 +31,7 @@ void main() {
       };
       final interval = UnitTrainingInterval.fromJson(
         json,
-        machineType: 'DeviceDataType.rower',
+        machineType: DeviceType.rower,
         userSettings: userSettings,
       );
       // 120% of 2:00 = 144 seconds
@@ -45,7 +46,7 @@ void main() {
       };
       final interval = UnitTrainingInterval.fromJson(
         json,
-        machineType: 'DeviceDataType.indoorBike',
+        machineType: DeviceType.indoorBike,
         userSettings: null,
       );
       // Should remain as string

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'model/training_session.dart';
-import '../../core/config/ftms_display_config.dart';
+import '../../core/config/live_data_display_config.dart';
 import '../../core/services/connected_devices_service.dart';
 import 'widgets/training_session_chart.dart';
 
@@ -24,7 +24,6 @@ class TrainingSessionExpansionPanelList extends StatefulWidget {
 
 class _TrainingSessionExpansionPanelListState
     extends State<TrainingSessionExpansionPanelList> {
-  final Map<String, FtmsDisplayConfig?> _configCache = {};
   late List<bool> _expanded;
 
   @override
@@ -61,7 +60,7 @@ class _TrainingSessionExpansionPanelListState
                   ? const Icon(Icons.expand_less)
                   : const Icon(Icons.expand_more),
             ),
-            body: FutureBuilder<FtmsDisplayConfig?>(
+            body: FutureBuilder<LiveDataDisplayConfig?>(
               future: _getConfig(session.ftmsMachineType),
               builder: (context, snapshot) {
                 final config = snapshot.data;
@@ -113,26 +112,8 @@ class _TrainingSessionExpansionPanelListState
     );
   }
 
-  Future<FtmsDisplayConfig?> _getConfig(String machineType) async {
-    if (_configCache.containsKey(machineType)) {
-      return _configCache[machineType];
-    }
-    // Map string to DeviceDataType
-    DeviceDataType? type;
-    switch (machineType) {
-      case 'DeviceDataType.rower':
-        type = DeviceDataType.rower;
-        break;
-      case 'DeviceDataType.indoorBike':
-        type = DeviceDataType.indoorBike;
-        break;
-      default:
-        type = null;
-    }
-    if (type == null) return null;
-    final config = await loadFtmsDisplayConfig(type);
-    _configCache[machineType] = config;
-    return config;
+  Future<LiveDataDisplayConfig?> _getConfig(DeviceType deviceType) async {
+    return await LiveDataDisplayConfig.loadForFtmsMachineType(deviceType);
   }
 
   Widget _buildStartSessionButton(

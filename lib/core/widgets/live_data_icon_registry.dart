@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Registry of available FTMS icons for use in config files and widgets.
-final Map<String, IconData> ftmsIconRegistry = {
+final Map<String, IconData> liveDataIconRegistry = {
   'heart': Icons.favorite,
   'cadence': Icons.cyclone, // Placeholder for pedal/cadence
   'bike': Icons.pedal_bike,
@@ -9,7 +9,7 @@ final Map<String, IconData> ftmsIconRegistry = {
 };
 
 /// Utility to select the correct icon for FTMS display fields.
-IconData? getFtmsIcon(String? icon) {
+IconData? getLiveDataIcon(String? icon) {
   if (icon == null) return null;
-  return ftmsIconRegistry[icon];
+  return liveDataIconRegistry[icon];
 }

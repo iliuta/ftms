@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
-import '../../../core/config/ftms_display_config.dart';
+import '../../../core/config/live_data_display_config.dart';
 import '../model/training_session.dart';
 import '../training_session_controller.dart';
 import 'session_progress_bar.dart';
@@ -11,7 +11,7 @@ import 'live_ftms_data_widget.dart';
 class TrainingSessionBody extends StatelessWidget {
   final TrainingSessionDefinition session;
   final TrainingSessionController controller;
-  final FtmsDisplayConfig? config;
+  final LiveDataDisplayConfig? config;
   final BluetoothDevice ftmsDevice;
 
   const TrainingSessionBody({
