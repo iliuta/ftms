@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/models/user_settings.dart';
+import 'package:ftms/core/models/device_types.dart';
+import 'package:ftms/features/settings/model/user_settings.dart';
 import 'package:ftms/features/training/model/target_power_strategy.dart';
 
 void main() {
@@ -77,20 +78,12 @@ void main() {
 
   group('TargetPowerStrategyFactory', () {
     test('returns correct strategy for indoorBike', () {
-      final s = TargetPowerStrategyFactory.getStrategy('DeviceDataType.indoorBike');
+      final s = TargetPowerStrategyFactory.getStrategy(DeviceType.indoorBike);
       expect(s, isA<IndoorBikeTargetPowerStrategy>());
     });
     test('returns correct strategy for rower', () {
-      final s = TargetPowerStrategyFactory.getStrategy('DeviceDataType.rower');
+      final s = TargetPowerStrategyFactory.getStrategy(DeviceType.rower);
       expect(s, isA<RowerTargetPowerStrategy>());
-    });
-    test('returns default strategy for unknown', () {
-      final s = TargetPowerStrategyFactory.getStrategy('DeviceDataType.unknown');
-      expect(s, isA<DefaultTargetPowerStrategy>());
-    });
-    test('returns default strategy for null', () {
-      final s = TargetPowerStrategyFactory.getStrategy(null);
-      expect(s, isA<DefaultTargetPowerStrategy>());
     });
   });
 }

@@ -1,5 +1,8 @@
+
+import 'package:ftms/core/models/device_types.dart';
+
 import 'training_interval.dart';
-import '../../../core/models/user_settings.dart';
+import '../../settings/model/user_settings.dart';
 import 'target_power_strategy.dart';
 
 class UnitTrainingInterval extends TrainingInterval {
@@ -10,26 +13,33 @@ class UnitTrainingInterval extends TrainingInterval {
   @override
   final int? repeat;
 
-  UnitTrainingInterval({this.title, required this.duration, this.targets, this.resistanceLevel, this.repeat});
-
+  UnitTrainingInterval(
+      {this.title,
+      required this.duration,
+      this.targets,
+      this.resistanceLevel,
+      this.repeat});
 
   /// [machineType] is required to apply FTP logic for indoorBike/rower.
   /// [userSettings] is used for percentage-based targets.
   factory UnitTrainingInterval.fromJson(
     Map<String, dynamic> json, {
-    String? machineType,
+    DeviceType? machineType,
     UserSettings? userSettings,
   }) {
     Map<String, dynamic>? targets;
     if (json['targets'] != null) {
       targets = Map<String, dynamic>.from(json['targets']);
       // Use targetPowerStrategy pattern for power target resolution
-      final targetPowerStrategy = TargetPowerStrategyFactory.getStrategy(machineType);
+      final targetPowerStrategy =
+          TargetPowerStrategyFactory.getStrategy(machineType!);
       if (targets.containsKey('Instantaneous Power')) {
-        targets['Instantaneous Power'] = targetPowerStrategy.resolvePower(targets['Instantaneous Power'], userSettings);
+        targets['Instantaneous Power'] = targetPowerStrategy.resolvePower(
+            targets['Instantaneous Power'], userSettings);
       }
       if (targets.containsKey('Instantaneous Pace')) {
-        targets['Instantaneous Pace'] = targetPowerStrategy.resolvePower(targets['Instantaneous Pace'], userSettings);
+        targets['Instantaneous Pace'] = targetPowerStrategy.resolvePower(
+            targets['Instantaneous Pace'], userSettings);
       }
     }
     return UnitTrainingInterval(

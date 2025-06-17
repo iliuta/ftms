@@ -1,6 +1,8 @@
+import 'package:ftms/core/models/device_types.dart';
+
 import 'training_interval.dart';
 import 'unit_training_interval.dart';
-import '../../../core/models/user_settings.dart';
+import '../../settings/model/user_settings.dart';
 
 class GroupTrainingInterval extends TrainingInterval {
   @override
@@ -11,7 +13,7 @@ class GroupTrainingInterval extends TrainingInterval {
 
   factory GroupTrainingInterval.fromJson(
     Map<String, dynamic> json, {
-    String? machineType,
+    DeviceType? machineType,
     UserSettings? userSettings,
   }) {
     return GroupTrainingInterval(

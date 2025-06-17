@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/core/services/fit/distance_calculation_strategy.dart';
-import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/models/live_data_field_value.dart';
 
 /// Mock class for testing dynamic object handling
 class MockDynamicObject {
@@ -27,7 +27,7 @@ void main() {
     group('calculateDistanceIncrement', () {
       test(
           'calculates distance correctly with valid speed from FtmsParameter', () {
-        final param = FtmsParameter(
+        final param = LiveDataFieldValue(
           name: 'Instantaneous Speed',
           value: 360, // Raw value
           factor: 0.1, // Scale factor to get 36.0 km/h
@@ -356,14 +356,14 @@ void main() {
       });
 
       test('handles FtmsParameter objects for stroke rate and power', () {
-        final strokeRateParam = FtmsParameter(
+        final strokeRateParam = LiveDataFieldValue(
           name: 'Instantaneous Stroke Rate',
           value: 240, // Raw value
           factor: 0.1, // Scale factor to get 24.0 SPM
           unit: 'spm',
         );
 
-        final powerParam = FtmsParameter(
+        final powerParam = LiveDataFieldValue(
           name: 'Instantaneous Power',
           value: 1800, // Raw value
           factor: 0.1, // Scale factor to get 180.0W
@@ -664,25 +664,18 @@ void main() {
     group('DistanceCalculationStrategyFactory', () {
       test('creates IndoorBikeDistanceStrategy for indoorBike', () {
         final strategy = DistanceCalculationStrategyFactory.createStrategy(
-          DeviceDataType.indoorBike,
+          DeviceType.indoorBike,
         );
         expect(strategy, isA<IndoorBikeDistanceStrategy>());
       });
 
       test('creates RowerDistanceStrategy for rower', () {
         final strategy = DistanceCalculationStrategyFactory.createStrategy(
-          DeviceDataType.rower,
+          DeviceType.rower,
         );
         expect(strategy, isA<RowerDistanceStrategy>());
       });
 
-      test('creates IndoorBikeDistanceStrategy for unknown device type', () {
-        // Test with a device type that's not explicitly handled
-        final strategy = DistanceCalculationStrategyFactory.createStrategy(
-          DeviceDataType.crossTrainer,
-        );
-        expect(strategy, isA<IndoorBikeDistanceStrategy>());
-      });
     });
   });
 }

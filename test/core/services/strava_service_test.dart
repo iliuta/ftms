@@ -1,9 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ftms/core/services/strava/strava_activity_types.dart';
+import 'package:ftms/core/services/strava/strava_activity_uploader.dart';
+import 'package:ftms/core/services/strava/strava_oauth_handler.dart';
+import 'package:ftms/core/services/strava/strava_token_manager.dart';
+import 'package:ftms/core/services/strava/strava_service.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:ftms/core/services/strava_exports.dart';
 import 'dart:io';
 
 // Generate mocks for external dependencies only

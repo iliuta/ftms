@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
 
-import '../models/ftms_parameter.dart';
-import 'ftms_icon_registry.dart';
+import '../models/live_data_field_value.dart';
+import 'live_data_icon_registry.dart';
 
 /// Widget for displaying a value as a simple number with label.
 class SimpleNumberWidget extends StatelessWidget {
-  final FtmsDisplayField displayField;
+  final LiveDataFieldConfig displayField;
   final Color? color;
-  final FtmsParameter param;
+  final LiveDataFieldValue param;
   const SimpleNumberWidget(this.displayField, this.param, this.color, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    IconData? iconData = getFtmsIcon(displayField.icon);
+    IconData? iconData = getLiveDataIcon(displayField.icon);
     final scaledValue = param.getScaledValue();
     return Column(
       mainAxisSize: MainAxisSize.min,

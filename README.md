@@ -1,6 +1,6 @@
 # HEAVY WORK IN PROGRESS
 
-# FTMS Flutter App
+# FTMS Training App
 
 I started this app because I bought a rowing machine :) and the free app I was using didn't have the features I wanted and only worked by setting the trainer resistance: 
 - target cadence
@@ -19,6 +19,8 @@ It is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutt
 ![App Screenshot](doc/screen2.png)
 ![App Screenshot](doc/screen3.png)
 ![App Screenshot](doc/screen4.png)
+![App Screenshot](doc/screen5.png)
+
 
 
 ## Main Features

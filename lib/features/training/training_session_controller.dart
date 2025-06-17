@@ -6,9 +6,9 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
 import '../../core/services/fit/training_data_recorder.dart';
 import '../../core/services/ftms_data_processor.dart';
-import '../../core/services/strava_service.dart';
+import '../../core/services/strava/strava_service.dart';
 import '../../core/services/strava/strava_activity_types.dart';
-import '../../core/config/ftms_display_config.dart';
+import '../../core/config/live_data_display_config.dart';
 import '../../core/utils/logger.dart';
 import 'model/training_session.dart';
 import 'model/unit_training_interval.dart';
@@ -108,10 +108,10 @@ class TrainingSessionController extends ChangeNotifier {
   Future<void> _initDataRecording() async {
     try {
       // Get device type from the machine type string
-      final deviceType = _parseDeviceType(session.ftmsMachineType);
+      final deviceType = session.ftmsMachineType;
       
       // Load config for data processor
-      final config = await loadFtmsDisplayConfig(deviceType);
+      final config = await LiveDataDisplayConfig.loadForFtmsMachineType(deviceType);
       if (config != null) {
         _dataProcessor.configure(config);
         _isRecordingConfigured = true;
@@ -125,30 +125,6 @@ class TrainingSessionController extends ChangeNotifier {
       _dataRecorder!.startRecording();
     } catch (e) {
       debugPrint('Failed to initialize data recording: $e');
-    }
-  }
-
-  DeviceDataType _parseDeviceType(String machineType) {
-    switch (machineType) {
-      case 'DeviceDataType.rower':
-      case 'rower':
-        return DeviceDataType.rower;
-      case 'DeviceDataType.indoorBike':
-      case 'indoorBike':
-        return DeviceDataType.indoorBike;
-      default:
-        return DeviceDataType.indoorBike;
-    }
-  }
-
-  String _getStravaActivityType(DeviceDataType deviceType) {
-    switch (deviceType) {
-      case DeviceDataType.rower:
-        return StravaActivityTypes.rowing;
-      case DeviceDataType.indoorBike:
-        return StravaActivityTypes.ride;
-      default:
-        return StravaActivityTypes.workout;
     }
   }
 
@@ -293,8 +269,8 @@ class TrainingSessionController extends ChangeNotifier {
       final activityName = '${session.title} - FTMS Training';
       
       // Determine the appropriate activity type based on the device type
-      final deviceType = _parseDeviceType(session.ftmsMachineType);
-      final activityType = _getStravaActivityType(deviceType);
+      final deviceType = session.ftmsMachineType;
+      final activityType = StravaActivityTypes.fromFtmsMachineType(deviceType);
       
       // Upload to Strava with the correct activity type
       final uploadResult = await _stravaService.uploadActivity(

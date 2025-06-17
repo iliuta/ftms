@@ -1,13 +1,13 @@
 // This file was moved from lib/scan_widgets.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/utils/logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../ftms/ftms_page.dart';
-import '../../core/services/heart_rate_service.dart';
-import '../../core/services/cadence_service.dart';
-import '../../core/services/devices/device_type_manager.dart';
-import '../../core/services/devices/device_navigation_registry.dart';
-import '../../core/services/connected_devices_service.dart';
+import '../../core/services/devices/bt_device_manager.dart';
+import '../../core/services/devices/bt_device_navigation_registry.dart';
+import '../../core/services/devices/bt_device.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// Button for scanning Bluetooth devices
 Widget scanBluetoothButton(bool? isScanning) {
@@ -15,8 +15,8 @@ Widget scanBluetoothButton(bool? isScanning) {
     return Container();
   }
   return ElevatedButton(
-    onPressed:
-        isScanning ? null : () async => await FTMS.scanForBluetoothDevices(),
+    onPressed: isScanning ? null : () async {
+    },
     child:
         isScanning ? const Text("Scanning...") : const Text("Scan for devices"),
   );
@@ -24,32 +24,36 @@ Widget scanBluetoothButton(bool? isScanning) {
 
 /// Widget to display scan results as a list of FTMS devices
 Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
-  final deviceTypeManager = DeviceTypeManager();
+  final supportedBTDeviceManager = SupportedBTDeviceManager();
 
   // Get connected devices
-  final connectedDevices = connectedDevicesService.connectedDevices;
-  
+  final connectedDevices = SupportedBTDeviceManager().allConnectedDevices;
+  logger.i('🔧 scanResultsToWidget: Found ${connectedDevices.length} connected devices');
+
   // Create a set of connected device IDs for quick lookup
-  final connectedDeviceIds = connectedDevices.map((d) => d.device.remoteId.str).toSet();
-  
+  final connectedDeviceIds =
+      connectedDevices.map((d) => d.id).toSet();
+
   // Filter out scan results that are already connected to avoid duplicates
-  final availableDevices = data.where((scanResult) => 
-    !connectedDeviceIds.contains(scanResult.device.remoteId.str)
-  ).toList();
-  
+  final availableDevices = data
+      .where((scanResult) =>
+          !connectedDeviceIds.contains(scanResult.device.remoteId.str))
+      .toList();
+
   // Sort available devices by device type priority
-  final sortedAvailableDevices = deviceTypeManager.sortDevicesByPriority(availableDevices);
-  
+  final sortedAvailableDevices =
+      supportedBTDeviceManager.sortBTDevicesByPriority(availableDevices);
+
   // Create a combined list: connected devices first, then available devices
   final List<Widget> deviceWidgets = [];
-  
+
   // Add connected devices first
   for (final connectedDevice in connectedDevices) {
     deviceWidgets.add(
       ListTile(
         title: Row(
           children: [
-            connectedDevice.service.getDeviceIcon(context) ?? Container(),
+            connectedDevice.getDeviceIcon(context) ?? Container(),
             const SizedBox(width: 4),
             Expanded(
               child: Text(
@@ -75,7 +79,7 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
             ),
           ],
         ),
-        subtitle: Text(connectedDevice.device.remoteId.str),
+        subtitle: Text(connectedDevice.id),
         leading: const SizedBox(
           width: 40,
           child: Center(
@@ -86,10 +90,11 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
       ),
     );
   }
-  
+
   // Add available devices
   for (final scanResult in sortedAvailableDevices) {
-    final deviceService = deviceTypeManager.getDeviceService(scanResult.device, data);
+    final deviceService =
+        supportedBTDeviceManager.getBTDevice(scanResult.device, data);
     deviceWidgets.add(
       ListTile(
         title: Row(
@@ -122,10 +127,10 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
   return Column(children: deviceWidgets);
 }
 
-/// Button for connecting/disconnecting to a Bluetooth device and opening FTMS page
+/// Button for connecting/disconnecting to a Bluetooth device
 Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
     List<ScanResult> scanResults) {
-  final deviceTypeManager = DeviceTypeManager();
+  final deviceTypeManager = SupportedBTDeviceManager();
 
   return StreamBuilder<BluetoothConnectionState>(
       stream: device.connectionState,
@@ -145,26 +150,28 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                 );
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-                // Get the primary device service for this device
-                final deviceService =
-                    deviceTypeManager.getDeviceService(device, scanResults);
-                
-                debugPrint('🔍 Device service for ${device.platformName}: ${deviceService?.deviceTypeName ?? 'null'}');
+                // Get the primary device btDevice for this device
+                final btDevice =
+                    deviceTypeManager.getBTDevice(device, scanResults);
 
-                if (deviceService != null) {
-                  debugPrint('✅ Using primary device service: ${deviceService.deviceTypeName} for ${device.platformName}');
-                  // Try to connect using the appropriate device service
-                  final success = await deviceService.connectToDevice(device);
+                logger.i(
+                    '🔍 Device btDevice for ${device.platformName}: ${btDevice?.deviceTypeName ?? 'null'}');
+
+                if (btDevice != null) {
+                  logger.i(
+                      '✅ Using primary device btDevice: ${btDevice.deviceTypeName} for ${device.platformName}');
+                  // Try to connect using the appropriate device btDevice
+                  final success = await btDevice.connectToDevice(device);
                   if (success && context.mounted) {
-                    // Add to connected devices service
-                    debugPrint('📱 Adding device via primary path: ${device.platformName}');
-                    await connectedDevicesService.addConnectedDevice(device, scanResults);
-                    
+                    // Device is now automatically tracked in BTDevice system
+                    logger.i(
+                        '📱 Device connected via new architecture: ${device.platformName}');
+
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                              'Connected to ${deviceService.deviceTypeName}: ${device.platformName}'),
+                              'Connected to ${btDevice.deviceTypeName}: ${device.platformName}'),
                           backgroundColor: Colors.green,
                         ),
                       );
@@ -182,7 +189,7 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content:
-                      Text('Unsupported device ${device.platformName}'),
+                          Text('Unsupported device ${device.platformName}'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -199,73 +206,25 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                 children: [
                   // Get actions from device services
                   ...() {
-                    final matchingServices = deviceTypeManager
-                        .getAllMatchingServices(device, scanResults);
+                    final matchingBTDevices = deviceTypeManager
+                        .getAllMatchingBTDevices(device, scanResults);
                     final actions = <Widget>[];
 
-                    for (final service in matchingServices) {
-                      actions
-                          .addAll(service.getConnectedActions(device, context));
+                    for (final btDevice in matchingBTDevices) {
+                      actions.addAll(
+                          btDevice.getConnectedActions(device, context));
                     }
-
-                    // Fallback: if no services provide actions, check if it's an FTMS device
-                    if (actions.isEmpty) {
-                      actions.add(
-                        FutureBuilder<bool>(
-                          future: FTMS.isBluetoothDeviceFTMSDevice(device),
-                          initialData: false,
-                          builder: (c, snapshot) => (snapshot.data ?? false)
-                              ? ElevatedButton(
-                                  child: const Text("Open"),
-                                  onPressed: () async {
-                                    // Enable wakelock when device is selected
-                                    try {
-                                      await WakelockPlus.enable();
-                                    } catch (e) {
-                                      // Wakelock not supported on this platform
-                                      debugPrint('Wakelock not supported: $e');
-                                    }
-
-                                    if (!context.mounted) return;
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => FTMSPage(
-                                                ftmsDevice: device,
-                                              )),
-                                    );
-                                  },
-                                )
-                              : Container(),
-                        ),
-                      );
-                    }
-
                     return actions;
                   }(),
                   OutlinedButton(
                     child: const Text("Disconnect"),
                     onPressed: () async {
-                      // Remove from connected devices service first
-                      connectedDevicesService.removeConnectedDevice(device.remoteId.str);
-                      
                       // Disconnect using all matching services
-                      final matchingServices = deviceTypeManager
-                          .getAllMatchingServices(device, scanResults);
-                      for (final service in matchingServices) {
-                        await service.disconnectFromDevice(device);
+                      final matchingBTDevices = deviceTypeManager
+                          .getAllMatchingBTDevices(device, scanResults);
+                      for (final btDevice in matchingBTDevices) {
+                        await btDevice.disconnectFromDevice(device);
                       }
-
-                      // Fallback disconnection for FTMS
-                      await FTMS.disconnectFromFTMSDevice(device);
-
-                      // Also disconnect from HRM if connected
-                      final heartRateService = HeartRateService();
-                      await heartRateService.disconnectHrmDevice();
-
-                      // Also disconnect from Cadence if connected
-                      final cadenceService = CadenceService();
-                      await cadenceService.disconnectCadenceDevice();
 
                       // Disable wakelock when disconnecting
                       WakelockPlus.disable();
@@ -281,7 +240,8 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
 }
 
 /// Button for actions on already connected devices
-Widget getButtonForConnectedDevice(ConnectedDevice connectedDevice, BuildContext context) {
+Widget getButtonForConnectedDevice(
+    BTDevice connectedDevice, BuildContext context) {
   return SizedBox(
     width: 250,
     child: Wrap(
@@ -290,15 +250,15 @@ Widget getButtonForConnectedDevice(ConnectedDevice connectedDevice, BuildContext
       direction: Axis.horizontal,
       children: [
         // Get actions from the device service
-        ...connectedDevice.service.getConnectedActions(connectedDevice.device, context),
+        if (connectedDevice.connectedDevice != null)
+          ...connectedDevice.getConnectedActions(connectedDevice.connectedDevice!, context),
         OutlinedButton(
           child: const Text("Disconnect"),
           onPressed: () async {
             // Disconnect using the device service
-            await connectedDevice.service.disconnectFromDevice(connectedDevice.device);
-            
-            // Remove from connected devices service
-            connectedDevicesService.removeConnectedDevice(connectedDevice.device.remoteId.str);
+            if (connectedDevice.connectedDevice != null) {
+              await connectedDevice.disconnectFromDevice(connectedDevice.connectedDevice!);
+            }
 
             // Disable wakelock when disconnecting
             WakelockPlus.disable();
@@ -313,8 +273,8 @@ Widget getButtonForConnectedDevice(ConnectedDevice connectedDevice, BuildContext
 /// This should be called once during app initialization to register navigation callbacks
 /// and avoid circular dependencies between device services and UI components
 void initializeDeviceNavigation() {
-  final registry = DeviceNavigationRegistry();
-  
+  final registry = BTDeviceNavigationRegistry();
+
   // Register FTMS navigation callback
   registry.registerNavigation('FTMS', (context, device) async {
     // Enable wakelock when device is selected
@@ -322,7 +282,7 @@ void initializeDeviceNavigation() {
       await WakelockPlus.enable();
     } catch (e) {
       // Wakelock not supported on this platform
-      debugPrint('Wakelock not supported: $e');
+      logger.i('Wakelock not supported: $e');
     }
 
     if (!context.mounted) return;

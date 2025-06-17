@@ -1,38 +1,38 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:ftms/core/services/devices/cadence_device_service.dart';
+import 'package:ftms/core/services/devices/cadence.dart';
 
 void main() {
   group('CadenceDeviceService', () {
-    late CadenceDeviceService service;
+    late Cadence cadenceBtDevice;
     late MockBluetoothDevice mockDevice;
     late MockBuildContext mockContext;
     late List<ScanResult> mockScanResults;
 
     setUp(() {
-      service = CadenceDeviceService();
+      cadenceBtDevice = Cadence();
       mockDevice = MockBluetoothDevice();
       mockContext = MockBuildContext();
       mockScanResults = <ScanResult>[MockScanResult(mockDevice)];
     });
 
     test('should be a singleton', () {
-      final service1 = CadenceDeviceService();
-      final service2 = CadenceDeviceService();
+      final service1 = Cadence();
+      final service2 = Cadence();
       expect(service1, same(service2));
     });
 
     test('should return correct device type name', () {
-      expect(service.deviceTypeName, equals('Cadence'));
+      expect(cadenceBtDevice.deviceTypeName, equals('Cadence'));
     });
 
     test('should return correct list priority', () {
-      expect(service.listPriority, equals(30));
+      expect(cadenceBtDevice.listPriority, equals(15));
     });
 
     test('should return pedal bike icon', () {
-      final icon = service.getDeviceIcon(mockContext);
+      final icon = cadenceBtDevice.getDeviceIcon(mockContext);
       expect(icon, isA<Icon>());
       
       final iconWidget = icon as Icon;
@@ -42,37 +42,37 @@ void main() {
     });
 
     group('isDeviceOfThisType', () {
-      test('should identify cadence device with service UUID', () {
+      test('should identify cadence device with cadenceBtDevice UUID', () {
         final cadenceScanResults = <ScanResult>[
           MockScanResult(mockDevice, serviceUuids: ['1816']) // Cadence service UUID
         ];
         
-        final isCadenceDevice = service.isDeviceOfThisType(mockDevice, cadenceScanResults);
+        final isCadenceDevice = cadenceBtDevice.isDeviceOfThisType(mockDevice, cadenceScanResults);
         expect(isCadenceDevice, isTrue);
       });
 
-      test('should not identify device without cadence service UUID', () {
+      test('should not identify device without cadence cadenceBtDevice UUID', () {
         final nonCadenceScanResults = <ScanResult>[
           MockScanResult(mockDevice, serviceUuids: ['180d']) // HRM service UUID
         ];
         
-        final isCadenceDevice = service.isDeviceOfThisType(mockDevice, nonCadenceScanResults);
+        final isCadenceDevice = cadenceBtDevice.isDeviceOfThisType(mockDevice, nonCadenceScanResults);
         expect(isCadenceDevice, isFalse);
       });
 
-      test('should handle empty service UUIDs', () {
+      test('should handle empty cadenceBtDevice UUIDs', () {
         final emptyScanResults = <ScanResult>[
           MockScanResult(mockDevice, serviceUuids: [])
         ];
         
-        final isCadenceDevice = service.isDeviceOfThisType(mockDevice, emptyScanResults);
+        final isCadenceDevice = cadenceBtDevice.isDeviceOfThisType(mockDevice, emptyScanResults);
         expect(isCadenceDevice, isFalse);
       });
 
       test('should handle missing scan result for device', () {
         final differentDevice = MockBluetoothDevice(id: '11:11:11:11:11:11');
         
-        final isCadenceDevice = service.isDeviceOfThisType(differentDevice, mockScanResults);
+        final isCadenceDevice = cadenceBtDevice.isDeviceOfThisType(differentDevice, mockScanResults);
         expect(isCadenceDevice, isFalse);
       });
 
@@ -81,7 +81,7 @@ void main() {
           MockScanResult(mockDevice, serviceUuids: ['1816']) // lowercase
         ];
         
-        final isCadenceDevice = service.isDeviceOfThisType(mockDevice, cadenceScanResults);
+        final isCadenceDevice = cadenceBtDevice.isDeviceOfThisType(mockDevice, cadenceScanResults);
         expect(isCadenceDevice, isTrue);
       });
 
@@ -90,41 +90,41 @@ void main() {
           MockScanResult(mockDevice, serviceUuids: ['00001816-0000-1000-8000-00805f9b34fb'])
         ];
         
-        final isCadenceDevice = service.isDeviceOfThisType(mockDevice, cadenceScanResults);
+        final isCadenceDevice = cadenceBtDevice.isDeviceOfThisType(mockDevice, cadenceScanResults);
         expect(isCadenceDevice, isTrue);
       });
     });
 
     test('should connect to cadence device successfully', () async {
-      final result = await service.connectToDevice(mockDevice);
+      final result = await cadenceBtDevice.connectToDevice(mockDevice);
       expect(result, isTrue);
     }, skip: 'Bluetooth not available in test environment');
 
     test('should handle connection failure gracefully', () async {
       final failingDevice = FailingMockBluetoothDevice();
-      final result = await service.connectToDevice(failingDevice);
+      final result = await cadenceBtDevice.connectToDevice(failingDevice);
       expect(result, isFalse);
     });
 
     test('should disconnect from cadence device', () async {
       await expectLater(
-        service.disconnectFromDevice(mockDevice),
+        cadenceBtDevice.disconnectFromDevice(mockDevice),
         completes,
       );
     });
 
     test('should return null for device page', () {
-      final page = service.getDevicePage(mockDevice);
+      final page = cadenceBtDevice.getDevicePage(mockDevice);
       expect(page, isNull);
     });
 
     test('should return empty actions list', () {
-      final actions = service.getConnectedActions(mockDevice, mockContext);
+      final actions = cadenceBtDevice.getConnectedActions(mockDevice, mockContext);
       expect(actions, isEmpty);
     });
 
     test('should return null navigation callback', () {
-      final callback = service.getNavigationCallback();
+      final callback = cadenceBtDevice.getNavigationCallback();
       expect(callback, isNull);
     });
   });

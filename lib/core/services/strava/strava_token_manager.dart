@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/logger.dart';
-import '../network_client.dart';
+import '../http/network_client.dart';
 import 'strava_config.dart';
 
 /// Manages Strava authentication tokens and their lifecycle

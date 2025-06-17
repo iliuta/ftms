@@ -1,25 +1,25 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:ftms/core/services/devices/hrm_device_service.dart';
+import 'package:ftms/core/services/devices/hrm.dart';
 
 void main() {
   group('HrmDeviceService', () {
-    late HrmDeviceService service;
+    late Hrm service;
     late MockBluetoothDevice mockDevice;
     late MockBuildContext mockContext;
     late List<ScanResult> mockScanResults;
 
     setUp(() {
-      service = HrmDeviceService();
+      service = Hrm();
       mockDevice = MockBluetoothDevice();
       mockContext = MockBuildContext();
       mockScanResults = [MockScanResult(mockDevice)];
     });
 
     test('should be a singleton', () {
-      final service1 = HrmDeviceService();
-      final service2 = HrmDeviceService();
+      final service1 = Hrm();
+      final service2 = Hrm();
       expect(service1, same(service2));
     });
 

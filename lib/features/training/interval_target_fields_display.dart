@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
 
-import '../../core/config/ftms_display_config.dart';
-import '../../core/config/field_format_strategy.dart';
-import '../../core/widgets/ftms_icon_registry.dart';
+import '../../core/config/live_data_display_config.dart';
+import '../../core/config/live_data_field_format_strategy.dart';
+import '../../core/widgets/live_data_icon_registry.dart';
 
 class IntervalTargetFieldsDisplay extends StatelessWidget {
   final Map<String, dynamic>? targets;
-  final FtmsDisplayConfig? config;
+  final LiveDataDisplayConfig? config;
   final TextStyle? labelStyle;
   final TextStyle? valueStyle;
 
@@ -30,7 +30,7 @@ class IntervalTargetFieldsDisplay extends StatelessWidget {
     for (final entry in targets!.entries) {
       final field = config!.fields.firstWhere(
         (f) => f.name == entry.key,
-        orElse: () => FtmsDisplayField(
+        orElse: () => LiveDataFieldConfig(
           name: entry.key,
           label: entry.key,
           display: 'number',
@@ -41,7 +41,7 @@ class IntervalTargetFieldsDisplay extends StatelessWidget {
       // Format the value using the field's formatter if available
       String formattedValue = '${entry.value}${field.unit.isNotEmpty ? ' ${field.unit}' : ''}';
       if (field.formatter != null) {
-        final formatterStrategy = FieldFormatter.getStrategy(field.formatter!);
+        final formatterStrategy = LiveDataFieldFormatter.getStrategy(field.formatter!);
         if (formatterStrategy != null) {
           formattedValue = formatterStrategy.format(
             field: field, 
@@ -55,7 +55,7 @@ class IntervalTargetFieldsDisplay extends StatelessWidget {
           if (field.icon != null)
             Padding(
               padding: const EdgeInsets.only(right: 4),
-              child: Icon(getFtmsIcon(field.icon), size: 16),
+              child: Icon(getLiveDataIcon(field.icon), size: 16),
             ),
           Flexible(
             child: Text(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../core/models/user_settings.dart';
+import 'model/user_settings.dart';
 import '../../core/utils/logger.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/user_preferences_section.dart';

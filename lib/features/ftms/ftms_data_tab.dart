@@ -1,19 +1,22 @@
 // This file was moved from lib/ftms_data_tab.dart
 import 'package:flutter/material.dart';
+import 'package:ftms/core/models/device_types.dart';
 import '../../core/utils/logger.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+
 // import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/bloc/ftms_bloc.dart';
 import '../training/training_session_loader.dart';
 import '../training/training_session_expansion_panel.dart';
 import '../training/training_session_progress_screen.dart';
 import '../../core/utils/ftms_debug_utils.dart';
-import '../../core/config/ftms_display_config.dart';
+import '../../core/config/live_data_display_config.dart';
 import '../../core/widgets/ftms_live_data_display_widget.dart';
 import '../../core/services/ftms_data_processor.dart';
 
 class FTMSDataTab extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
+
   const FTMSDataTab({super.key, required this.ftmsDevice});
 
   @override
@@ -22,7 +25,7 @@ class FTMSDataTab extends StatefulWidget {
 
 class FTMSDataTabState extends State<FTMSDataTab> {
   bool _started = false;
-  FtmsDisplayConfig? _config;
+  LiveDataDisplayConfig? _config;
   String? _configError;
   final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
 
@@ -32,13 +35,15 @@ class FTMSDataTabState extends State<FTMSDataTab> {
     _startFTMS();
   }
 
-  Future<void> _loadConfigForType(DeviceDataType type) async {
-    final config = await loadFtmsDisplayConfig(type);
+  Future<void> _loadConfigForFtmsDeviceType(
+      DeviceDataType ftmsMachineType) async {
+    final config = await LiveDataDisplayConfig.loadForFtmsMachineType(
+        DeviceType.fromFtms(ftmsMachineType));
     setState(() {
       _config = config;
       _configError = config == null ? 'No config for this machine type' : null;
     });
-    
+
     // Configure data processor for averaging
     if (config != null) {
       _dataProcessor.configure(config);
@@ -69,7 +74,7 @@ class FTMSDataTabState extends State<FTMSDataTab> {
           final deviceData = snapshot.data!;
           // Load config if not loaded or if type changed
           if (_config == null || _configError != null) {
-            _loadConfigForType(deviceData.deviceDataType);
+            _loadConfigForFtmsDeviceType(deviceData.deviceDataType);
             if (_configError != null) {
               return Center(child: Text(_configError!));
             }
@@ -77,10 +82,10 @@ class FTMSDataTabState extends State<FTMSDataTab> {
           }
           final parameterValues = deviceData.getDeviceDataParameterValues();
           logFtmsParameterAttributes(parameterValues);
-          
+
           // Process device data with averaging
           final paramValueMap = _dataProcessor.processDeviceData(deviceData);
-          
+
           return Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -94,7 +99,7 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                   config: _config!,
                   paramValueMap: paramValueMap,
                   defaultColor: Colors.blue,
-                  machineType: deviceData.deviceDataType.toString(),
+                  machineType: DeviceType.fromFtms(deviceData.deviceDataType),
                 ),
                 const SizedBox(height: 24),
                 // Start Training Button
@@ -104,19 +109,20 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                     icon: const Icon(Icons.play_arrow),
                     label: const Text('Load training session'),
                     onPressed: () async {
-                      logger.i('Start Training pressed. deviceData.deviceDataType: '
+                      logger.i(
+                          'Start Training pressed. deviceData.deviceDataType: '
                           '${deviceData.deviceDataType}');
                       // Load training sessions (default user settings are now loaded inside the loader)
                       final sessions = await loadTrainingSessions(
-                        deviceData.deviceDataType.toString(),
-                      );
+                          DeviceType.fromFtms(deviceData.deviceDataType));
                       if (sessions.isEmpty) {
                         if (!context.mounted) return;
                         showDialog(
                           context: context,
                           builder: (context) => const AlertDialog(
                             title: Text('No Training Sessions'),
-                            content: Text('No training sessions found for this machine type.'),
+                            content: Text(
+                                'No training sessions found for this machine type.'),
                           ),
                         );
                         return;
@@ -141,7 +147,8 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                         if (selectedSession != null && context.mounted) {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => TrainingSessionProgressScreen(
+                              builder: (context) =>
+                                  TrainingSessionProgressScreen(
                                 session: selectedSession,
                                 ftmsDevice: widget.ftmsDevice,
                               ),
@@ -160,4 +167,3 @@ class FTMSDataTabState extends State<FTMSDataTab> {
     );
   }
 }
-

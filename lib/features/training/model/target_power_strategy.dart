@@ -1,4 +1,6 @@
-import '../../../core/models/user_settings.dart';
+import 'package:ftms/core/models/device_types.dart';
+
+import '../../settings/model/user_settings.dart';
 
 abstract class TargetPowerStrategy {
   /// Returns the resolved power value for the given [rawValue] and [userSettings].
@@ -51,14 +53,12 @@ class DefaultTargetPowerStrategy implements TargetPowerStrategy {
 }
 
 class TargetPowerStrategyFactory {
-  static TargetPowerStrategy getStrategy(String? machineType) {
+  static TargetPowerStrategy getStrategy(DeviceType machineType) {
     switch (machineType) {
-      case 'DeviceDataType.indoorBike':
+      case DeviceType.indoorBike:
         return IndoorBikeTargetPowerStrategy();
-      case 'DeviceDataType.rower':
+      case DeviceType.rower:
         return RowerTargetPowerStrategy();
-      default:
-        return DefaultTargetPowerStrategy();
     }
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/models/live_data_field_value.dart';
 
 void main() {
   group('FtmsParameter', () {
     test('can be created with all properties', () {
-      final param = FtmsParameter(
+      final param = LiveDataFieldValue(
         name: 'Power',
         value: 250,
         factor: 2,
@@ -24,7 +24,7 @@ void main() {
     });
 
     test('can be created with default values', () {
-      final param = FtmsParameter(
+      final param = LiveDataFieldValue(
         name: 'Speed',
         value: 25,
       );
@@ -39,7 +39,7 @@ void main() {
     });
 
     test('getScaledValue returns correct value', () {
-      final param = FtmsParameter(
+      final param = LiveDataFieldValue(
         name: 'Power',
         value: 100,
         factor: 2.5,
@@ -49,7 +49,7 @@ void main() {
     });
 
     test('getScaledValue works with integer factor', () {
-      final param = FtmsParameter(
+      final param = LiveDataFieldValue(
         name: 'Speed',
         value: 20,
         factor: 3,
@@ -59,7 +59,7 @@ void main() {
     });
 
     test('isWithinTarget returns true when value is within range', () {
-      final param = FtmsParameter(
+      final param = LiveDataFieldValue(
         name: 'Power',
         value: 100,
         factor: 1,
@@ -69,41 +69,41 @@ void main() {
       expect(param.isWithinTarget(100), isTrue);
       
       // Target 100, value 95 (scaled) should be within ±10% (90-110 range)
-      final param2 = FtmsParameter(name: 'Power', value: 95, factor: 1);
+      final param2 = LiveDataFieldValue(name: 'Power', value: 95, factor: 1);
       expect(param2.isWithinTarget(100), isTrue);
       
       // Target 100, value 110 (scaled) should be within ±10% (90-110 range)
-      final param3 = FtmsParameter(name: 'Power', value: 110, factor: 1);
+      final param3 = LiveDataFieldValue(name: 'Power', value: 110, factor: 1);
       expect(param3.isWithinTarget(100), isTrue);
     });
 
     test('isWithinTarget returns false when value is outside range', () {
       // Target 100, value 89 (scaled) should be outside ±10% (90-110 range)
-      final param1 = FtmsParameter(name: 'Power', value: 89, factor: 1);
+      final param1 = LiveDataFieldValue(name: 'Power', value: 89, factor: 1);
       expect(param1.isWithinTarget(100), isFalse);
       
       // Target 100, value 111 (scaled) should be outside ±10% (90-110 range)
-      final param2 = FtmsParameter(name: 'Power', value: 111, factor: 1);
+      final param2 = LiveDataFieldValue(name: 'Power', value: 111, factor: 1);
       expect(param2.isWithinTarget(100), isFalse);
     });
 
     test('isWithinTarget works with scaling factor', () {
       // Value 50 with factor 2 = scaled value 100, target 100 should be within range
-      final param = FtmsParameter(name: 'Power', value: 50, factor: 2);
+      final param = LiveDataFieldValue(name: 'Power', value: 50, factor: 2);
       expect(param.isWithinTarget(100), isTrue);
       
       // Value 40 with factor 2 = scaled value 80, target 100 should be outside range (90-110)
-      final param2 = FtmsParameter(name: 'Power', value: 40, factor: 2);
+      final param2 = LiveDataFieldValue(name: 'Power', value: 40, factor: 2);
       expect(param2.isWithinTarget(100), isFalse);
     });
 
     test('isWithinTarget returns false when target is null', () {
-      final param = FtmsParameter(name: 'Power', value: 100, factor: 1);
+      final param = LiveDataFieldValue(name: 'Power', value: 100, factor: 1);
       expect(param.isWithinTarget(null), isFalse);
     });
 
     test('getFormattedValue returns correct format', () {
-      final param = FtmsParameter(
+      final param = LiveDataFieldValue(
         name: 'Power',
         value: 250,
         unit: 'W',
@@ -113,7 +113,7 @@ void main() {
     });
 
     test('copyWith creates new instance with updated values', () {
-      final original = FtmsParameter(
+      final original = LiveDataFieldValue(
         name: 'Power',
         value: 100,
         factor: 1,
@@ -133,26 +133,26 @@ void main() {
     });
 
     test('toString returns value as string', () {
-      final param = FtmsParameter(name: 'Power', value: 250);
+      final param = LiveDataFieldValue(name: 'Power', value: 250);
       expect(param.toString(), equals('250'));
     });
 
     test('equality works correctly', () {
-      final param1 = FtmsParameter(
+      final param1 = LiveDataFieldValue(
         name: 'Power',
         value: 250,
         factor: 1,
         unit: 'W',
       );
       
-      final param2 = FtmsParameter(
+      final param2 = LiveDataFieldValue(
         name: 'Power',
         value: 250,
         factor: 1,
         unit: 'W',
       );
       
-      final param3 = FtmsParameter(
+      final param3 = LiveDataFieldValue(
         name: 'Power',
         value: 300,
         factor: 1,
@@ -164,14 +164,14 @@ void main() {
     });
 
     test('hashCode works correctly', () {
-      final param1 = FtmsParameter(
+      final param1 = LiveDataFieldValue(
         name: 'Power',
         value: 250,
         factor: 1,
         unit: 'W',
       );
       
-      final param2 = FtmsParameter(
+      final param2 = LiveDataFieldValue(
         name: 'Power',
         value: 250,
         factor: 1,

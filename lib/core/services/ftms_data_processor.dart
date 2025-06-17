@@ -1,9 +1,9 @@
 import 'package:flutter_ftms/flutter_ftms.dart';
-import '../config/ftms_display_config.dart';
-import '../models/ftms_parameter.dart';
+import '../config/live_data_display_config.dart';
+import '../models/live_data_field_value.dart';
 import 'value_averaging_service.dart';
-import 'heart_rate_service.dart';
-import 'cadence_service.dart';
+import 'devices/heart_rate_service.dart';
+import 'devices/cadence_service.dart';
 
 /// Service for processing FTMS device data with averaging capabilities.
 /// Can be used by both FTMSDataTab and training sessions.
@@ -14,7 +14,7 @@ class FtmsDataProcessor {
   bool _isConfigured = false;
 
   /// Configure the processor with display config to set up averaging fields
-  void configure(FtmsDisplayConfig config) {
+  void configure(LiveDataDisplayConfig config) {
     if (_isConfigured) return; // Avoid reconfiguring
     
     for (final field in config.fields) {
@@ -26,17 +26,17 @@ class FtmsDataProcessor {
   }
 
   /// Process raw FTMS device data and return paramValueMap with averaging applied
-  Map<String, FtmsParameter> processDeviceData(DeviceData deviceData) {
+  Map<String, LiveDataFieldValue> processDeviceData(DeviceData deviceData) {
     final parameterValues = deviceData.getDeviceDataParameterValues();
     
     // Create initial param value map using FtmsParameter model
-    final Map<String, FtmsParameter> rawParamValueMap = {
+    final Map<String, LiveDataFieldValue> rawParamValueMap = {
       for (final p in parameterValues)
-        p.name.name: FtmsParameter.fromDeviceDataParameterValue(p)
+        p.name.name: LiveDataFieldValue.fromDeviceDataParameterValue(p)
     };
     
     // Process values for averaging and create final param value map
-    final Map<String, FtmsParameter> paramValueMap = {};
+    final Map<String, LiveDataFieldValue> paramValueMap = {};
     for (final entry in rawParamValueMap.entries) {
       final fieldName = entry.key;
       final param = entry.value;
@@ -57,7 +57,7 @@ class FtmsDataProcessor {
     return paramValueMap;
   }
 
-  void _useAveragedValueIfConfigured(String fieldName, Map<String, FtmsParameter> paramValueMap, FtmsParameter param) {
+  void _useAveragedValueIfConfigured(String fieldName, Map<String, LiveDataFieldValue> paramValueMap, LiveDataFieldValue param) {
     if (_averagingService.isFieldAveraged(fieldName)) {
       final averagedValue = _averagingService.getAveragedValue(fieldName);
       if (averagedValue != null) {
@@ -71,7 +71,7 @@ class FtmsDataProcessor {
     }
   }
 
-  void _overrideHeartRateFromHRMIfAvailable(Map<String, FtmsParameter> paramValueMap) {
+  void _overrideHeartRateFromHRMIfAvailable(Map<String, LiveDataFieldValue> paramValueMap) {
     if (_heartRateService.isHrmConnected && _heartRateService.currentHeartRate != null) {
       // Check if Heart Rate field exists in the configuration
       if (paramValueMap.containsKey('Heart Rate')) {
@@ -82,7 +82,7 @@ class FtmsDataProcessor {
         );
       } else {
         // Add HRM heart rate data if not present in FTMS data
-        paramValueMap['Heart Rate'] = FtmsParameter(
+        paramValueMap['Heart Rate'] = LiveDataFieldValue(
           name: 'Heart Rate',
           value: _heartRateService.currentHeartRate!.toDouble(),
           unit: 'bpm',
@@ -92,7 +92,7 @@ class FtmsDataProcessor {
     }
   }
 
-  void _overrideCadenceFromCadenceSensorIfAvailable(Map<String, FtmsParameter> paramValueMap) {
+  void _overrideCadenceFromCadenceSensorIfAvailable(Map<String, LiveDataFieldValue> paramValueMap) {
     if (_cadenceService.isCadenceConnected && _cadenceService.currentCadence != null) {
       // Check if Instantaneous Cadence field exists in the configuration
       if (paramValueMap.containsKey('Instantaneous Cadence')) {
@@ -104,7 +104,7 @@ class FtmsDataProcessor {
         );
       } else {
         // Add cadence sensor data if not present in FTMS data
-        paramValueMap['Instantaneous Cadence'] = FtmsParameter(
+        paramValueMap['Instantaneous Cadence'] = LiveDataFieldValue(
           name: 'Instantaneous Cadence',
           value: _cadenceService.currentCadence!.toDouble(),
           unit: 'rpm',

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import '../config/ftms_display_config.dart';
-import '../models/ftms_display_field.dart';
-import '../models/ftms_parameter.dart';
-import 'ftms_field_display.dart';
+import 'package:ftms/core/models/device_types.dart';
+import '../config/live_data_display_config.dart';
+import '../config/live_data_field_config.dart';
+import '../models/live_data_field_value.dart';
+import 'live_data_field_widget.dart';
 
 /// Shared widget for displaying FTMS live data fields according to config.
 class FtmsLiveDataDisplayWidget extends StatelessWidget {
-  final FtmsDisplayConfig config;
-  final Map<String, FtmsParameter> paramValueMap;
+  final LiveDataDisplayConfig config;
+  final Map<String, LiveDataFieldValue> paramValueMap;
   final Map<String, dynamic>? targets;
   final Color? defaultColor;
-  final String? machineType;
+  final DeviceType? machineType;
   const FtmsLiveDataDisplayWidget({
     super.key,
     required this.config,
@@ -55,13 +56,13 @@ class FtmsLiveDataDisplayWidget extends StatelessWidget {
     return rows;
   }
 
-  Widget _buildFieldWidget(FtmsDisplayField field) {
+  Widget _buildFieldWidget(LiveDataFieldConfig field) {
     final param = paramValueMap[field.name];
     final target = targets != null ? targets![field.name] : null;
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        child: FtmsFieldDisplay(
+        child: LiveDataFieldWidget(
           field: field,
           param: param,
           target: target,

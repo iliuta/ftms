@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/features/training/widgets/training_session_chart.dart';
 import 'package:ftms/features/training/model/unit_training_interval.dart';
 
@@ -29,7 +30,7 @@ void main() {
           home: Scaffold(
             body: TrainingSessionChart(
               intervals: intervals,
-              machineType: 'DeviceDataType.indoorBike',
+              machineType: DeviceType.indoorBike,
               height: 120,
             ),
           ),
@@ -68,7 +69,7 @@ void main() {
               height: 200,
               child: TrainingSessionChart(
                 intervals: intervals,
-                machineType: 'DeviceDataType.indoorBike',
+                machineType: DeviceType.indoorBike,
                 height: 120,
               ),
             ),
@@ -99,7 +100,7 @@ void main() {
           home: Scaffold(
             body: TrainingSessionChart(
               intervals: intervals,
-              machineType: 'DeviceDataType.rower',
+              machineType: DeviceType.rower,
               height: 120,
             ),
           ),
@@ -117,7 +118,7 @@ void main() {
           home: Scaffold(
             body: TrainingSessionChart(
               intervals: [],
-              machineType: 'DeviceDataType.indoorBike',
+              machineType: DeviceType.indoorBike,
               height: 120,
             ),
           ),

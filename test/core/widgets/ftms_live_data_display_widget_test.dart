@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/config/ftms_display_config.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
-import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/config/live_data_display_config.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
+import 'package:ftms/core/models/device_types.dart';
+import 'package:ftms/core/models/live_data_field_value.dart';
 import 'package:ftms/core/widgets/ftms_live_data_display_widget.dart';
 
 void main() {
-  testWidgets('FtmsLiveDataDisplayWidget covers all branches for 100% coverage', (WidgetTester tester) async {
-    final config = FtmsDisplayConfig(fields: [
-      FtmsDisplayField(
+  testWidgets('FtmsLiveDataDisplayWidget covers all branches for 100% coverage',
+      (WidgetTester tester) async {
+    final config = LiveDataDisplayConfig(fields: [
+      LiveDataFieldConfig(
         name: 'Speed',
         label: 'Speed',
         display: 'number',
@@ -17,7 +19,7 @@ void main() {
         max: 60,
         icon: 'bike',
       ),
-      FtmsDisplayField(
+      LiveDataFieldConfig(
         name: 'Power',
         label: 'Power',
         display: 'speedometer',
@@ -26,21 +28,21 @@ void main() {
         max: 500,
         icon: null,
       ),
-      FtmsDisplayField(
+      LiveDataFieldConfig(
         name: 'Missing',
         label: 'Missing',
         display: 'number',
         unit: '',
       ),
-      FtmsDisplayField(
+      LiveDataFieldConfig(
         name: 'Unknown',
         label: 'Unknown',
         display: 'not_a_widget',
         unit: '',
       ),
-    ]);
-    final paramValueMap = <String, FtmsParameter>{
-      'Speed': FtmsParameter(
+    ], deviceType: DeviceType.indoorBike);
+    final paramValueMap = <String, LiveDataFieldValue>{
+      'Speed': LiveDataFieldValue(
         name: 'Speed',
         value: 10,
         factor: 1,
@@ -49,7 +51,7 @@ void main() {
         size: 2,
         signed: false,
       ),
-      'Power': FtmsParameter(
+      'Power': LiveDataFieldValue(
         name: 'Power',
         value: 200,
         factor: 1,
@@ -59,7 +61,7 @@ void main() {
         signed: false,
       ),
       // 'Missing' is intentionally missing
-      'Unknown': FtmsParameter(
+      'Unknown': LiveDataFieldValue(
         name: 'Unknown',
         value: 1,
         factor: 1,
@@ -80,7 +82,7 @@ void main() {
           paramValueMap: paramValueMap,
           targets: targets,
           defaultColor: Colors.purple,
-          machineType: 'DeviceDataType.indoorBike',
+          machineType: DeviceType.indoorBike,
         ),
       ),
     ));
@@ -93,7 +95,8 @@ void main() {
     // Missing param
     expect(find.textContaining('Missing: (not available)'), findsOneWidget);
     // Unknown display type
-    expect(find.textContaining('Unknown: (unknown display type)'), findsOneWidget);
+    expect(
+        find.textContaining('Unknown: (unknown display type)'), findsOneWidget);
     // Color logic: Speed should be green (10 >= 10), Power should be green (200 >= 150)
     // (We can't directly check color, but we exercised the branch)
     // Multiple columns: force a small width to test row logic
@@ -104,7 +107,7 @@ void main() {
           body: FtmsLiveDataDisplayWidget(
             config: config,
             paramValueMap: paramValueMap,
-            machineType: 'DeviceDataType.indoorBike',
+            machineType: DeviceType.indoorBike,
           ),
         ),
       ),
@@ -112,16 +115,16 @@ void main() {
     expect(find.text('Speed'), findsOneWidget);
     expect(find.text('Power'), findsOneWidget);
     // Edge case: param.factor is not a number and cannot be parsed
-    final weirdConfig = FtmsDisplayConfig(fields: [
-      FtmsDisplayField(
+    final weirdConfig = LiveDataDisplayConfig(fields: [
+      LiveDataFieldConfig(
         name: 'Weird',
         label: 'Weird',
         display: 'number',
         unit: 'u',
       ),
-    ]);
-    final weirdParamValueMap = <String, FtmsParameter>{
-      'Weird': FtmsParameter(
+    ], deviceType: DeviceType.indoorBike);
+    final weirdParamValueMap = <String, LiveDataFieldValue>{
+      'Weird': LiveDataFieldValue(
         name: 'Weird',
         value: 5,
         factor: 1,
@@ -136,7 +139,7 @@ void main() {
         body: FtmsLiveDataDisplayWidget(
           config: weirdConfig,
           paramValueMap: weirdParamValueMap,
-          machineType: 'DeviceDataType.indoorBike',
+          machineType: DeviceType.indoorBike,
         ),
       ),
     ));
@@ -150,7 +153,7 @@ void main() {
           config: config,
           paramValueMap: paramValueMap,
           targets: targets,
-          machineType: 'DeviceDataType.indoorBike',
+          machineType: DeviceType.indoorBike,
         ),
       ),
     ));
@@ -158,16 +161,16 @@ void main() {
     expect(find.text('Power'), findsOneWidget);
 
     // Edge case: single field, very large width (all fields in one row)
-    final singleConfig = FtmsDisplayConfig(fields: [
-      FtmsDisplayField(
+    final singleConfig = LiveDataDisplayConfig(fields: [
+      LiveDataFieldConfig(
         name: 'Speed',
         label: 'Speed',
         display: 'number',
         unit: 'km/h',
       ),
-    ]);
-    final singleParamValueMap = <String, FtmsParameter>{
-      'Speed': FtmsParameter(
+    ], deviceType: DeviceType.indoorBike);
+    final singleParamValueMap = <String, LiveDataFieldValue>{
+      'Speed': LiveDataFieldValue(
         name: 'Speed',
         value: 99,
         factor: 1,
@@ -184,7 +187,7 @@ void main() {
           body: FtmsLiveDataDisplayWidget(
             config: singleConfig,
             paramValueMap: singleParamValueMap,
-            machineType: 'DeviceDataType.indoorBike',
+            machineType: DeviceType.indoorBike,
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/features/training/training_session_controller.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_ftms/src/ftms/flag.dart';
@@ -12,7 +13,7 @@ import 'package:ftms/features/training/model/unit_training_interval.dart';
 import 'package:ftms/core/services/ftms_service.dart';
 import 'package:ftms/core/bloc/ftms_bloc.dart';
 import 'package:ftms/core/services/fit/training_data_recorder.dart';
-import 'package:ftms/core/services/strava_service.dart';
+import 'package:ftms/core/services/strava/strava_service.dart';
 
 // Generate mocks for our dependencies
 @GenerateMocks([
@@ -137,7 +138,7 @@ void main() {
     setUp(() {
       session = TrainingSessionDefinition(
         title: 'Test Session',
-        ftmsMachineType: 'DeviceDataType.indoorBike',
+        ftmsMachineType: DeviceType.indoorBike,
         intervals: <UnitTrainingInterval>[
           UnitTrainingInterval(
             duration: 60, 
@@ -450,7 +451,7 @@ void main() {
       test('parses rowing machine type correctly', () {
         final rowingSession = TrainingSessionDefinition(
           title: 'Rowing Session',
-          ftmsMachineType: 'DeviceDataType.rower',
+          ftmsMachineType: DeviceType.rower,
           intervals: <UnitTrainingInterval>[
             UnitTrainingInterval(duration: 60, title: 'Row'),
           ],
@@ -465,31 +466,11 @@ void main() {
 
         // We can't directly test _parseDeviceType as it's private,
         // but we can verify the controller was created successfully
-        expect(controller.session.ftmsMachineType, 'DeviceDataType.rower');
+        expect(controller.session.ftmsMachineType, DeviceType.rower);
 
         controller.dispose();
       });
 
-      test('defaults to indoor bike for unknown machine type', () {
-        final unknownSession = TrainingSessionDefinition(
-          title: 'Unknown Session',
-          ftmsMachineType: 'unknown',
-          intervals: <UnitTrainingInterval>[
-            UnitTrainingInterval(duration: 60, title: 'Exercise'),
-          ],
-        );
-
-        final controller = TrainingSessionController(
-          session: unknownSession,
-          ftmsDevice: mockDevice,
-          ftmsService: mockFtmsService,
-          enableFitFileGeneration: false,
-        );
-
-        expect(controller.session.ftmsMachineType, 'unknown');
-
-        controller.dispose();
-      });
     });
 
     group('Error Handling', () {
@@ -932,7 +913,7 @@ void main() {
       test('uses correct activity type for rowing machine', () async {
         final rowingSession = TrainingSessionDefinition(
           title: 'Rowing Test',
-          ftmsMachineType: 'DeviceDataType.rower',
+          ftmsMachineType: DeviceType.rower,
           intervals: <UnitTrainingInterval>[
             UnitTrainingInterval(duration: 60, title: 'Row'),
           ],

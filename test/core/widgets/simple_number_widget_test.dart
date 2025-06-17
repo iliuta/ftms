@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
-import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
+import 'package:ftms/core/models/live_data_field_value.dart';
 import 'package:ftms/core/widgets/simple_number_widget.dart';
 
 void main() {
   testWidgets('SimpleNumberWidget displays label, value, unit, and icon', (WidgetTester tester) async {
-    final displayField = FtmsDisplayField(
+    final displayField = LiveDataFieldConfig(
       name: 'speed',
       label: 'Speed',
       display: 'number',
@@ -15,7 +15,7 @@ void main() {
       min: 0,
       max: 60,
     );
-    final param = FtmsParameter(
+    final param = LiveDataFieldValue(
       name: 'speed',
       value: 42,
       factor: 1,

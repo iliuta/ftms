@@ -2,10 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/utils/logger.dart';
-import '../../core/services/strava_service.dart';
-import '../../core/services/permission_service.dart';
-import '../../core/services/connected_devices_service.dart';
+import '../../core/services/strava/strava_service.dart';
+import '../../core/services/devices/bt_device.dart';
+import '../../core/services/devices/bt_device_manager.dart';
+import '../../core/services/devices/bt_scan_service.dart';
 import 'dart:io';
+import 'package:permission_handler/permission_handler.dart' as ph;
+
 
 import 'scan_widgets.dart';
 
@@ -20,7 +23,7 @@ class _ScanPageState extends State<ScanPage> {
   // Helper to detect test environment
   bool get isInTest => Platform.environment['FLUTTER_TEST'] == 'true';
   final StravaService _stravaService = StravaService();
-  final PermissionService _permissionService = PermissionService();
+  final BluetoothScanService _bluetoothScanService = BluetoothScanService();
   bool _isConnectingStrava = false;
   String? _stravaStatus;
   
@@ -136,51 +139,40 @@ class _ScanPageState extends State<ScanPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Start scanning for FTMS devices as soon as the page is shown
-    _scanForDevices();
+    _startScan();
   }
 
-  Future<void> _scanForDevices() async {
-    logger.i('Starting Bluetooth scan process...');
-    
-    // Request Bluetooth permissions first
-    logger.i('Requesting Bluetooth permissions...');
-    final hasPermissions = await _permissionService.requestBluetoothPermissions();
-    
-    if (!hasPermissions) {
-      logger.w('Bluetooth permissions denied');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Bluetooth permissions are required to scan for devices'),
-            action: SnackBarAction(
-              label: 'Settings',
-              onPressed: () => PermissionService.openAppSettings(),
-            ),
-          ),
-        );
-      }
-      return;
-    }
+  Future<void> _startScan() async {
+    // Capture ScaffoldMessenger before the async gap
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final result = await _bluetoothScanService.startScan();
 
-    logger.i('Bluetooth permissions granted, starting scan...');
-    final List<Guid> withServices = [
-      Guid.fromString("00001826"), // FTMS Service UUID
-      Guid.fromString("0000180D"), // Heart Rate Service UUID
-      Guid.fromString("00001816"), // Cycling Speed and Cadence Service UUID
-    ];
-    
-    try {
-      await FlutterBluePlus.startScan(
-        timeout: const Duration(seconds: 10),
-        withServices: withServices,
-      );
-      logger.i('Bluetooth scan started successfully');
-    } catch (e) {
-      logger.e('Failed to start Bluetooth scan: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to start Bluetooth scan: $e')),
-        );
+    // Handle UI feedback in the UI layer based on specific error
+    if (result != BTScanResult.success && mounted) {
+      switch (result) {
+        case BTScanResult.permissionDenied:
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: const Text('Bluetooth permissions are required to scan for devices'),
+              action: SnackBarAction(
+                label: 'Settings',
+                onPressed: () async => await ph.openAppSettings(),
+              ),
+            ),
+          );
+          break;
+
+        case BTScanResult.scanError:
+          scaffoldMessenger.showSnackBar(
+            const SnackBar(
+              content: Text('Failed to start Bluetooth scan. Please try again later.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          break;
+
+        default:
+          break;
       }
     }
   }
@@ -199,9 +191,7 @@ class _ScanPageState extends State<ScanPage> {
                 ElevatedButton.icon(
                   icon: const Icon(Icons.refresh),
                   label: const Text('Scan for devices'),
-                  onPressed: () async {
-                    await _scanForDevices();
-                  },
+                  onPressed: _startScan,
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton.icon(
@@ -267,9 +257,9 @@ class _ScanPageState extends State<ScanPage> {
               stream: FlutterBluePlus.scanResults,
               initialData: const [],
               builder: (c, scanSnapshot) {
-                return StreamBuilder<List<ConnectedDevice>>(
-                  stream: connectedDevicesService.devicesStream,
-                  initialData: connectedDevicesService.connectedDevices,
+                return StreamBuilder<List<BTDevice>>(
+                  stream: SupportedBTDeviceManager().connectedDevicesStream,
+                  initialData: SupportedBTDeviceManager().allConnectedDevices,
                   builder: (context, connectedSnapshot) {
                     final scanResults = (scanSnapshot.data ?? [])
                         .where((element) => element.device.platformName.isNotEmpty)

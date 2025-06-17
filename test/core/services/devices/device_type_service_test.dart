@@ -1,18 +1,25 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:ftms/core/services/devices/device_type_service.dart';
+import 'package:ftms/core/services/devices/bt_device.dart';
+import 'package:ftms/core/services/devices/bt_device_manager.dart';
+import 'dart:async';
 
 void main() {
   group('DeviceTypeService', () {
     late TestDeviceTypeService service;
     late MockBluetoothDevice mockDevice;
     late MockBuildContext mockContext;
+    late SupportedBTDeviceManager deviceManager;
 
     setUp(() {
       service = TestDeviceTypeService();
       mockDevice = MockBluetoothDevice();
       mockContext = MockBuildContext();
+      deviceManager = SupportedBTDeviceManager();
+      
+      // Set up the device manager reference
+      service.setDeviceManager(deviceManager);
     });
 
     test('should return correct device type name', () {
@@ -88,7 +95,7 @@ void main() {
   });
 }
 
-class TestDeviceTypeService extends DeviceTypeService {
+class TestDeviceTypeService extends BTDevice {
   BluetoothDevice? lastConnectedDevice;
   BluetoothDevice? lastDisconnectedDevice;
   bool hasDevicePage = true;
@@ -112,13 +119,13 @@ class TestDeviceTypeService extends DeviceTypeService {
   }
 
   @override
-  Future<bool> connectToDevice(BluetoothDevice device) async {
+  Future<bool> performConnection(BluetoothDevice device) async {
     lastConnectedDevice = device;
     return true;
   }
 
   @override
-  Future<void> disconnectFromDevice(BluetoothDevice device) async {
+  Future<void> performDisconnection(BluetoothDevice device) async {
     lastDisconnectedDevice = device;
   }
 
@@ -138,6 +145,25 @@ class TestDeviceTypeService extends DeviceTypeService {
 
 class MockBluetoothDevice extends BluetoothDevice {
   MockBluetoothDevice() : super(remoteId: const DeviceIdentifier('00:00:00:00:00:00'));
+  
+  // Mock connection state stream controller
+  final StreamController<BluetoothConnectionState> _connectionStateController = 
+      StreamController<BluetoothConnectionState>.broadcast();
+  
+  @override
+  Stream<BluetoothConnectionState> get connectionState => _connectionStateController.stream;
+  
+  @override
+  String get platformName => 'Test Device';
+  
+  // Method to simulate connection state changes in tests
+  void simulateConnectionState(BluetoothConnectionState state) {
+    _connectionStateController.add(state);
+  }
+  
+  void dispose() {
+    _connectionStateController.close();
+  }
 }
 
 class MockBuildContext extends BuildContext {

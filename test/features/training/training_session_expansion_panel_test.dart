@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/features/training/training_session_expansion_panel.dart';
 import 'package:ftms/features/training/model/unit_training_interval.dart';
 import 'package:ftms/features/training/model/training_session.dart';
@@ -35,7 +36,7 @@ void main() {
   testWidgets('TrainingSessionExpansionPanelList displays intervals and targets prettily', (WidgetTester tester) async {
     final session = TrainingSessionDefinition(
       title: 'Rowing Test',
-      ftmsMachineType: 'DeviceDataType.rower',
+      ftmsMachineType: DeviceType.rower,
       intervals: <UnitTrainingInterval>[
         UnitTrainingInterval(
           title: 'Warmup',

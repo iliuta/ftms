@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'model/unit_training_interval.dart';
 import 'interval_target_fields_display.dart';
-import '../../core/config/ftms_display_config.dart';
+import '../../core/config/live_data_display_config.dart';
 
 class TrainingIntervalList extends StatelessWidget {
   final List<UnitTrainingInterval> intervals;
@@ -10,7 +10,7 @@ class TrainingIntervalList extends StatelessWidget {
   final int intervalElapsed;
   final int intervalTimeLeft;
   final String Function(int) formatMMSS;
-  final FtmsDisplayConfig? config;
+  final LiveDataDisplayConfig? config;
 
   const TrainingIntervalList({
     super.key,

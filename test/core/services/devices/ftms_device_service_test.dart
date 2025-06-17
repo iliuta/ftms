@@ -1,21 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:ftms/core/services/devices/ftms_device_service.dart';
-import 'package:ftms/core/services/devices/device_navigation_registry.dart';
+import 'package:ftms/core/services/devices/ftms.dart';
+import 'package:ftms/core/services/devices/bt_device_navigation_registry.dart';
 
 void main() {
   group('FtmsDeviceService', () {
-    late FtmsDeviceService service;
+    late Ftms ftmsBtDevice;
     late MockBluetoothDevice mockDevice;
     late MockBuildContext mockContext;
-    late DeviceNavigationRegistry registry;
+    late BTDeviceNavigationRegistry registry;
 
     setUp(() {
-      service = FtmsDeviceService();
+      ftmsBtDevice = Ftms();
       mockDevice = MockBluetoothDevice();
       mockContext = MockBuildContext();
-      registry = DeviceNavigationRegistry();
+      registry = BTDeviceNavigationRegistry();
       registry.clear();
     });
 
@@ -24,21 +24,21 @@ void main() {
     });
 
     test('should be a singleton', () {
-      final service1 = FtmsDeviceService();
-      final service2 = FtmsDeviceService();
+      final service1 = Ftms();
+      final service2 = Ftms();
       expect(service1, same(service2));
     });
 
     test('should return correct device type name', () {
-      expect(service.deviceTypeName, equals('FTMS'));
+      expect(ftmsBtDevice.deviceTypeName, equals('FTMS'));
     });
 
     test('should return correct list priority', () {
-      expect(service.listPriority, equals(20));
+      expect(ftmsBtDevice.listPriority, equals(5));
     });
 
     test('should return fitness center icon', () {
-      final icon = service.getDeviceIcon(mockContext);
+      final icon = ftmsBtDevice.getDeviceIcon(mockContext);
       expect(icon, isA<Icon>());
       
       final iconWidget = icon as Icon;
@@ -48,30 +48,30 @@ void main() {
     });
 
     group('isDeviceOfThisType', () {
-      test('should identify FTMS device with service UUID', () {
+      test('should identify FTMS device with ftmsBtDevice UUID', () {
         final ftmsScanResults = <ScanResult>[
           MockScanResult(mockDevice, serviceUuids: ['1826']) // FTMS service UUID
         ];
         
-        final isFtmsDevice = service.isDeviceOfThisType(mockDevice, ftmsScanResults);
+        final isFtmsDevice = ftmsBtDevice.isDeviceOfThisType(mockDevice, ftmsScanResults);
         expect(isFtmsDevice, isTrue);
       });
 
-      test('should not identify device without FTMS service UUID', () {
+      test('should not identify device without FTMS ftmsBtDevice UUID', () {
         final nonFtmsScanResults = <ScanResult>[
           MockScanResult(mockDevice, serviceUuids: ['180d']) // HRM service UUID
         ];
         
-        final isFtmsDevice = service.isDeviceOfThisType(mockDevice, nonFtmsScanResults);
+        final isFtmsDevice = ftmsBtDevice.isDeviceOfThisType(mockDevice, nonFtmsScanResults);
         expect(isFtmsDevice, isFalse);
       });
 
-      test('should handle empty service UUIDs', () {
+      test('should handle empty ftmsBtDevice UUIDs', () {
         final emptyScanResults = <ScanResult>[
           MockScanResult(mockDevice, serviceUuids: [])
         ];
         
-        final isFtmsDevice = service.isDeviceOfThisType(mockDevice, emptyScanResults);
+        final isFtmsDevice = ftmsBtDevice.isDeviceOfThisType(mockDevice, emptyScanResults);
         expect(isFtmsDevice, isFalse);
       });
 
@@ -79,7 +79,7 @@ void main() {
         final differentDevice = MockBluetoothDevice(id: '11:11:11:11:11:11');
         final scanResultsWithoutTargetDevice = <ScanResult>[MockScanResult(mockDevice)];
         
-        final isFtmsDevice = service.isDeviceOfThisType(differentDevice, scanResultsWithoutTargetDevice);
+        final isFtmsDevice = ftmsBtDevice.isDeviceOfThisType(differentDevice, scanResultsWithoutTargetDevice);
         expect(isFtmsDevice, isFalse);
       });
 
@@ -88,7 +88,7 @@ void main() {
           MockScanResult(mockDevice, serviceUuids: ['1826']) // lowercase
         ];
         
-        final isFtmsDevice = service.isDeviceOfThisType(mockDevice, ftmsScanResults);
+        final isFtmsDevice = ftmsBtDevice.isDeviceOfThisType(mockDevice, ftmsScanResults);
         expect(isFtmsDevice, isTrue);
       });
     });
@@ -96,7 +96,7 @@ void main() {
     test('should test isFtmsDevice async method', () async {
       // This tests the structure of the async method
       // In a real test environment, you might want to mock FTMS.isBluetoothDeviceFTMSDevice
-      final result = service.isFtmsDevice(mockDevice);
+      final result = ftmsBtDevice.isFtmsDevice(mockDevice);
       expect(result, isA<Future<bool>>());
       
       // Skip the actual call in test environment due to platform limitations
@@ -106,20 +106,20 @@ void main() {
     test('should connect to FTMS device', () async {
       // This tests the method structure
       // In a real test, you'd mock FTMS.connectToFTMSDevice
-      final result = await service.connectToDevice(mockDevice);
+      final result = await ftmsBtDevice.connectToDevice(mockDevice);
       expect(result, isA<bool>());
     }, skip: 'Bluetooth not available in test environment');
 
     test('should disconnect from FTMS device', () async {
       // This tests the method structure
       await expectLater(
-        service.disconnectFromDevice(mockDevice),
+        ftmsBtDevice.disconnectFromDevice(mockDevice),
         completes,
       );
     }, skip: 'Bluetooth not available in test environment');
 
     test('should return null for device page', () {
-      final page = service.getDevicePage(mockDevice);
+      final page = ftmsBtDevice.getDevicePage(mockDevice);
       expect(page, isNull);
     });
 
@@ -131,7 +131,7 @@ void main() {
 
       registry.registerNavigation('FTMS', testCallback);
       
-      final callback = service.getNavigationCallback();
+      final callback = ftmsBtDevice.getNavigationCallback();
       expect(callback, isNotNull);
       
       callback!(mockContext, mockDevice);
@@ -139,7 +139,7 @@ void main() {
     });
 
     test('should return null navigation callback when not registered', () {
-      final callback = service.getNavigationCallback();
+      final callback = ftmsBtDevice.getNavigationCallback();
       expect(callback, isNull);
     });
 
@@ -148,13 +148,13 @@ void main() {
         void testCallback(BuildContext context, BluetoothDevice device) {}
         registry.registerNavigation('FTMS', testCallback);
         
-        final actions = service.getConnectedActions(mockDevice, mockContext);
+        final actions = ftmsBtDevice.getConnectedActions(mockDevice, mockContext);
         expect(actions, hasLength(1));
         expect(actions.first, isA<ElevatedButton>());
       });
 
       test('should return empty list when no navigation callback available', () {
-        final actions = service.getConnectedActions(mockDevice, mockContext);
+        final actions = ftmsBtDevice.getConnectedActions(mockDevice, mockContext);
         expect(actions, isEmpty);
       });
     });

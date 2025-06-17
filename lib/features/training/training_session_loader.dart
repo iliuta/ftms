@@ -1,15 +1,17 @@
 // This file was moved from lib/training_session_loader.dart
 import 'dart:convert';
+import 'package:ftms/core/models/device_types.dart';
+
 import '../../core/utils/logger.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 
 import 'model/training_session.dart';
-import '../../core/models/user_settings.dart';
+import '../settings/model/user_settings.dart';
 
 
 
-Future<List<TrainingSessionDefinition>> loadTrainingSessions(String machineType) async {
+Future<List<TrainingSessionDefinition>> loadTrainingSessions(DeviceType machineType) async {
   logger.i('[loadTrainingSessions] machineType: $machineType');
   final userSettings = await UserSettings.loadDefault();
   // Use AssetManifest to list all training session files

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/models/ftms_display_field.dart';
-import 'package:ftms/core/models/ftms_parameter.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
+import 'package:ftms/core/models/live_data_field_value.dart';
 import 'package:ftms/core/widgets/speedometer_widget.dart';
 
 void main() {
   testWidgets('SpeedometerWidget displays label and value', (WidgetTester tester) async {
-    final displayField = FtmsDisplayField(
+    final displayField = LiveDataFieldConfig(
       name: 'speed',
       label: 'Speed',
       unit: 'km/h',
@@ -15,7 +15,7 @@ void main() {
       display: 'speedometer',
     );
 
-    final param = FtmsParameter(
+    final param = LiveDataFieldValue(
       name: 'speed',
       value: 30,
       factor: 1,

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/features/training/model/training_session.dart';
-import 'package:ftms/core/models/user_settings.dart';
+import 'package:ftms/features/settings/model/user_settings.dart';
 
 dynamic _enduranceRideJson = {
   "title": "Endurance Ride",
@@ -54,7 +54,7 @@ void main() {
   test('TrainingSession.fromJson expands group intervals with repeat and nested units', () {
     final complexJson = {
       "title": "Complex Session",
-      "ftmsMachineType": "DeviceDataType.rower",
+      "ftmsMachineType": "DeviceType.rower",
       "intervals": [
         {
           "title": "Warm Up",

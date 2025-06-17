@@ -1,21 +1,31 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:ftms/core/utils/logger.dart';
 
 import 'features/scan/scan_page.dart';
 import 'features/scan/scan_widgets.dart';
 import 'features/common/burger_menu.dart';
-import 'core/services/connected_devices_service.dart';
+import 'core/services/devices/bt_device.dart';
+import 'core/services/devices/bt_device_manager.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   // Set log level for production
   FlutterBluePlus.setLogLevel(LogLevel.info);
   
   // Initialize device navigation callbacks to avoid circular dependencies
   initializeDeviceNavigation();
   
-  // Initialize connected devices service
-  connectedDevicesService.initialize();
+  // Initialize the new device management system
+  logger.i('🚀 Initializing BTDevice system...');
+  await SupportedBTDeviceManager().initialize();
+  
+  logger.i('🚀 Looking for already connected devices...');
+  await SupportedBTDeviceManager().identifyAndConnectExistingDevices();
+  
+  logger.i('🚀 Starting app with ${SupportedBTDeviceManager().allConnectedDevices.length} connected devices');
 
   runApp(const MyApp());
 }
@@ -62,24 +72,19 @@ class _FlutterFTMSAppState extends State<FlutterFTMSApp> {
     super.initState();
     
     // Listen to connected devices changes
-    connectedDevicesService.devicesStream.listen((devices) {
+    SupportedBTDeviceManager().connectedDevicesStream.listen((devices) {
       _updateConnectedFtmsDevice(devices);
     });
 
     // Get initial connected device if any
-    _updateConnectedFtmsDevice(connectedDevicesService.connectedDevices);
+    _updateConnectedFtmsDevice(SupportedBTDeviceManager().allConnectedDevices);
   }
 
-  void _updateConnectedFtmsDevice(List<ConnectedDevice> devices) {
+  void _updateConnectedFtmsDevice(List<BTDevice> devices) {
     // Find the first FTMS device
-    ConnectedDevice? ftmsDevice;
-    try {
-      ftmsDevice = devices.firstWhere((device) => device.deviceType == 'FTMS');
-    } catch (e) {
-      ftmsDevice = null;
-    }
+    final ftmsDevice = SupportedBTDeviceManager().getConnectedFtmsDevice();
     
-    final newFtmsDevice = ftmsDevice?.device;
+    final newFtmsDevice = ftmsDevice?.connectedDevice;
     if (mounted && _connectedFtmsDevice != newFtmsDevice) {
       setState(() {
         _connectedFtmsDevice = newFtmsDevice;
