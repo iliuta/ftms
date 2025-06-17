@@ -1,6 +1,6 @@
-import 'strava/strava_token_manager.dart';
-import 'strava/strava_oauth_handler.dart';
-import 'strava/strava_activity_uploader.dart';
+import 'strava_token_manager.dart';
+import 'strava_oauth_handler.dart';
+import 'strava_activity_uploader.dart';
 
 /// Main Strava service that orchestrates the various components
 /// This class follows SOLID principles:

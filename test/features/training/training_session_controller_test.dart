@@ -13,7 +13,7 @@ import 'package:ftms/features/training/model/unit_training_interval.dart';
 import 'package:ftms/core/services/ftms_service.dart';
 import 'package:ftms/core/bloc/ftms_bloc.dart';
 import 'package:ftms/core/services/fit/training_data_recorder.dart';
-import 'package:ftms/core/services/strava_service.dart';
+import 'package:ftms/core/services/strava/strava_service.dart';
 
 // Generate mocks for our dependencies
 @GenerateMocks([

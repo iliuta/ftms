@@ -17,7 +17,7 @@ import 'package:ftms/core/services/ftms_service.dart' as _i11;
 import 'package:ftms/core/services/strava/strava_activity_uploader.dart' as _i6;
 import 'package:ftms/core/services/strava/strava_oauth_handler.dart' as _i5;
 import 'package:ftms/core/services/strava/strava_token_manager.dart' as _i4;
-import 'package:ftms/core/services/strava_service.dart' as _i15;
+import 'package:ftms/core/services/strava/strava_service.dart' as _i15;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i7;
 

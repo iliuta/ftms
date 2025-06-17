@@ -6,7 +6,7 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/bloc/ftms_bloc.dart';
 import '../../core/services/fit/training_data_recorder.dart';
 import '../../core/services/ftms_data_processor.dart';
-import '../../core/services/strava_service.dart';
+import '../../core/services/strava/strava_service.dart';
 import '../../core/services/strava/strava_activity_types.dart';
 import '../../core/config/live_data_display_config.dart';
 import '../../core/utils/logger.dart';

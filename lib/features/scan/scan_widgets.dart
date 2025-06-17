@@ -6,6 +6,7 @@ import '../ftms/ftms_page.dart';
 import '../../core/services/devices/bt_device_manager.dart';
 import '../../core/services/devices/bt_device_navigation_registry.dart';
 import '../../core/services/devices/connected_devices_service.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// Button for scanning Bluetooth devices
 Widget scanBluetoothButton(bool? isScanning) {
@@ -13,8 +14,8 @@ Widget scanBluetoothButton(bool? isScanning) {
     return Container();
   }
   return ElevatedButton(
-    onPressed:
-        isScanning ? null : () async => await FTMS.scanForBluetoothDevices(),
+    onPressed: isScanning ? null : () async {
+    },
     child:
         isScanning ? const Text("Scanning...") : const Text("Scan for devices"),
   );

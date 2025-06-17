@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
-import '../utils/logger.dart';
+import '../../utils/logger.dart';
 
 /// Custom HTTP client configuration for better Android compatibility
 class NetworkClient {

@@ -79,6 +79,8 @@ class IndoorBikeDistanceStrategy implements DistanceCalculationStrategy {
   }
 }
 
+
+/// TODO: distance is sent by the rower so we need to simplify this
 /// Distance calculation for rowing machines using stroke rate and estimated distance per stroke
 class RowerDistanceStrategy implements DistanceCalculationStrategy {
   double _totalDistance = 0.0;
