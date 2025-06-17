@@ -5,18 +5,58 @@ import 'package:ftms/core/utils/logger.dart';
 import 'bt_device.dart';
 import 'hrm.dart';
 import 'ftms.dart';
+import 'flutter_blue_plus_facade.dart';
+import 'ftms_facade.dart';
 import 'dart:async';
 
 /// Manager for handling different types of Bluetooth devices
 class SupportedBTDeviceManager {
-  static final SupportedBTDeviceManager _instance = SupportedBTDeviceManager._internal();
-  factory SupportedBTDeviceManager() => _instance;
-  SupportedBTDeviceManager._internal();
+  static SupportedBTDeviceManager? _instance;
+  
+  final FlutterBluePlusFacade _flutterBluePlusFacade;
+  final FtmsFacade _ftmsFacade;
+  final List<BTDevice> _supportedBTDevices;
 
   // Global device tracking
   final StreamController<List<BTDevice>> _globalDevicesController = 
       StreamController<List<BTDevice>>.broadcast();
   final Map<String, BTDevice> _allConnectedDevices = {};
+
+  /// Private constructor for dependency injection
+  SupportedBTDeviceManager._({
+    required FlutterBluePlusFacade flutterBluePlusFacade,
+    required FtmsFacade ftmsFacade,
+    required List<BTDevice> supportedDevices,
+  }) : _flutterBluePlusFacade = flutterBluePlusFacade,
+       _ftmsFacade = ftmsFacade,
+       _supportedBTDevices = supportedDevices;
+
+  /// Factory constructor for production use (singleton)
+  factory SupportedBTDeviceManager() {
+    return _instance ??= SupportedBTDeviceManager._(
+      flutterBluePlusFacade: FlutterBluePlusFacadeImpl(),
+      ftmsFacade: FtmsFacadeImpl(),
+      supportedDevices: [
+        Hrm(),
+        Cadence(),
+        Ftms(),
+      ],
+    );
+  }
+
+  /// Constructor for testing with dependency injection
+  SupportedBTDeviceManager.forTesting({
+    required FlutterBluePlusFacade flutterBluePlusFacade,
+    required FtmsFacade ftmsFacade,
+    required List<BTDevice> supportedDevices,
+  }) : _flutterBluePlusFacade = flutterBluePlusFacade,
+       _ftmsFacade = ftmsFacade,
+       _supportedBTDevices = supportedDevices;
+
+  /// Reset singleton for testing
+  static void resetInstance() {
+    _instance = null;
+  }
 
   /// Stream of all connected devices
   Stream<List<BTDevice>> get connectedDevicesStream => _globalDevicesController.stream;
@@ -24,12 +64,8 @@ class SupportedBTDeviceManager {
   /// List of all connected devices
   List<BTDevice> get allConnectedDevices => List.unmodifiable(_allConnectedDevices.values);
 
-  /// List of all supported device type services
-  final List<BTDevice> _supportedBTDevices = [
-    Hrm(),
-    Cadence(),
-    Ftms(),
-  ];
+  /// Get the list of device services
+  List<BTDevice> get deviceServices => List.unmodifiable(_supportedBTDevices);
 
   /// Initialize the device management system
   Future<void> initialize() async {
@@ -39,7 +75,7 @@ class SupportedBTDeviceManager {
     }
 
     // Listen to Bluetooth adapter state changes
-    FlutterBluePlus.adapterState.listen((state) {
+    _flutterBluePlusFacade.adapterState.listen((state) {
       if (state == BluetoothAdapterState.off) {
         // Clear all devices when Bluetooth is turned off
         _allConnectedDevices.clear();
@@ -75,9 +111,6 @@ class SupportedBTDeviceManager {
     logger.i('📡 Notifying device changes. Connected devices: ${_allConnectedDevices.length}');
     _globalDevicesController.add(allConnectedDevices);
   }
-
-  /// Get all device services
-  List<BTDevice> get deviceServices => List.unmodifiable(_supportedBTDevices);
 
   /// Find the primary device service for a given device
   BTDevice? getBTDevice(BluetoothDevice device, List<ScanResult> scanResults) {
@@ -134,7 +167,7 @@ class SupportedBTDeviceManager {
 
   /// Identify and connect to already connected devices
   Future<void> identifyAndConnectExistingDevices() async {
-    final connectedBtDevices = FlutterBluePlus.connectedDevices;
+    final connectedBtDevices = _flutterBluePlusFacade.connectedDevices;
     logger.i('🔍 Found ${connectedBtDevices.length} already connected Bluetooth devices');
     
     for (final device in connectedBtDevices) {
@@ -152,13 +185,15 @@ class SupportedBTDeviceManager {
     // 1. Check if it's an FTMS device
     try {
       logger.i('🔍 Checking if device is FTMS...');
-      final isFtmsDevice = await FTMS.isBluetoothDeviceFTMSDevice(device);
+      final isFtmsDevice = await _ftmsFacade.isBluetoothDeviceFTMSDevice(device);
       if (isFtmsDevice) {
         logger.i('✅ Device is FTMS, connecting...');
-        final ftmsService = _supportedBTDevices.whereType<Ftms>().first;
+        final ftmsService = _supportedBTDevices.firstWhere((s) => s.deviceTypeName == 'FTMS');
         await ftmsService.connectToDevice(device);
         // Start machine type detection for automatically discovered FTMS devices
-        ftmsService.startMachineTypeDetection(device);
+        if (ftmsService is Ftms) {
+          ftmsService.startMachineTypeDetection(device);
+        }
         return;
       }
       logger.i('❌ Device is not FTMS');

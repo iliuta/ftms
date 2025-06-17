@@ -49,6 +49,7 @@ dependencies:
   crypto: ^3.0.6
   permission_handler: ^11.4.0
   device_info_plus: ^10.0.0
+  meta: ^1.12.0
 
 
 dev_dependencies:

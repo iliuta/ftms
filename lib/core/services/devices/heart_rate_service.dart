@@ -220,10 +220,4 @@ class HeartRateService {
       return false;
     }
   }
-
-  /// Dispose of the service
-  void dispose() {
-    disconnectHrmDevice();
-    _heartRateController.close();
-  }
 }

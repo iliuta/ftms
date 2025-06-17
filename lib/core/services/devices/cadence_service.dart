@@ -346,13 +346,6 @@ class CadenceService {
     }
   }
 
-  /// Dispose of the service
-  void dispose() {
-    _stopCadenceTimeoutTimer();
-    disconnectCadenceDevice();
-    _cadenceController.close();
-  }
-  
   /// Apply adaptive smoothing that responds faster to rapid changes
   int _adaptiveSmoothing(int rawCadence) {
     // If we have previous cadence, check for rapid changes
