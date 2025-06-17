@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/utils/logger.dart';
 import '../../core/services/strava/strava_service.dart';
-import '../../core/services/devices/connected_devices_service.dart';
+import '../../core/services/devices/bt_device.dart';
+import '../../core/services/devices/bt_device_manager.dart';
 import '../../core/services/devices/bt_scan_service.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart' as ph;
@@ -256,9 +257,9 @@ class _ScanPageState extends State<ScanPage> {
               stream: FlutterBluePlus.scanResults,
               initialData: const [],
               builder: (c, scanSnapshot) {
-                return StreamBuilder<List<ConnectedDevice>>(
-                  stream: connectedDevicesService.devicesStream,
-                  initialData: connectedDevicesService.connectedDevices,
+                return StreamBuilder<List<BTDevice>>(
+                  stream: SupportedBTDeviceManager().connectedDevicesStream,
+                  initialData: SupportedBTDeviceManager().allConnectedDevices,
                   builder: (context, connectedSnapshot) {
                     final scanResults = (scanSnapshot.data ?? [])
                         .where((element) => element.device.platformName.isNotEmpty)

@@ -32,12 +32,12 @@ class Hrm extends BTDevice {
   }
 
   @override
-  Future<bool> connectToDevice(BluetoothDevice device) async {
+  Future<bool> performConnection(BluetoothDevice device) async {
     return await _heartRateService.connectToHrmDevice(device);
   }
 
   @override
-  Future<void> disconnectFromDevice(BluetoothDevice device) async {
+  Future<void> performDisconnection(BluetoothDevice device) async {
     await _heartRateService.disconnectHrmDevice();
   }
 

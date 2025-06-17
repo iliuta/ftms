@@ -1,11 +1,12 @@
 // This file was moved from lib/scan_widgets.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/core/utils/logger.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../ftms/ftms_page.dart';
 import '../../core/services/devices/bt_device_manager.dart';
 import '../../core/services/devices/bt_device_navigation_registry.dart';
-import '../../core/services/devices/connected_devices_service.dart';
+import '../../core/services/devices/bt_device.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 /// Button for scanning Bluetooth devices
@@ -26,11 +27,12 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
   final supportedBTDeviceManager = SupportedBTDeviceManager();
 
   // Get connected devices
-  final connectedDevices = connectedDevicesService.connectedDevices;
+  final connectedDevices = SupportedBTDeviceManager().allConnectedDevices;
+  logger.i('🔧 scanResultsToWidget: Found ${connectedDevices.length} connected devices');
 
   // Create a set of connected device IDs for quick lookup
   final connectedDeviceIds =
-      connectedDevices.map((d) => d.device.remoteId.str).toSet();
+      connectedDevices.map((d) => d.id).toSet();
 
   // Filter out scan results that are already connected to avoid duplicates
   final availableDevices = data
@@ -51,7 +53,7 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
       ListTile(
         title: Row(
           children: [
-            connectedDevice.service.getDeviceIcon(context) ?? Container(),
+            connectedDevice.getDeviceIcon(context) ?? Container(),
             const SizedBox(width: 4),
             Expanded(
               child: Text(
@@ -77,7 +79,7 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
             ),
           ],
         ),
-        subtitle: Text(connectedDevice.device.remoteId.str),
+        subtitle: Text(connectedDevice.id),
         leading: const SizedBox(
           width: 40,
           child: Center(
@@ -152,20 +154,18 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                 final btDevice =
                     deviceTypeManager.getBTDevice(device, scanResults);
 
-                debugPrint(
+                logger.i(
                     '🔍 Device btDevice for ${device.platformName}: ${btDevice?.deviceTypeName ?? 'null'}');
 
                 if (btDevice != null) {
-                  debugPrint(
+                  logger.i(
                       '✅ Using primary device btDevice: ${btDevice.deviceTypeName} for ${device.platformName}');
                   // Try to connect using the appropriate device btDevice
                   final success = await btDevice.connectToDevice(device);
                   if (success && context.mounted) {
-                    // Add to connected devices btDevice
-                    debugPrint(
-                        '📱 Adding device via primary path: ${device.platformName}');
-                    await connectedDevicesService.addConnectedDevice(
-                        device, scanResults);
+                    // Device is now automatically tracked in BTDevice system
+                    logger.i(
+                        '📱 Device connected via new architecture: ${device.platformName}');
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -219,10 +219,6 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
                   OutlinedButton(
                     child: const Text("Disconnect"),
                     onPressed: () async {
-                      // Remove from connected devices service first
-                      connectedDevicesService
-                          .removeConnectedDevice(device.remoteId.str);
-
                       // Disconnect using all matching services
                       final matchingBTDevices = deviceTypeManager
                           .getAllMatchingBTDevices(device, scanResults);
@@ -245,7 +241,7 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
 
 /// Button for actions on already connected devices
 Widget getButtonForConnectedDevice(
-    ConnectedDevice connectedDevice, BuildContext context) {
+    BTDevice connectedDevice, BuildContext context) {
   return SizedBox(
     width: 250,
     child: Wrap(
@@ -254,18 +250,15 @@ Widget getButtonForConnectedDevice(
       direction: Axis.horizontal,
       children: [
         // Get actions from the device service
-        ...connectedDevice.service
-            .getConnectedActions(connectedDevice.device, context),
+        if (connectedDevice.connectedDevice != null)
+          ...connectedDevice.getConnectedActions(connectedDevice.connectedDevice!, context),
         OutlinedButton(
           child: const Text("Disconnect"),
           onPressed: () async {
             // Disconnect using the device service
-            await connectedDevice.service
-                .disconnectFromDevice(connectedDevice.device);
-
-            // Remove from connected devices service
-            connectedDevicesService
-                .removeConnectedDevice(connectedDevice.device.remoteId.str);
+            if (connectedDevice.connectedDevice != null) {
+              await connectedDevice.disconnectFromDevice(connectedDevice.connectedDevice!);
+            }
 
             // Disable wakelock when disconnecting
             WakelockPlus.disable();
@@ -289,7 +282,7 @@ void initializeDeviceNavigation() {
       await WakelockPlus.enable();
     } catch (e) {
       // Wakelock not supported on this platform
-      debugPrint('Wakelock not supported: $e');
+      logger.i('Wakelock not supported: $e');
     }
 
     if (!context.mounted) return;

@@ -32,12 +32,12 @@ class Cadence extends BTDevice {
   }
 
   @override
-  Future<bool> connectToDevice(BluetoothDevice device) async {
+  Future<bool> performConnection(BluetoothDevice device) async {
     return await _cadenceService.connectToCadenceDevice(device);
   }
 
   @override
-  Future<void> disconnectFromDevice(BluetoothDevice device) async {
+  Future<void> performDisconnection(BluetoothDevice device) async {
     await _cadenceService.disconnectCadenceDevice();
   }
 

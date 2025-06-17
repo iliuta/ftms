@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:ftms/core/models/device_types.dart';
+import 'package:ftms/core/utils/logger.dart';
 import 'bt_device.dart';
 import 'bt_device_navigation_registry.dart';
-import 'connected_devices_service.dart';
 import '../../bloc/ftms_bloc.dart';
 
 /// Service for FTMS (Fitness Machine Service) devices
@@ -73,40 +73,61 @@ class Ftms extends BTDevice {
   }
 
   @override
-  Future<bool> connectToDevice(BluetoothDevice device) async {
+  Future<bool> performConnection(BluetoothDevice device) async {
     try {
+      logger.i('🔧 FTMS: Connecting to device: ${device.platformName}');
       await FTMS.connectToFTMSDevice(device);
+      logger.i('🔧 FTMS: Successfully connected to device');
       
       // Start listening to device data to detect machine type
-      startMachineTypeDetection(device);
+      // Use a delay to ensure the connection is stable
+      await Future.delayed(const Duration(milliseconds: 1000));
+      
+      // Check if device is still connected before starting machine type detection
+      if (device.isConnected) {
+        logger.i('🔧 FTMS: Starting machine type detection');
+        startMachineTypeDetection(device);
+      } else {
+        logger.i('❌ FTMS: Device disconnected before machine type detection');
+        return false;
+      }
       
       return true;
     } catch (e) {
+      logger.i('❌ FTMS: Connection failed: $e');
       return false;
     }
   }
 
   /// Start listening to FTMS device data to detect and store machine type
   void startMachineTypeDetection(BluetoothDevice device) {
-    // Listen to FTMS data stream to detect machine type
-    FTMS.useDeviceDataCharacteristic(
-      device,
-      (DeviceData data) {
-        // Extract machine type from device data
-        final machineType = DeviceType.fromFtms(data.deviceDataType);
-        
-        // Update the connected device with the detected machine type
-        final connectedDevicesService = ConnectedDevicesService();
-        connectedDevicesService.updateDeviceFtmsMachineType(device.remoteId.str, machineType);
-        
-        // Also forward to the global FTMS bloc for other consumers
-        ftmsBloc.ftmsDeviceDataControllerSink.add(data);
-      },
-    );
+    try {
+      logger.i('🔧 FTMS: Starting machine type detection for ${device.platformName}');
+      
+      // Listen to FTMS data stream to detect machine type
+      FTMS.useDeviceDataCharacteristic(
+        device,
+        (DeviceData data) {
+          // Extract machine type from device data
+          final machineType = DeviceType.fromFtms(data.deviceDataType);
+          
+          logger.i('🔧 FTMS: Detected machine type: $machineType');
+          
+          // Update this device's machine type
+          updateDeviceType(machineType);
+          
+          // Also forward to the global FTMS bloc for other consumers
+          ftmsBloc.ftmsDeviceDataControllerSink.add(data);
+        },
+      );
+    } catch (e) {
+      logger.i('❌ FTMS: Machine type detection failed: $e');
+      // Continue without machine type detection
+    }
   }
 
   @override
-  Future<void> disconnectFromDevice(BluetoothDevice device) async {
+  Future<void> performDisconnection(BluetoothDevice device) async {
     await FTMS.disconnectFromFTMSDevice(device);
   }
 

@@ -151,15 +151,15 @@ class MockScanResult extends ScanResult {
 
 class MockDeviceTypeService extends BTDevice {
   final int priority;
-  final String name;
+  final String deviceName;
 
   MockDeviceTypeService({
     this.priority = 100,
-    this.name = 'Mock Device',
+    this.deviceName = 'Mock Device',
   });
 
   @override
-  String get deviceTypeName => name;
+  String get deviceTypeName => deviceName;
 
   @override
   int get listPriority => priority;
@@ -171,10 +171,10 @@ class MockDeviceTypeService extends BTDevice {
   bool isDeviceOfThisType(BluetoothDevice device, List<ScanResult> scanResults) => false;
 
   @override
-  Future<bool> connectToDevice(BluetoothDevice device) async => true;
+  Future<bool> performConnection(BluetoothDevice device) async => true;
 
   @override
-  Future<void> disconnectFromDevice(BluetoothDevice device) async {}
+  Future<void> performDisconnection(BluetoothDevice device) async {}
 
   @override
   Widget? getDevicePage(BluetoothDevice device) => null;

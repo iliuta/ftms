@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ftms/core/models/device_types.dart';
 import 'model/training_session.dart';
 import '../../core/config/live_data_display_config.dart';
-import '../../core/services/devices/connected_devices_service.dart';
+import '../../core/services/devices/bt_device.dart';
+import '../../core/services/devices/bt_device_manager.dart';
 import 'widgets/training_session_chart.dart';
 
 class TrainingSessionExpansionPanelList extends StatefulWidget {
@@ -118,9 +119,9 @@ class _TrainingSessionExpansionPanelListState
 
   Widget _buildStartSessionButton(
       BuildContext context, TrainingSessionDefinition session) {
-    return StreamBuilder<List<ConnectedDevice>>(
-      stream: connectedDevicesService.devicesStream,
-      initialData: connectedDevicesService.connectedDevices,
+    return StreamBuilder<List<BTDevice>>(
+      stream: SupportedBTDeviceManager().connectedDevicesStream,
+      initialData: SupportedBTDeviceManager().allConnectedDevices,
       builder: (context, snapshot) {
         final devices = snapshot.data ?? [];
         final ftmsDevices = devices
