@@ -10,12 +10,14 @@ class TrainingSessionExpansionPanelList extends StatefulWidget {
   final List<TrainingSessionDefinition> sessions;
   final ScrollController scrollController;
   final Function(TrainingSessionDefinition)? onSessionSelected;
+  final Function(TrainingSessionDefinition)? onSessionEdit;
 
   const TrainingSessionExpansionPanelList({
     super.key,
     required this.sessions,
     required this.scrollController,
     this.onSessionSelected,
+    this.onSessionEdit,
   });
 
   @override
@@ -97,6 +99,19 @@ class _TrainingSessionExpansionPanelListState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
+                          // Add edit button for custom sessions
+                          if (session.isCustom) ...[
+                            TextButton.icon(
+                              icon: const Icon(Icons.edit, size: 16),
+                              label: const Text('Edit'),
+                              onPressed: () {
+                                if (widget.onSessionEdit != null) {
+                                  widget.onSessionEdit!(session);
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                           _buildStartSessionButton(context, session),
                         ],
                       ),

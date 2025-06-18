@@ -65,7 +65,7 @@ class TrainingSessionStorageService {
         try {
           final content = await file.readAsString(encoding: utf8);
           final jsonData = jsonDecode(content) as Map<String, dynamic>;
-          final session = TrainingSessionDefinition.fromJson(jsonData);
+          final session = TrainingSessionDefinition.fromJson(jsonData, isCustom: true);
           sessions.add(session);
         } catch (e) {
           logger.w('Failed to load session from ${file.path}: $e');

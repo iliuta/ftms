@@ -32,7 +32,7 @@ Future<List<TrainingSessionDefinition>> loadTrainingSessions(DeviceType machineT
     try {
       final content = await rootBundle.loadString(file);
       final jsonData = json.decode(content);
-      final session = TrainingSessionDefinition.fromJson(jsonData)
+      final session = TrainingSessionDefinition.fromJson(jsonData, isCustom: false)
           .expand(userSettings: userSettings);
       logger.i('[loadTrainingSessions] Read built-in session: title=${session.title}, ftmsMachineType=${session.ftmsMachineType}');
       if (session.ftmsMachineType == machineType) {

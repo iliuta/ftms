@@ -12,13 +12,15 @@ import 'model/training_session.dart';
 import 'model/target_power_strategy.dart';
 import '../../features/settings/model/user_settings.dart';
 
-/// A page for creating new training sessions
+/// A page for creating new training sessions or editing existing ones
 class AddTrainingSessionPage extends StatefulWidget {
   final DeviceType machineType;
+  final TrainingSessionDefinition? existingSession;
 
   const AddTrainingSessionPage({
     super.key,
     required this.machineType,
+    this.existingSession,
   });
 
   @override
@@ -32,7 +34,8 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
   UserSettings? _userSettings;
   bool _isLoading = true;
 
-  // No need for editing state - intervals are always editable
+  // Check if we're in edit mode
+  bool get _isEditMode => widget.existingSession != null;
 
   @override
   void initState() {
@@ -50,6 +53,11 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
         _userSettings = userSettings;
         _isLoading = false;
       });
+
+      // Initialize form with existing session data if in edit mode
+      if (_isEditMode) {
+        _initializeFromExistingSession();
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -60,6 +68,21 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
         );
       }
     }
+  }
+
+  void _initializeFromExistingSession() {
+    final session = widget.existingSession!;
+    
+    // Set the title
+    _titleController.text = session.title;
+    
+    // Clear and populate intervals
+    _intervals.clear();
+    _intervals.addAll(session.intervals);
+    
+    setState(() {
+      // Trigger rebuild to show the loaded data
+    });
   }
 
   List<LiveDataFieldConfig> get _availableTargetFields {
@@ -159,12 +182,12 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Training Session'),
+        title: Text(_isEditMode ? 'Edit Training Session' : 'Add Training Session'),
         actions: [
           TextButton(
             onPressed: _intervals.isNotEmpty ? _saveSession : null,
-            child: const Text(
-              'Save',
+            child: Text(
+              _isEditMode ? 'Update' : 'Save',
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -624,39 +647,50 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
 
     // Show loading indicator
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Row(
           children: [
-            SizedBox(
+            const SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            SizedBox(width: 16),
-            Text('Saving session...'),
+            const SizedBox(width: 16),
+            Text(_isEditMode ? 'Updating session...' : 'Saving session...'),
           ],
         ),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
 
     try {
+      final storageService = TrainingSessionStorageService();
+      
+      // If in edit mode, delete the original session first
+      if (_isEditMode) {
+        final originalSession = widget.existingSession!;
+        await storageService.deleteSession(
+          originalSession.title, 
+          originalSession.ftmsMachineType.name,
+        );
+      }
+
       // Create a TrainingSessionDefinition
       final sessionDefinition = TrainingSessionDefinition(
         title: _titleController.text,
         ftmsMachineType: widget.machineType,
         intervals: _intervals,
+        isCustom: true, // All saved sessions are custom
       );
 
       // Save to persistent storage
-      final storageService = TrainingSessionStorageService();
       final filePath = await storageService.saveSession(sessionDefinition);
 
       if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Session "${_titleController.text}" saved successfully!'),
+            content: Text('Session "${_titleController.text}" ${_isEditMode ? 'updated' : 'saved'} successfully!'),
             backgroundColor: Colors.green,
             action: SnackBarAction(
               label: 'View Location',

@@ -9,17 +9,28 @@ class TrainingSessionDefinition {
   final String title;
   final DeviceType ftmsMachineType;
   final List<TrainingInterval> intervals;
+  final bool isCustom;
+  /// The original non-expanded session definition for editing purposes
+  final TrainingSessionDefinition? originalSession;
 
-  TrainingSessionDefinition({required this.title, required this.ftmsMachineType, required this.intervals});
+  TrainingSessionDefinition({
+    required this.title, 
+    required this.ftmsMachineType, 
+    required this.intervals,
+    this.isCustom = false,
+    this.originalSession,
+  });
 
   /// Constructor for expanded sessions with UnitTrainingInterval list
   TrainingSessionDefinition._expanded({
     required this.title,
     required this.ftmsMachineType,
     required List<UnitTrainingInterval> expandedIntervals,
+    this.isCustom = false,
+    this.originalSession,
   }) : intervals = expandedIntervals;
 
-  factory TrainingSessionDefinition.fromJson(Map<String, dynamic> json) {
+  factory TrainingSessionDefinition.fromJson(Map<String, dynamic> json, {bool isCustom = false}) {
     final List intervalsRaw = json['intervals'] as List;
     final List<TrainingInterval> intervals = intervalsRaw
         .map((e) => TrainingIntervalFactory.fromJsonPolymorphic(e))
@@ -29,6 +40,7 @@ class TrainingSessionDefinition {
       title: json['title'],
       ftmsMachineType: DeviceType.fromString(json['ftmsMachineType']),
       intervals: intervals,
+      isCustom: isCustom,
     );
   }
 
@@ -47,27 +59,20 @@ class TrainingSessionDefinition {
     final List<UnitTrainingInterval> expandedIntervals = [];
     
     for (final interval in intervals) {
-      if (interval is GroupTrainingInterval) {
-        // First expand targets, then expand repetitions
-        final expandedTargetsInterval = interval.expandTargets(
-          machineType: ftmsMachineType,
-          userSettings: userSettings,
-        );
-        expandedIntervals.addAll(expandedTargetsInterval.expand());
-      } else if (interval is UnitTrainingInterval) {
-        // Expand targets and then repetitions
-        final expandedTargetsInterval = interval.expandTargets(
-          machineType: ftmsMachineType,
-          userSettings: userSettings,
-        );
-        expandedIntervals.addAll(expandedTargetsInterval.expand());
-      }
+      // Both GroupTrainingInterval and UnitTrainingInterval have expandTargets method
+      final expandedTargetsInterval = interval.expandTargets(
+        machineType: ftmsMachineType,
+        userSettings: userSettings,
+      );
+      expandedIntervals.addAll(expandedTargetsInterval.expand());
     }
     
     return TrainingSessionDefinition._expanded(
       title: title,
       ftmsMachineType: ftmsMachineType,
       expandedIntervals: expandedIntervals,
+      isCustom: isCustom,
+      originalSession: isCustom ? this : null, // Keep reference to original for custom sessions
     );
   }
 
