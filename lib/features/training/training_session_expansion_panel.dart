@@ -84,7 +84,7 @@ class _TrainingSessionExpansionPanelListState
                               ),
                               const SizedBox(height: 8),
                               TrainingSessionChart(
-                                intervals: session.intervals,
+                                intervals: session.unitIntervals,
                                 machineType: session.ftmsMachineType,
                                 height: 120,
                                 config: config,

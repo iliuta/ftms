@@ -84,4 +84,25 @@ class UserSettings {
       throw Exception('Failed to save user settings: $e');
     }
   }
+
+  /// Get the value of a user setting by its name
+  /// Returns the setting value in its appropriate format (parsed if necessary)
+  dynamic getSettingValue(String settingName) {
+    switch (settingName) {
+      case 'cyclingFtp':
+        return cyclingFtp;
+      case 'rowingFtp':
+        // Parse rowing FTP if it's a string representation
+        if (rowingFtp.contains(':')) {
+          // Parse mm:ss format to seconds
+          final parts = rowingFtp.split(':');
+          return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+        }
+        return double.tryParse(rowingFtp);
+      case 'maxHeartRate':
+        return maxHeartRate;
+      default:
+        return null;
+    }
+  }
 }

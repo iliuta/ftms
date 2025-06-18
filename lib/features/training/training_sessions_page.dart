@@ -4,6 +4,7 @@ import 'package:ftms/core/models/device_types.dart';
 import 'training_session_loader.dart';
 import 'training_session_expansion_panel.dart';
 import 'training_session_progress_screen.dart';
+import 'add_training_session_page.dart';
 import 'model/training_session.dart';
 
 /// A dedicated page for browsing and selecting training sessions
@@ -136,6 +137,19 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
         ),
       ),
       body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddTrainingSessionPage(
+                machineType: _selectedMachineType,
+              ),
+            ),
+          );
+        },
+        tooltip: 'Add Training Session',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 

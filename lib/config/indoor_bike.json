@@ -16,14 +16,17 @@
       "unit": "W",
       "min": 0,
       "max": 1000,
-      "samplePeriodSeconds": 5
+      "samplePeriodSeconds": 5,
+      "availableAsTarget": true,
+      "userSetting": "cyclingFtp"
     },
     {
       "name": "Instantaneous Cadence",
       "label": "Cadence",
       "display": "number",
       "unit": "rpm",
-      "icon": "cadence"
+      "icon": "cadence",
+      "availableAsTarget": true
     },
     {
       "name": "Heart Rate",

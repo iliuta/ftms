@@ -8,14 +8,17 @@
       "formatter": "rowerPaceFormatter",
       "unit": "km/h",
       "min": 0,
-      "max": 30
+      "max": 30,
+      "availableAsTarget": true,
+      "userSetting": "rowingFtp"
     },
     {
       "name": "Stroke Rate",
       "label": "Stroke Rate",
       "display": "number",
       "unit": "spm",
-      "icon": "rowing"
+      "icon": "rowing",
+      "availableAsTarget": true
     },
     {
       "name": "Instantaneous Power",
