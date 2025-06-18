@@ -124,7 +124,7 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
     );
   }
 
-  return Column(children: deviceWidgets);
+  return ListView(children: deviceWidgets);
 }
 
 /// Button for connecting/disconnecting to a Bluetooth device
