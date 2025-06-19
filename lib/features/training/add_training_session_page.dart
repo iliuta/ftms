@@ -716,17 +716,6 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
         );
       }
 
-      // Create a TrainingSessionDefinition
-      final sessionDefinition = TrainingSessionDefinition(
-        title: _titleController.text,
-        ftmsMachineType: widget.machineType,
-        intervals: _intervals,
-        isCustom: true, // All saved sessions are custom
-      );
-
-      // Save to persistent storage
-      final filePath = await storageService.saveSession(sessionDefinition);
-
       if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
