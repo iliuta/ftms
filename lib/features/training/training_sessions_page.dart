@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:ftms/core/models/device_types.dart';
+import 'package:ftms/core/services/training_session_storage_service.dart';
 import 'training_session_loader.dart';
 import 'training_session_expansion_panel.dart';
 import 'training_session_progress_screen.dart';
@@ -117,6 +118,71 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
       // Reload sessions after editing
       _loadSessions();
     });
+  }
+
+  Future<void> _onSessionDelete(TrainingSessionDefinition session) async {
+    // Only custom sessions can be deleted
+    if (!session.isCustom) {
+      return;
+    }
+
+    if (!mounted) return;
+
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      final storageService = TrainingSessionStorageService();
+      final sessionToDelete = session.originalSession ?? session;
+      final success = await storageService.deleteSession(
+        sessionToDelete.title,
+        sessionToDelete.ftmsMachineType.name,
+      );
+
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      if (success) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Training session "${session.title}" deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Reload sessions to reflect the deletion
+        _loadSessions();
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to delete training session'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      
+      // Close loading dialog if it's still open
+      Navigator.of(context).pop();
+      
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting training session: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -254,6 +320,7 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
       scrollController: ScrollController(),
       onSessionSelected: _onSessionSelected,
       onSessionEdit: _onSessionEdit,
+      onSessionDelete: _onSessionDelete,
     );
   }
 
