@@ -13,6 +13,7 @@
       "name": "Instantaneous Power",
       "label": "Power",
       "display": "speedometer",
+      "formatter": "intFormatter",
       "unit": "W",
       "min": 0,
       "max": 1000,
@@ -24,6 +25,7 @@
       "name": "Instantaneous Cadence",
       "label": "Cadence",
       "display": "number",
+      "formatter": "intFormatter",
       "unit": "rpm",
       "icon": "cadence",
       "availableAsTarget": true
@@ -32,6 +34,7 @@
       "name": "Heart Rate",
       "label": "Heart rate",
       "display": "number",
+      "formatter": "intFormatter",
       "unit": "bpm",
       "icon": "heart"
     }

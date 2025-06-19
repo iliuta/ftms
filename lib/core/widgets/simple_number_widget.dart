@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ftms/core/config/live_data_field_config.dart';
+import 'package:ftms/core/config/live_data_field_format_strategy.dart';
 
 import '../models/live_data_field_value.dart';
 import 'live_data_icon_registry.dart';
@@ -15,11 +16,22 @@ class SimpleNumberWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     IconData? iconData = getLiveDataIcon(displayField.icon);
     final scaledValue = param.getScaledValue();
+
+    String formattedValue = '${scaledValue.toStringAsFixed(0)} ${displayField.unit}';
+    if (displayField.formatter != null) {
+      final formatterStrategy =
+      LiveDataFieldFormatter.getStrategy(displayField.formatter!);
+      if (formatterStrategy != null) {
+        formattedValue = formatterStrategy.format(
+            field: displayField, paramValue: scaledValue);
+      }
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(displayField.label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text('$scaledValue ${displayField.unit}', style: TextStyle(fontSize: 22, color: color)),
+        Text(formattedValue, style: TextStyle(fontSize: 22, color: color)),
         if (iconData != null)
           Padding(
             padding: const EdgeInsets.only(top: 2.0),
