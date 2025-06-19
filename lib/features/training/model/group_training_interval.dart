@@ -3,6 +3,7 @@ import 'package:ftms/core/models/device_types.dart';
 import 'training_interval.dart';
 import 'unit_training_interval.dart';
 import '../../settings/model/user_settings.dart';
+import '../../../core/config/live_data_display_config.dart';
 
 class GroupTrainingInterval extends TrainingInterval {
   @override
@@ -33,6 +34,7 @@ class GroupTrainingInterval extends TrainingInterval {
   GroupTrainingInterval expandTargets({
     required DeviceType machineType,
     UserSettings? userSettings,
+    LiveDataDisplayConfig? config,
   }) {
     return GroupTrainingInterval(
       repeat: repeat,
@@ -40,6 +42,7 @@ class GroupTrainingInterval extends TrainingInterval {
           .map((interval) => interval.expandTargets(
                 machineType: machineType,
                 userSettings: userSettings,
+                config: config,
               ))
           .toList(),
     );

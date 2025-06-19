@@ -4,6 +4,7 @@ import 'unit_training_interval.dart';
 import 'training_interval.dart';
 import 'group_training_interval.dart';
 import '../../settings/model/user_settings.dart';
+import '../../../core/config/live_data_display_config.dart';
 
 class TrainingSessionDefinition {
   final String title;
@@ -55,7 +56,10 @@ class TrainingSessionDefinition {
   /// Creates a new instance with expanded intervals and target values.
   /// This expands group intervals into their constituent unit intervals
   /// and resolves percentage-based targets using the provided user settings.
-  TrainingSessionDefinition expand({required UserSettings userSettings}) {
+  TrainingSessionDefinition expand({
+    required UserSettings userSettings,
+    LiveDataDisplayConfig? config,
+  }) {
     final List<UnitTrainingInterval> expandedIntervals = [];
     
     for (final interval in intervals) {
@@ -63,6 +67,7 @@ class TrainingSessionDefinition {
       final expandedTargetsInterval = interval.expandTargets(
         machineType: ftmsMachineType,
         userSettings: userSettings,
+        config: config,
       );
       expandedIntervals.addAll(expandedTargetsInterval.expand());
     }

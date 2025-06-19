@@ -100,6 +100,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
       final expandedTargetsInterval = interval.expandTargets(
         machineType: widget.machineType,
         userSettings: _userSettings,
+        config: _config,
       );
       expanded.addAll(expandedTargetsInterval.expand());
     }

@@ -5,6 +5,7 @@ import 'package:ftms/core/models/device_types.dart';
 import '../../core/utils/logger.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import '../../core/services/training_session_storage_service.dart';
+import '../../core/config/live_data_display_config.dart';
 
 import 'model/training_session.dart';
 import '../settings/model/user_settings.dart';
@@ -14,6 +15,7 @@ import '../settings/model/user_settings.dart';
 Future<List<TrainingSessionDefinition>> loadTrainingSessions(DeviceType machineType) async {
   logger.i('[loadTrainingSessions] machineType: $machineType');
   final userSettings = await UserSettings.loadDefault();
+  final config = await LiveDataDisplayConfig.loadForFtmsMachineType(machineType);
   final List<TrainingSessionDefinition> sessions = [];
   
   // Load built-in sessions from assets
@@ -33,7 +35,7 @@ Future<List<TrainingSessionDefinition>> loadTrainingSessions(DeviceType machineT
       final content = await rootBundle.loadString(file);
       final jsonData = json.decode(content);
       final session = TrainingSessionDefinition.fromJson(jsonData, isCustom: false)
-          .expand(userSettings: userSettings);
+          .expand(userSettings: userSettings, config: config);
       logger.i('[loadTrainingSessions] Read built-in session: title=${session.title}, ftmsMachineType=${session.ftmsMachineType}');
       if (session.ftmsMachineType == machineType) {
         logger.i('[loadTrainingSessions]   -> MATCH');
@@ -53,7 +55,7 @@ Future<List<TrainingSessionDefinition>> loadTrainingSessions(DeviceType machineT
     logger.i('[loadTrainingSessions] Found ${customSessions.length} custom sessions');
     
     for (final session in customSessions) {
-      final expandedSession = session.expand(userSettings: userSettings);
+      final expandedSession = session.expand(userSettings: userSettings, config: config);
       logger.i('[loadTrainingSessions] Read custom session: title=${expandedSession.title}, ftmsMachineType=${expandedSession.ftmsMachineType}');
       if (expandedSession.ftmsMachineType == machineType) {
         logger.i('[loadTrainingSessions]   -> MATCH');

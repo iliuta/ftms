@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/features/training/model/training_session.dart';
 import 'package:ftms/features/settings/model/user_settings.dart';
+import 'package:ftms/core/config/live_data_display_config.dart';
+import 'package:ftms/core/config/live_data_field_config.dart';
+import 'package:ftms/core/models/device_types.dart';
 
 dynamic _enduranceRideJson = {
   "title": "Endurance Ride",
@@ -25,12 +28,57 @@ dynamic _enduranceRideJson = {
   ]
 };
 
+// Helper function to create a mock config for testing
+LiveDataDisplayConfig _createMockConfig() {
+  return LiveDataDisplayConfig(
+    deviceType: DeviceType.indoorBike,
+    fields: [
+      LiveDataFieldConfig(
+        name: 'Instantaneous Power',
+        label: 'Power',
+        display: 'number',
+        unit: 'W',
+        userSetting: 'cyclingFtp', // Has user setting - should apply power strategy
+      ),
+      LiveDataFieldConfig(
+        name: 'Instantaneous Pace',
+        label: 'Pace',
+        display: 'number',
+        unit: '/500m',
+        userSetting: 'rowingFtp', // Has user setting - should apply power strategy
+      ),
+      LiveDataFieldConfig(
+        name: 'Instantaneous Cadence',
+        label: 'Cadence',
+        display: 'number',
+        unit: 'rpm',
+        userSetting: null, // No user setting - should not apply power strategy
+      ),
+      LiveDataFieldConfig(
+        name: 'Heart Rate',
+        label: 'Heart Rate',
+        display: 'number',
+        unit: 'bpm',
+        userSetting: 'maxHeartRate', // Has user setting - should apply power strategy
+      ),
+      LiveDataFieldConfig(
+        name: 'Stroke Rate',
+        label: 'Stroke Rate',
+        display: 'number',
+        unit: 'spm',
+        userSetting: null, // No user setting - should not apply power strategy
+      ),
+    ],
+  );
+}
+
 void main() {
   final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00');
+  final config = _createMockConfig();
 
   test('TrainingSession.fromJson expands intervals with repeat field', () {
     final session = TrainingSessionDefinition.fromJson(_enduranceRideJson)
-        .expand(userSettings: userSettings);
+        .expand(userSettings: userSettings, config: config);
     // Warm Up should be repeated 10 times, plus 2 more intervals
     expect(session.unitIntervals.length, 12);
     for (int i = 0; i < 10; i++) {
@@ -83,7 +131,7 @@ void main() {
     };
 
     final session = TrainingSessionDefinition.fromJson(complexJson)
-        .expand(userSettings: userSettings);
+        .expand(userSettings: userSettings, config: config);
     // Should expand to: Warm Up, Work, Rest, Work, Rest, Cool Down
     expect(session.unitIntervals.length, 6);
     expect(session.unitIntervals[0].title, 'Warm Up');
