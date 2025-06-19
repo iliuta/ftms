@@ -11,6 +11,7 @@ class TrainingSessionExpansionPanelList extends StatefulWidget {
   final ScrollController scrollController;
   final Function(TrainingSessionDefinition)? onSessionSelected;
   final Function(TrainingSessionDefinition)? onSessionEdit;
+  final Function(TrainingSessionDefinition)? onSessionDelete;
 
   const TrainingSessionExpansionPanelList({
     super.key,
@@ -18,6 +19,7 @@ class TrainingSessionExpansionPanelList extends StatefulWidget {
     required this.scrollController,
     this.onSessionSelected,
     this.onSessionEdit,
+    this.onSessionDelete,
   });
 
   @override
@@ -57,7 +59,30 @@ class _TrainingSessionExpansionPanelListState
           final session = widget.sessions[idx];
           return ExpansionPanel(
             headerBuilder: (context, isExpanded) => ListTile(
-              title: Text(session.title),
+              title: Row(
+                children: [
+                  Expanded(child: Text(session.title)),
+                  if (session.isCustom) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.1),
+                        border: Border.all(color: Colors.blue, width: 1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'Custom',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
               subtitle: Text('Intervals: ${session.intervals.length}'),
               trailing: isExpanded
                   ? const Icon(Icons.expand_less)
@@ -99,7 +124,7 @@ class _TrainingSessionExpansionPanelListState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          // Add edit button for custom sessions
+                          // Add edit and delete buttons for custom sessions
                           if (session.isCustom) ...[
                             TextButton.icon(
                               icon: const Icon(Icons.edit, size: 16),
@@ -108,6 +133,14 @@ class _TrainingSessionExpansionPanelListState
                                 if (widget.onSessionEdit != null) {
                                   widget.onSessionEdit!(session);
                                 }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            TextButton.icon(
+                              icon: const Icon(Icons.delete, size: 16, color: Colors.red),
+                              label: const Text('Delete', style: TextStyle(color: Colors.red)),
+                              onPressed: () {
+                                _showDeleteConfirmationDialog(context, session);
                               },
                             ),
                             const SizedBox(width: 8),
@@ -130,6 +163,32 @@ class _TrainingSessionExpansionPanelListState
 
   Future<LiveDataDisplayConfig?> _getConfig(DeviceType deviceType) async {
     return await LiveDataDisplayConfig.loadForFtmsMachineType(deviceType);
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context, TrainingSessionDefinition session) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Delete Training Session'),
+        content: Text('Are you sure you want to delete "${session.title}"?\n\nThis action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              if (widget.onSessionDelete != null) {
+                widget.onSessionDelete!(session);
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildStartSessionButton(
