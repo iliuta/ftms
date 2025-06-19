@@ -733,42 +733,8 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
           SnackBar(
             content: Text('Session "${_titleController.text}" ${_isEditMode ? 'updated' : 'saved'} successfully!'),
             backgroundColor: Colors.green,
-            action: SnackBarAction(
-              label: 'View Location',
-              textColor: Colors.white,
-              onPressed: () {
-                // Show a dialog with the file path
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Session Saved'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Your training session has been saved to:'),
-                        const SizedBox(height: 8),
-                        SelectableText(
-                          filePath,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontFamily: 'monospace',
-                          ),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
           ),
         );
-
         Navigator.of(context).pop();
       }
     } catch (e) {
