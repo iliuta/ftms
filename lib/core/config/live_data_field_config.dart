@@ -25,6 +25,13 @@ class LiveDataFieldConfig {
   /// Optional sample period in seconds for the field. Useful for fields that
   /// require averaging over a period of time, such as power.
   final int? samplePeriodSeconds;
+  /// Whether this field is available as a target in training sessions.
+  /// When true, this field can be used to set target values during workouts.
+  final bool availableAsTarget;
+  /// Optional reference to the corresponding user setting key.
+  /// This links the field to a specific user setting for training purposes.
+  /// For example, 'rowingFtp' for rowing FTP or 'cyclingFtp' for cycling FTP.
+  final String? userSetting;
 
   LiveDataFieldConfig({
     required this.name,
@@ -36,6 +43,8 @@ class LiveDataFieldConfig {
     this.max,
     this.icon,
     this.samplePeriodSeconds,
+    this.availableAsTarget = false,
+    this.userSetting,
   });
   factory LiveDataFieldConfig.fromJson(Map<String, dynamic> json) {
     return LiveDataFieldConfig(
@@ -48,6 +57,8 @@ class LiveDataFieldConfig {
       max: json['max'] as num?,
       icon: json['icon'] as String?,
       samplePeriodSeconds: json['samplePeriodSeconds'] as int?,
+      availableAsTarget: json['availableAsTarget'] as bool? ?? false,
+      userSetting: json['userSetting'] as String?,
     );
   }
 }

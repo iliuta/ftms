@@ -36,11 +36,11 @@ void main() {
     test('resolves percentage string to pace in seconds (100%)', () {
       expect(strategy.resolvePower('100%', userSettings), 120); // 2:00 = 120s
     });
-    test('resolves percentage string to pace in seconds (<100%)', () {
-      expect(strategy.resolvePower('95%', userSettings), 114); // 95% of 120s
+    test('resolves percentage string to pace in seconds (<100% = slower)', () {
+      expect(strategy.resolvePower('50%', userSettings), 240); // 50% effort = 240s (slower)
     });
-    test('resolves percentage string to pace in seconds (>100%)', () {
-      expect(strategy.resolvePower('120%', userSettings), 144); // 120% of 120s
+    test('resolves percentage string to pace in seconds (>100% = faster)', () {
+      expect(strategy.resolvePower('150%', userSettings), 80); // 150% effort = 80s (faster)
     });
     test('returns original value for non-percentage string', () {
       expect(strategy.resolvePower('foo', userSettings), 'foo');

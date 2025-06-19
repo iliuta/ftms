@@ -65,6 +65,7 @@ class _TrainingSessionChartState extends State<TrainingSessionChart> {
                             intervals: widget.intervals,
                             totalDuration: totalDuration,
                             intensityKey: intensityKey,
+                            machineType: widget.machineType,
                             hoveredIndex: _hoveredIntervalIndex,
                           ),
                         ),
@@ -261,11 +262,13 @@ class _TrainingChartPainter extends CustomPainter {
   final int totalDuration;
   final String intensityKey;
   final int? hoveredIndex;
+  final DeviceType machineType;
 
   _TrainingChartPainter({
     required this.intervals,
     required this.totalDuration,
     required this.intensityKey,
+    required this.machineType,
     this.hoveredIndex,
   });
 
@@ -396,18 +399,35 @@ class _TrainingChartPainter extends CustomPainter {
     final target = targets[intensityKey];
     if (target == null) return 50.0; // Default value
     
+    double rawValue;
     if (target is String) {
       // Handle percentage strings like "100%", "95%"
       if (target.endsWith('%')) {
         final percentageStr = target.substring(0, target.length - 1);
-        return double.tryParse(percentageStr) ?? 50.0;
+        rawValue = double.tryParse(percentageStr) ?? 50.0;
+      } else {
+        rawValue = double.tryParse(target) ?? 50.0;
       }
-      return double.tryParse(target) ?? 50.0;
     } else if (target is num) {
-      return target.toDouble();
+      rawValue = target.toDouble();
+    } else {
+      rawValue = 50.0; // Default fallback
     }
     
-    return 50.0; // Default fallback
+    // For rowing pace, invert the relationship since higher pace values (slower pace) = lower intensity
+    if (machineType == DeviceType.rower && intensityKey == 'Instantaneous Pace') {
+      // If it's a percentage, use it directly (100% = baseline intensity)
+      if (target is String && target.endsWith('%')) {
+        return rawValue; // Percentage values work correctly for intensity
+      } else {
+        // For absolute pace values, invert them relative to a baseline
+        // Assume 120 seconds (2:00/500m) as baseline (100% intensity)
+        const baselinePaceSeconds = 120.0;
+        return (baselinePaceSeconds * 100) / rawValue; // Invert: slower pace = lower intensity
+      }
+    }
+    
+    return rawValue;
   }
 
   Color _getIntensityColor(double normalizedIntensity) {
@@ -433,6 +453,7 @@ class _TrainingChartPainter extends CustomPainter {
            oldDelegate.intervals != intervals ||
            oldDelegate.totalDuration != totalDuration ||
            oldDelegate.intensityKey != intensityKey ||
+           oldDelegate.machineType != machineType ||
            oldDelegate.hoveredIndex != hoveredIndex;
   }
 }

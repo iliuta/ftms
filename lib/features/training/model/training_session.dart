@@ -1,4 +1,3 @@
-
 import 'package:ftms/core/models/device_types.dart';
 
 import 'unit_training_interval.dart';
@@ -9,52 +8,88 @@ import '../../settings/model/user_settings.dart';
 class TrainingSessionDefinition {
   final String title;
   final DeviceType ftmsMachineType;
-  final List<UnitTrainingInterval> intervals;
+  final List<TrainingInterval> intervals;
+  final bool isCustom;
+  /// The original non-expanded session definition for editing purposes
+  final TrainingSessionDefinition? originalSession;
 
-  TrainingSessionDefinition({required this.title, required this.ftmsMachineType, required this.intervals});
+  TrainingSessionDefinition({
+    required this.title, 
+    required this.ftmsMachineType, 
+    required this.intervals,
+    this.isCustom = false,
+    this.originalSession,
+  });
 
-  factory TrainingSessionDefinition.fromJson(
-    Map<String, dynamic> json, {
-    DeviceType? machineType,
-    required UserSettings userSettings,
-  }) {
+  /// Constructor for expanded sessions with UnitTrainingInterval list
+  TrainingSessionDefinition._expanded({
+    required this.title,
+    required this.ftmsMachineType,
+    required List<UnitTrainingInterval> expandedIntervals,
+    this.isCustom = false,
+    this.originalSession,
+  }) : intervals = expandedIntervals;
+
+  factory TrainingSessionDefinition.fromJson(Map<String, dynamic> json, {bool isCustom = false}) {
     final List intervalsRaw = json['intervals'] as List;
-    final List<UnitTrainingInterval> expandedIntervals = [];
-    for (final e in intervalsRaw) {
-      final interval = TrainingIntervalFactory.fromJsonPolymorphic(
-        e,
-        machineType: machineType ?? DeviceType.fromString(json['ftmsMachineType']),
-        userSettings: userSettings,
-      );
-      expandedIntervals.addAll(interval.expand());
-    }
+    final List<TrainingInterval> intervals = intervalsRaw
+        .map((e) => TrainingIntervalFactory.fromJsonPolymorphic(e))
+        .toList();
+    
     return TrainingSessionDefinition(
       title: json['title'],
       ftmsMachineType: DeviceType.fromString(json['ftmsMachineType']),
-      intervals: expandedIntervals,
+      intervals: intervals,
+      isCustom: isCustom,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'ftmsMachineType': ftmsMachineType.name,
+      'intervals': intervals.map((interval) => interval.toJson()).toList(),
+    };
+  }
+
+  /// Creates a new instance with expanded intervals and target values.
+  /// This expands group intervals into their constituent unit intervals
+  /// and resolves percentage-based targets using the provided user settings.
+  TrainingSessionDefinition expand({required UserSettings userSettings}) {
+    final List<UnitTrainingInterval> expandedIntervals = [];
+    
+    for (final interval in intervals) {
+      // Both GroupTrainingInterval and UnitTrainingInterval have expandTargets method
+      final expandedTargetsInterval = interval.expandTargets(
+        machineType: ftmsMachineType,
+        userSettings: userSettings,
+      );
+      expandedIntervals.addAll(expandedTargetsInterval.expand());
+    }
+    
+    return TrainingSessionDefinition._expanded(
+      title: title,
+      ftmsMachineType: ftmsMachineType,
+      expandedIntervals: expandedIntervals,
+      isCustom: isCustom,
+      originalSession: isCustom ? this : null, // Keep reference to original for custom sessions
+    );
+  }
+
+  /// Returns the intervals as UnitTrainingInterval list.
+  /// This is safe to call only on expanded sessions.
+  List<UnitTrainingInterval> get unitIntervals {
+    return intervals.cast<UnitTrainingInterval>();
   }
 }
 
 extension TrainingIntervalFactory on TrainingInterval {
   /// Only first-level can be group, second-level must be unit
-  static TrainingInterval fromJsonPolymorphic(
-    Map<String, dynamic> json, {
-    DeviceType? machineType,
-    required UserSettings userSettings,
-  }) {
+  static TrainingInterval fromJsonPolymorphic(Map<String, dynamic> json) {
     if (json.containsKey('intervals')) {
-      return GroupTrainingInterval.fromJson(
-        json,
-        machineType: machineType,
-        userSettings: userSettings,
-      );
+      return GroupTrainingInterval.fromJson(json);
     } else {
-      return UnitTrainingInterval.fromJson(
-        json,
-        machineType: machineType,
-        userSettings: userSettings,
-      );
+      return UnitTrainingInterval.fromJson(json);
     }
   }
 }

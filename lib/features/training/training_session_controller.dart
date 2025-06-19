@@ -56,7 +56,7 @@ class TrainingSessionController extends ChangeNotifier {
     _ftmsService = ftmsService ?? FTMSService(ftmsDevice);
     _stravaService = stravaService ?? StravaService();
     _dataRecorder = dataRecorder; // Can be null, will be created in _initDataRecording if needed
-    _intervals = session.intervals;
+    _intervals = session.unitIntervals;
     _intervalStartTimes = [];
     int acc = 0;
     for (final interval in _intervals) {

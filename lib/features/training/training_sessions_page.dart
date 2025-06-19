@@ -4,6 +4,7 @@ import 'package:ftms/core/models/device_types.dart';
 import 'training_session_loader.dart';
 import 'training_session_expansion_panel.dart';
 import 'training_session_progress_screen.dart';
+import 'add_training_session_page.dart';
 import 'model/training_session.dart';
 
 /// A dedicated page for browsing and selecting training sessions
@@ -101,6 +102,23 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
     );
   }
 
+  void _onSessionEdit(TrainingSessionDefinition session) {
+    // Use the original non-expanded session for editing if available
+    final sessionToEdit = session.originalSession ?? session;
+    
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AddTrainingSessionPage(
+          machineType: _selectedMachineType,
+          existingSession: sessionToEdit,
+        ),
+      ),
+    ).then((_) {
+      // Reload sessions after editing
+      _loadSessions();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,6 +154,19 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
         ),
       ),
       body: _buildBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddTrainingSessionPage(
+                machineType: _selectedMachineType,
+              ),
+            ),
+          );
+        },
+        tooltip: 'Add Training Session',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -222,6 +253,7 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
       sessions: _sessions!,
       scrollController: ScrollController(),
       onSessionSelected: _onSessionSelected,
+      onSessionEdit: _onSessionEdit,
     );
   }
 }

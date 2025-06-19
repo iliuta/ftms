@@ -13,11 +13,11 @@ void main() {
         'duration': 60,
         'targets': {'Instantaneous Power': '120%'},
       };
-      final interval = UnitTrainingInterval.fromJson(
-        json,
-        machineType: DeviceType.indoorBike,
-        userSettings: userSettings,
-      );
+      final interval = UnitTrainingInterval.fromJson(json)
+          .expandTargets(
+            machineType: DeviceType.indoorBike,
+            userSettings: userSettings,
+          );
       // 120% of 250 = 300
       expect(interval.targets!['Instantaneous Power'], 300);
     });
@@ -27,15 +27,15 @@ void main() {
       final json = {
         'title': 'Test Interval',
         'duration': 60,
-        'targets': {'Instantaneous Power': '120%'},
+        'targets': {'Instantaneous Pace': '50%'},
       };
-      final interval = UnitTrainingInterval.fromJson(
-        json,
-        machineType: DeviceType.rower,
-        userSettings: userSettings,
-      );
+      final interval = UnitTrainingInterval.fromJson(json)
+          .expandTargets(
+            machineType: DeviceType.rower,
+            userSettings: userSettings,
+          );
       // 120% of 2:00 = 144 seconds
-      expect(interval.targets!['Instantaneous Power'], 144);
+      expect(interval.targets!['Instantaneous Pace'], 240);
     });
 
     test('FTP percentage parsing is ignored if userSettings is null', () {
@@ -44,12 +44,23 @@ void main() {
         'duration': 60,
         'targets': {'Instantaneous Power': '120%'},
       };
-      final interval = UnitTrainingInterval.fromJson(
-        json,
-        machineType: DeviceType.indoorBike,
-        userSettings: null,
-      );
+      final interval = UnitTrainingInterval.fromJson(json)
+          .expandTargets(
+            machineType: DeviceType.indoorBike,
+            userSettings: null,
+          );
       // Should remain as string
+      expect(interval.targets!['Instantaneous Power'], '120%');
+    });
+
+    test('fromJson does not expand targets', () {
+      final json = {
+        'title': 'Test Interval',
+        'duration': 60,
+        'targets': {'Instantaneous Power': '120%'},
+      };
+      final interval = UnitTrainingInterval.fromJson(json);
+      // Should remain as string when not expanded
       expect(interval.targets!['Instantaneous Power'], '120%');
     });
   });

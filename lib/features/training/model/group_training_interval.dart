@@ -11,16 +11,33 @@ class GroupTrainingInterval extends TrainingInterval {
 
   GroupTrainingInterval({required this.intervals, this.repeat});
 
-  factory GroupTrainingInterval.fromJson(
-    Map<String, dynamic> json, {
-    DeviceType? machineType,
-    UserSettings? userSettings,
-  }) {
+  factory GroupTrainingInterval.fromJson(Map<String, dynamic> json) {
     return GroupTrainingInterval(
       repeat: json['repeat'],
       intervals: (json['intervals'] as List)
-          .map((e) => UnitTrainingInterval.fromJson(
-                e,
+          .map((e) => UnitTrainingInterval.fromJson(e))
+          .toList(),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'repeat': repeat,
+      'intervals': intervals.map((interval) => interval.toJson()).toList(),
+    };
+  }
+
+  /// Creates a new instance with expanded target values in all sub-intervals.
+  @override
+  GroupTrainingInterval expandTargets({
+    required DeviceType machineType,
+    UserSettings? userSettings,
+  }) {
+    return GroupTrainingInterval(
+      repeat: repeat,
+      intervals: intervals
+          .map((interval) => interval.expandTargets(
                 machineType: machineType,
                 userSettings: userSettings,
               ))
