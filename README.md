@@ -8,7 +8,7 @@ I started this app because I bought a rowing machine :) and the free app I was u
 
 By chance, the rowing machine supports FTMS protocol.
 
-I also have a Zwift Hub trainer and it's easier to play with it than with the rowing machine because it doesn't go in standby mode after a few minutes of inactivity.
+I also have a Zwift Hub indoor bike trainer and it's easier to play with it than with the rowing machine because it doesn't go in standby mode after a few minutes of inactivity.
 
 I was looking for a way to learn Flutter and this seemed like a good project to start with.
 
@@ -20,15 +20,16 @@ It is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutt
 ![App Screenshot](doc/screen3.png)
 ![App Screenshot](doc/screen4.png)
 ![App Screenshot](doc/screen5.png)
-
+![App Screenshot](doc/screen6.png)
 
 
 ## Main Features
 
-- **FTMS Bluetooth Connectivity**: scan for and connect to FTMS-compatible fitness machines ( bikes, rowers) using Bluetooth Low Energy (BLE).
+- **FTMS Bluetooth Connectivity**: scan for, connect to and display data from FTMS-compatible fitness machines ( bikes, rowers) using Bluetooth Low Energy (BLE).
 - **Heart rate monitoring**: connect to heart rate monitors (HRMs) via Bluetooth and display real-time heart rate data.
-- **Live Data Display**: View real-time metrics from your connected machine.
+- **Cdence sensors**: connect to cadence sensors via Bluetooth and display real-time heart cadence data.
 - **Structured Training Sessions**: load and execute interval-based training sessions with support for both simple and grouped intervals.
+- **Edit your own training sessions**: create and modify training sessions. Data stored locally in JSON format.
 - **Session Progress Tracking**: Visual progress bar and detailed feedback during workouts, including interval targets and completion status.
 - **FIT file generation**: When a training session is over, a FIT file is generated in the application private storage and automatically sent to Strava. 
 
@@ -37,8 +38,6 @@ For build, test, and usage instructions, see the rest of this README.
 ## Features I'm thinking about
 
 - Control the machine resistance (ERG mode). I tried to implement this but for some reason it doesn't work. I'm still digging into it.
-- Training session editor (for the moment, the training sessions are manually defined files in `lib/training-sessions/`)
-- User preferences: FTP, max heart rate, etc (hardcoded for the moment)
 
 ## Getting Started
 
