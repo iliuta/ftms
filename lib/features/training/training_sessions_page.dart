@@ -228,7 +228,10 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
                 machineType: _selectedMachineType,
               ),
             ),
-          );
+          ).then((_) {
+            // Reload sessions after adding a new one
+            _loadSessions();
+          });
         },
         tooltip: 'Add Training Session',
         child: const Icon(Icons.add),

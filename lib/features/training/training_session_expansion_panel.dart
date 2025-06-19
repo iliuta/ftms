@@ -59,7 +59,30 @@ class _TrainingSessionExpansionPanelListState
           final session = widget.sessions[idx];
           return ExpansionPanel(
             headerBuilder: (context, isExpanded) => ListTile(
-              title: Text(session.title),
+              title: Row(
+                children: [
+                  Expanded(child: Text(session.title)),
+                  if (session.isCustom) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.1),
+                        border: Border.all(color: Colors.blue, width: 1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'Custom',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
               subtitle: Text('Intervals: ${session.intervals.length}'),
               trailing: isExpanded
                   ? const Icon(Icons.expand_less)

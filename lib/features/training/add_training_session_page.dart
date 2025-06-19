@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/core/config/live_data_display_config.dart';
@@ -137,6 +138,16 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     });
   }
 
+  void _reorderIntervals(int oldIndex, int newIndex) {
+    setState(() {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
+      final TrainingInterval item = _intervals.removeAt(oldIndex);
+      _intervals.insert(newIndex, item);
+    });
+  }
+
   double _calculatePercentageFromValue(dynamic currentValue) {
     // Use the existing target power strategy for consistent calculations
     final strategy = TargetPowerStrategyFactory.getStrategy(widget.machineType);
@@ -248,11 +259,27 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                       style: TextStyle(color: Colors.grey),
                     ),
                   )
-                : ListView.builder(
+                : ReorderableListView.builder(
                     padding: const EdgeInsets.all(16.0),
                     itemCount: _intervals.length,
+                    onReorder: _reorderIntervals,
                     itemBuilder: (context, index) {
                       return _buildIntervalCard(index, _intervals[index]);
+                    },
+                    proxyDecorator: (child, index, animation) {
+                      return AnimatedBuilder(
+                        animation: animation,
+                        builder: (context, child) {
+                          final double animValue = Curves.easeInOut.transform(animation.value);
+                          final double elevation = lerpDouble(0, 6, animValue)!;
+                          return Material(
+                            elevation: elevation,
+                            shadowColor: Colors.black.withValues(alpha: 0.3),
+                            child: child,
+                          );
+                        },
+                        child: child,
+                      );
                     },
                   ),
           ),
@@ -281,10 +308,19 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
 
   Widget _buildIntervalCard(int index, TrainingInterval interval) {
     return Card(
+      key: Key('interval_$index'),
       child: ExpansionTile(
-        title: Text(interval is GroupTrainingInterval
-            ? 'Group ${index + 1} (${interval.repeat ?? 1}x)'
-            : (interval is UnitTrainingInterval ? (interval.title ?? 'Interval ${index + 1}') : 'Interval ${index + 1}')),
+        title: Row(
+          children: [
+            const Icon(Icons.drag_handle, color: Colors.grey),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(interval is GroupTrainingInterval
+                  ? 'Group ${index + 1} (${interval.repeat ?? 1}x)'
+                  : (interval is UnitTrainingInterval ? (interval.title ?? 'Interval ${index + 1}') : 'Interval ${index + 1}')),
+            ),
+          ],
+        ),
         subtitle: Text(_getIntervalSubtitle(interval)),
         trailing: IconButton(
           icon: const Icon(Icons.delete),
