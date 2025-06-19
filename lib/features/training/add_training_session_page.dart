@@ -184,11 +184,16 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
       appBar: AppBar(
         title: Text(_isEditMode ? 'Edit Training Session' : 'Add Training Session'),
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: _intervals.isNotEmpty ? _saveSession : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
             child: Text(
               _isEditMode ? 'Update' : 'Save',
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],

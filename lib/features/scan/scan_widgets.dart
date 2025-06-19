@@ -50,43 +50,53 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
   // Add connected devices first
   for (final connectedDevice in connectedDevices) {
     deviceWidgets.add(
-      ListTile(
-        title: Row(
-          children: [
-            connectedDevice.getDeviceIcon(context) ?? Container(),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(
-                connectedDevice.name,
-                style: const TextStyle(fontWeight: FontWeight.w500),
+      Card(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        elevation: 2,
+        child: ListTile(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  connectedDevice.getDeviceIcon(context) ?? Container(),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      connectedDevice.name,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  // Connected indicator
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'Connected',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              // Move buttons below the device name for better responsiveness
+              const SizedBox(height: 8),
+              getButtonForConnectedDevice(connectedDevice, context),
+            ],
+          ),
+          leading: const SizedBox(
+            width: 40,
+            child: Center(
+              child: Icon(Icons.bluetooth_connected, color: Colors.green),
             ),
-            // Connected indicator
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                'Connected',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        subtitle: Text(connectedDevice.id),
-        leading: const SizedBox(
-          width: 40,
-          child: Center(
-            child: Icon(Icons.bluetooth_connected, color: Colors.green),
           ),
         ),
-        trailing: getButtonForConnectedDevice(connectedDevice, context),
       ),
     );
   }
@@ -96,30 +106,34 @@ Widget scanResultsToWidget(List<ScanResult> data, BuildContext context) {
     final deviceService =
         supportedBTDeviceManager.getBTDevice(scanResult.device, data);
     deviceWidgets.add(
-      ListTile(
-        title: Row(
-          children: [
-            if (deviceService != null) ...[
-              deviceService.getDeviceIcon(context) ?? Container(),
-              const SizedBox(width: 4),
-            ],
-            Expanded(
-              child: Text(
-                scanResult.device.platformName.isEmpty
-                    ? "(unknown device)"
-                    : scanResult.device.platformName,
+      Card(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        elevation: 2,
+        child: ListTile(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (deviceService != null) ...[
+                    deviceService.getDeviceIcon(context) ?? Container(),
+                    const SizedBox(width: 4),
+                  ],
+                  Expanded(
+                    child: Text(
+                      scanResult.device.platformName.isEmpty
+                          ? "(unknown device)"
+                          : scanResult.device.platformName,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        subtitle: Text(scanResult.device.remoteId.str),
-        leading: SizedBox(
-          width: 40,
-          child: Center(
-            child: Text(scanResult.rssi.toString()),
+              // Move buttons below the device name for better responsiveness
+              const SizedBox(height: 8),
+              getButtonForBluetoothDevice(scanResult.device, context, data),
+            ],
           ),
         ),
-        trailing: getButtonForBluetoothDevice(scanResult.device, context, data),
       ),
     );
   }
@@ -197,41 +211,42 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
               },
             );
           case BluetoothConnectionState.connected:
-            return SizedBox(
-              width: 250,
-              child: Wrap(
-                spacing: 2,
-                alignment: WrapAlignment.end,
-                direction: Axis.horizontal,
-                children: [
-                  // Get actions from device services
-                  ...() {
-                    final matchingBTDevices = deviceTypeManager
-                        .getAllMatchingBTDevices(device, scanResults);
-                    final actions = <Widget>[];
-
-                    for (final btDevice in matchingBTDevices) {
-                      actions.addAll(
-                          btDevice.getConnectedActions(device, context));
-                    }
-                    return actions;
-                  }(),
-                  OutlinedButton(
-                    child: const Text("Disconnect"),
-                    onPressed: () async {
-                      // Disconnect using all matching services
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                return Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  alignment: WrapAlignment.start,
+                  children: [
+                    // Get actions from device services
+                    ...() {
                       final matchingBTDevices = deviceTypeManager
                           .getAllMatchingBTDevices(device, scanResults);
-                      for (final btDevice in matchingBTDevices) {
-                        await btDevice.disconnectFromDevice(device);
-                      }
+                      final actions = <Widget>[];
 
-                      // Disable wakelock when disconnecting
-                      WakelockPlus.disable();
-                    },
-                  )
-                ],
-              ),
+                      for (final btDevice in matchingBTDevices) {
+                        actions.addAll(
+                            btDevice.getConnectedActions(device, context));
+                      }
+                      return actions;
+                    }(),
+                    OutlinedButton(
+                      child: const Text("Disconnect"),
+                      onPressed: () async {
+                        // Disconnect using all matching services
+                        final matchingBTDevices = deviceTypeManager
+                            .getAllMatchingBTDevices(device, scanResults);
+                        for (final btDevice in matchingBTDevices) {
+                          await btDevice.disconnectFromDevice(device);
+                        }
+
+                        // Disable wakelock when disconnecting
+                        WakelockPlus.disable();
+                      },
+                    ),
+                  ],
+                );
+              },
             );
           default:
             return Text(deviceState.name);
@@ -242,30 +257,31 @@ Widget getButtonForBluetoothDevice(BluetoothDevice device, BuildContext context,
 /// Button for actions on already connected devices
 Widget getButtonForConnectedDevice(
     BTDevice connectedDevice, BuildContext context) {
-  return SizedBox(
-    width: 250,
-    child: Wrap(
-      spacing: 2,
-      alignment: WrapAlignment.end,
-      direction: Axis.horizontal,
-      children: [
-        // Get actions from the device service
-        if (connectedDevice.connectedDevice != null)
-          ...connectedDevice.getConnectedActions(connectedDevice.connectedDevice!, context),
-        OutlinedButton(
-          child: const Text("Disconnect"),
-          onPressed: () async {
-            // Disconnect using the device service
-            if (connectedDevice.connectedDevice != null) {
-              await connectedDevice.disconnectFromDevice(connectedDevice.connectedDevice!);
-            }
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      return Wrap(
+        spacing: 4,
+        runSpacing: 4,
+        alignment: WrapAlignment.start,
+        children: [
+          // Get actions from the device service
+          if (connectedDevice.connectedDevice != null)
+            ...connectedDevice.getConnectedActions(connectedDevice.connectedDevice!, context),
+          OutlinedButton(
+            child: const Text("Disconnect"),
+            onPressed: () async {
+              // Disconnect using the device service
+              if (connectedDevice.connectedDevice != null) {
+                await connectedDevice.disconnectFromDevice(connectedDevice.connectedDevice!);
+              }
 
-            // Disable wakelock when disconnecting
-            WakelockPlus.disable();
-          },
-        ),
-      ],
-    ),
+              // Disable wakelock when disconnecting
+              WakelockPlus.disable();
+            },
+          ),
+        ],
+      );
+    },
   );
 }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/config/live_data_display_config.dart';
@@ -22,6 +23,28 @@ class TrainingSessionProgressScreen extends StatefulWidget {
 }
 
 class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Force landscape orientation for this screen
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    // Allow all orientations when leaving this screen
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<LiveDataDisplayConfig?>(

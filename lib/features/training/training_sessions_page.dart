@@ -256,4 +256,9 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
       onSessionEdit: _onSessionEdit,
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

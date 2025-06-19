@@ -184,32 +184,71 @@ class _ScanPageState extends State<ScanPage> {
         mainAxisSize: MainAxisSize.max,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Scan for devices'),
-                  onPressed: _startScan,
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton.icon(
-                  icon: _isConnectingStrava 
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(_stravaStatus != null ? Icons.check_circle : Icons.link),
-                  label: Text(_stravaStatus != null ? 'Connected to Strava' : 'Connect to Strava'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _stravaStatus != null ? Colors.green : null,
-                    foregroundColor: _stravaStatus != null ? Colors.white : null,
-                  ),
-                  onPressed: _isConnectingStrava ? null : _handleStravaConnection,
-                ),
-              ],
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // If the screen is narrow, stack buttons vertically
+                if (constraints.maxWidth < 600) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Scan for devices'),
+                        onPressed: _startScan,
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        icon: _isConnectingStrava 
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : Icon(_stravaStatus != null ? Icons.check_circle : Icons.link),
+                        label: Text(_stravaStatus != null ? 'Connected to Strava' : 'Connect to Strava'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _stravaStatus != null ? Colors.green : null,
+                          foregroundColor: _stravaStatus != null ? Colors.white : null,
+                        ),
+                        onPressed: _isConnectingStrava ? null : _handleStravaConnection,
+                      ),
+                    ],
+                  );
+                } else {
+                  // For wider screens, keep horizontal layout
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Scan for devices'),
+                          onPressed: _startScan,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Flexible(
+                        child: ElevatedButton.icon(
+                          icon: _isConnectingStrava 
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Icon(_stravaStatus != null ? Icons.check_circle : Icons.link),
+                          label: Text(_stravaStatus != null ? 'Connected to Strava' : 'Connect to Strava'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _stravaStatus != null ? Colors.green : null,
+                            foregroundColor: _stravaStatus != null ? Colors.white : null,
+                          ),
+                          onPressed: _isConnectingStrava ? null : _handleStravaConnection,
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
           ),
           if (_stravaStatus != null)
