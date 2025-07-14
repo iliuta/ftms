@@ -1,0 +1,36 @@
+{
+    "title": "Test session",
+    "ftmsMachineType": "rower",
+    "intervals": [
+        {
+            "title": "Warm up",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Pace": "80%",
+                "Stroke Rate": 20.0
+            },
+            "resistanceLevel": 40,
+            "repeat": 1
+        },
+        {
+            "title": "Steady Rowing",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Pace": "95%",
+                "Stroke Rate": 24.0
+            },
+            "resistanceLevel": 60,
+            "repeat": 1
+        },
+        {
+            "title": "Cool down",
+            "duration": 30,
+            "targets": {
+                "Instantaneous Pace": "88%",
+                "Stroke Rate": 22.0
+            },
+            "resistanceLevel": 40,
+            "repeat": 1
+        }
+    ]
+}

@@ -39,8 +39,8 @@ class FtmsLiveDataDisplayWidget extends StatelessWidget {
   }
 
   int _calculateColumnCount(double maxWidth, int fieldCount) {
-    const double columnWidth = 180;
-    return (maxWidth / columnWidth).floor().clamp(1, fieldCount);
+    // Force 3 columns for better space utilization
+    return 3.clamp(1, fieldCount);
   }
 
   List<List<Widget>> _buildRows(int columns) {

@@ -1,0 +1,86 @@
+{
+  "title": "Steady 36 min",
+  "ftmsMachineType": "rower",
+  "intervals": [
+    {
+      "title": "Warm up",
+      "duration": 270,
+      "targets": {
+        "Stroke Rate": 22.0,
+        "Instantaneous Pace": "92%"
+      },
+      "resistanceLevel": 40,
+      "repeat": 1
+    },
+    {
+      "repeat": 4,
+      "intervals": [
+        {
+          "title": "Intense",
+          "duration": 90,
+          "targets": {
+            "Instantaneous Pace": "105%",
+            "Stroke Rate": 28.0
+          },
+          "resistanceLevel": 60,
+          "repeat": null
+        },
+        {
+          "title": "Recovery",
+          "duration": 60,
+          "targets": {
+            "Instantaneous Pace": "95%",
+            "Stroke Rate": 24.0
+          },
+          "resistanceLevel": 60,
+          "repeat": null
+        }
+      ]
+    },
+    {
+      "title": "Recovery",
+      "duration": 240,
+      "targets": {
+        "Stroke Rate": 22.0,
+        "Instantaneous Pace": "90%"
+      },
+      "resistanceLevel": 60,
+      "repeat": 1
+    },
+    {
+      "repeat": 3,
+      "intervals": [
+        {
+          "title": "Intense",
+          "duration": 180,
+          "targets": {
+            "Instantaneous Pace": "100%",
+            "Stroke Rate": 28.0
+          },
+          "resistanceLevel": 60,
+          "repeat": null
+        },
+        {
+          "title": "Recovery",
+          "duration": 90,
+          "targets": {
+            "Instantaneous Pace": "95%",
+            "Stroke Rate": 24.0
+          },
+          "resistanceLevel": 60,
+          "repeat": null
+        }
+      ]
+    },
+    {
+      "title": "Cool down",
+      "duration": 240,
+      "targets": {
+        "Stroke Rate": 22.0,
+        "Instantaneous Pace": "90%"
+      },
+      "resistanceLevel": 40,
+      "repeat": 1
+    }
+  ]
+}

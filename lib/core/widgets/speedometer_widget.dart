@@ -54,13 +54,14 @@ class SpeedometerWidget extends StatelessWidget {
         Text(displayField.label,
             style: const TextStyle(fontWeight: FontWeight.bold)),
         SizedBox(
-          width: 140,
-          height: 80,
+          width: 120,
+          height: 65,
           child: CustomPaint(
             painter: _GaugePainter(scaledValue.toDouble(), min!, max!, color),
           ),
         ),
-        Text(formattedValue, style: TextStyle(fontSize: 18, color: color)),
+        const SizedBox(height: 2), // Reduced spacing
+        Text(formattedValue, style: TextStyle(fontSize: 16, color: color)),
       ],
     );
   }
