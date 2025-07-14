@@ -113,6 +113,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
         title: 'Interval ${_intervals.length + 1}',
         duration: 300, // 5 minutes default
         targets: {},
+        resistanceLevel: null,
         repeat: 1,
       ));
     });
@@ -126,6 +127,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
             title: 'Interval 1',
             duration: 240, // 4 minutes
             targets: {},
+            resistanceLevel: null,
           ),
         ],
         repeat: 3,
@@ -379,6 +381,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                 title: value.isEmpty ? null : value,
                 duration: interval.duration,
                 targets: interval.targets,
+                resistanceLevel: interval.resistanceLevel,
                 repeat: interval.repeat,
               ));
             },
@@ -401,6 +404,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                       title: interval.title,
                       duration: value.round(),
                       targets: interval.targets,
+                      resistanceLevel: interval.resistanceLevel,
                       repeat: interval.repeat,
                     ));
                   },
@@ -418,6 +422,35 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
             field: field,
             onUpdate: onUpdate,
           )),
+          // Resistance Level
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const SizedBox(width: 100, child: Text('Resistance:')),
+              Expanded(
+                child: TextFormField(
+                  initialValue: interval.resistanceLevel?.toString() ?? '',
+                  decoration: const InputDecoration(
+                    hintText: 'Resistance level',
+                    suffixText: 'level',
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final intValue = int.tryParse(value);
+                    onUpdate(UnitTrainingInterval(
+                      title: interval.title,
+                      duration: interval.duration,
+                      targets: interval.targets,
+                      resistanceLevel: intValue,
+                      repeat: interval.repeat,
+                    ));
+                  },
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -485,6 +518,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                     title: interval.title,
                     duration: interval.duration,
                     targets: newTargets,
+                    resistanceLevel: interval.resistanceLevel,
                     repeat: interval.repeat,
                   ));
                 },
@@ -512,6 +546,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                     title: interval.title,
                     duration: interval.duration,
                     targets: newTargets,
+                    resistanceLevel: interval.resistanceLevel,
                     repeat: interval.repeat,
                   ));
                 },
@@ -644,6 +679,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
           title: 'Interval ${groupInterval.intervals.length + 1}',
           duration: 120, // 2 minutes default
           targets: {},
+          resistanceLevel: null,
         );
 
         final updatedIntervals = List<UnitTrainingInterval>.from(groupInterval.intervals)
@@ -716,6 +752,17 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
           originalSession.ftmsMachineType.name,
         );
       }
+
+      // Create the new training session
+      final session = TrainingSessionDefinition(
+        title: _titleController.text.trim(),
+        ftmsMachineType: widget.machineType,
+        intervals: List<TrainingInterval>.from(_intervals),
+        isCustom: true,
+      );
+
+      // Save the session
+      await storageService.saveSession(session);
 
       if (mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();

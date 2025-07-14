@@ -80,11 +80,10 @@ class IndoorBikeDistanceStrategy implements DistanceCalculationStrategy {
 }
 
 
-/// TODO: distance is sent by the rower so we need to simplify this
-/// Distance calculation for rowing machines using stroke rate and estimated distance per stroke
+/// Distance calculation for rowing machines using the Total Distance field from FTMS data
 class RowerDistanceStrategy implements DistanceCalculationStrategy {
   double _totalDistance = 0.0;
-  static const double _baseDistancePerStroke = 10.0; // meters per stroke (average)
+  double _previousTotalDistance = 0.0;
   
   @override
   double calculateDistanceIncrement({
@@ -92,63 +91,27 @@ class RowerDistanceStrategy implements DistanceCalculationStrategy {
     required Map<String, dynamic>? previousData,
     required double timeDeltaSeconds,
   }) {
-    // For rowers, we can estimate distance based on stroke rate and power
-    final strokeRate = _getStrokeRateValue(currentData);
-    final power = _getPowerValue(currentData);
+    // Get the total distance directly from FTMS data
+    final currentTotalDistance = _getTotalDistanceValue(currentData);
+    if (currentTotalDistance == null) return 0.0;
     
-    if (strokeRate == null || strokeRate <= 0) return 0.0;
+    // Calculate increment as difference from previous reading
+    final distanceIncrement = currentTotalDistance - _previousTotalDistance;
     
-    // Calculate strokes in this time period
-    final strokesPerSecond = strokeRate / 60.0;
-    final strokesInPeriod = strokesPerSecond * timeDeltaSeconds;
+    // Update stored values
+    _previousTotalDistance = currentTotalDistance;
+    _totalDistance = currentTotalDistance;
     
-    // Adjust distance per stroke based on power
-    double distancePerStroke = _baseDistancePerStroke;
-    if (power != null && power > 0) {
-      // Higher power = longer strokes
-      // This is a simplified model - real calculation would be more complex
-      final powerFactor = (power / 150.0).clamp(0.5, 2.0); // Normalize around 150W
-      distancePerStroke *= powerFactor;
-    }
-    
-    final distanceIncrement = strokesInPeriod * distancePerStroke;
-    _totalDistance += distanceIncrement;
-    return distanceIncrement;
+    // Return increment (should be >= 0)
+    return distanceIncrement.clamp(0.0, double.infinity);
   }
   
-  double? _getStrokeRateValue(Map<String, dynamic> data) {
+  double? _getTotalDistanceValue(Map<String, dynamic> data) {
     final possibleKeys = [
-      'Instantaneous Stroke Rate',
-      'Stroke Rate',
-      'strokeRate',
-    ];
-    
-    for (final key in possibleKeys) {
-      final param = data[key];
-      if (param != null) {
-        // Handle FtmsParameter objects - use scaled value
-        if (param is LiveDataFieldValue) {
-          return param.getScaledValue().toDouble();
-        }
-        // Handle raw numeric values
-        if (param is num) return param.toDouble();
-        // Handle dynamic objects with value property
-        try {
-          final value = param.value;
-          if (value is num) return value.toDouble();
-        } catch (e) {
-          // Ignore if not an FtmsParameter or dynamic object
-        }
-      }
-    }
-    return null;
-  }
-  
-  double? _getPowerValue(Map<String, dynamic> data) {
-    final possibleKeys = [
-      'Instantaneous Power',
-      'Power',
-      'power',
+      'Total Distance',
+      'Distance',
+      'distance',
+      'totalDistance',
     ];
     
     for (final key in possibleKeys) {
@@ -178,6 +141,7 @@ class RowerDistanceStrategy implements DistanceCalculationStrategy {
   @override
   void reset() {
     _totalDistance = 0.0;
+    _previousTotalDistance = 0.0;
   }
 }
 

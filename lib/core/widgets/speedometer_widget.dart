@@ -103,12 +103,29 @@ class _GaugePainter extends CustomPainter {
       ..color = color // Utilise la couleur passée au constructeur
       ..strokeWidth = 8
       ..style = PaintingStyle.stroke;
-    final sweep = ((value - min) / (max - min)).clamp(0, 1) * 3.14;
+    
+    // Handle inverted ranges (where max < min, like pace values)
+    final bool isInverted = max < min;
+    final double normalizedValue;
+    final double sweep;
+    final double angle;
+    
+    if (isInverted) {
+      // For inverted ranges, normalize the value and invert the position
+      normalizedValue = ((value - max) / (min - max)).clamp(0, 1);
+      sweep = (1 - normalizedValue) * 3.14;
+      angle = 3.14 + (1 - normalizedValue) * 3.14;
+    } else {
+      // Normal ranges
+      normalizedValue = ((value - min) / (max - min)).clamp(0, 1);
+      sweep = normalizedValue * 3.14;
+      angle = 3.14 + normalizedValue * 3.14;
+    }
+    
     canvas.drawArc(rect, 3.14, sweep, false, paintValue);
     
     // Draw hour hand (needle)
     final center = Offset(centerX, centerY);
-    final angle = 3.14 + ((value - min) / (max - min)).clamp(0, 1) * 3.14;
     final needleLength = radius * 0.7; // 70% of the radius
     final needleEnd = Offset(
       center.dx + needleLength * math.cos(angle),

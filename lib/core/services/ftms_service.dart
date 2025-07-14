@@ -27,7 +27,7 @@ class FTMSService {
         controlPoint = MachineControlPoint.setTargetInclination(inclination: 23);
         break;
       case MachineControlPointOpcodeType.setTargetResistanceLevel:
-        controlPoint = MachineControlPoint.setTargetResistanceLevel(resistanceLevel: resistanceLevel ?? 3);
+        controlPoint = MachineControlPoint.setTargetResistanceLevel(resistanceLevel: resistanceLevel ?? 150);
         break;
       case MachineControlPointOpcodeType.setTargetPower:
         controlPoint = MachineControlPoint.setTargetPower(power: 34);

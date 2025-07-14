@@ -3,31 +3,31 @@
     "ftmsMachineType": "DeviceDataType.rower",
     "intervals": [
         {
-            "title": "Steady Rowing",
-            "duration": 10,
+            "title": "Warm up",
+            "duration": 30,
             "targets": {
                 "Stroke Rate": 20,
-                "Instantaneous Pace": "100%"
+                "Instantaneous Pace": "80%"
             },
-            "resistanceLevel": 5
+            "resistanceLevel": 30
         },
         {
             "title": "Steady Rowing",
-            "duration": 10,
+            "duration": 30,
             "targets": {
                 "Stroke Rate": 24,
-                "Instantaneous Pace": "95%"
+                "Instantaneous Pace": "100%"
             },
-            "resistanceLevel": 7
+            "resistanceLevel": 60
         },
         {
             "title": "Cool Down",
-            "duration": 10,
+            "duration": 30,
             "targets": {
-                "Stroke Rate": 24,
-                "Instantaneous Pace": "105%"
+                "Stroke Rate": 22,
+                "Instantaneous Pace": "85%"
             },
-            "resistanceLevel": 3
+            "resistanceLevel": 40
         }
 
 

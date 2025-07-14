@@ -6,9 +6,9 @@
       "label": "Speed",
       "display": "speedometer",
       "formatter": "rowerPaceFormatter",
-      "unit": "km/h",
-      "min": 0,
-      "max": 30,
+      "unit": "seconds/500m",
+      "min": 400,
+      "max": 0,
       "availableAsTarget": true,
       "userSetting": "rowingFtp"
     },
@@ -24,7 +24,7 @@
     {
       "name": "Instantaneous Power",
       "label": "Power",
-      "display": "speedometer",
+      "display": "number",
       "unit": "W",
       "min": 0,
       "max": 1500
@@ -36,6 +36,12 @@
       "formatter": "intFormatter",
       "unit": "bpm",
       "icon": "heart"
+    },
+    {
+      "name": "Total Distance",
+      "label": "Distance",
+      "display": "number",
+      "unit": "m"
     }
   ]
 }
