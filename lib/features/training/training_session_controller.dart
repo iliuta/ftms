@@ -128,8 +128,7 @@ class TrainingSessionController extends ChangeNotifier {
     }
   }
 
-
-  /* Future<void> setResistanceWithControl(int resistance) async {
+  Future<void> setResistanceWithControl(int resistance) async {
     try {
       if (!hasControl) {
         debugPrint('Not in control, skipping resistance set');
@@ -139,7 +138,7 @@ class TrainingSessionController extends ChangeNotifier {
     } catch (e) {
       debugPrint('Failed to set resistance: $e');
     }
-  } */
+  }
 
   void _onFtmsData(DeviceData? data) {
     if (data == null) return;
@@ -216,10 +215,10 @@ class TrainingSessionController extends ChangeNotifier {
       intervalElapsed = elapsed - _intervalStartTimes[currentInterval];
       // If interval changed and resistanceLevel is set, send command
       if (currentInterval != previousInterval) {
-        /* final resistance = _intervals[currentInterval].resistanceLevel;
+        final resistance = _intervals[currentInterval].resistanceLevel;
         if (resistance != null) {
           setResistanceWithControl(resistance);
-        }*/
+        }
       }
       notifyListeners();
     }
@@ -365,6 +364,15 @@ class TrainingSessionController extends ChangeNotifier {
     _disposed = true;
     _ftmsSub.cancel();
     _timer?.cancel();
+    
+    // Send stop command to FTMS device if session wasn't completed normally
+    if (!sessionCompleted) {
+      try {
+        _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+      } catch (e) {
+        debugPrint('Failed to send stop command during dispose: $e');
+      }
+    }
     
     // Clean up data recorder if session wasn't completed normally
     if (_dataRecorder != null && !sessionCompleted) {

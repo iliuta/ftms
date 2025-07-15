@@ -12,11 +12,12 @@
     {
       "name": "Instantaneous Power",
       "label": "Power",
-      "display": "speedometer",
+      "display": "number",
       "formatter": "intFormatter",
       "unit": "W",
       "min": 0,
       "max": 1000,
+      "icon": "power",
       "samplePeriodSeconds": 5,
       "availableAsTarget": true,
       "userSetting": "cyclingFtp"

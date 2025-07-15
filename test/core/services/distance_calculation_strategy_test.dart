@@ -277,143 +277,133 @@ void main() {
     });
 
     group('calculateDistanceIncrement', () {
-      test('calculates distance correctly with stroke rate only', () {
+      test('calculates distance correctly with Total Distance from FtmsParameter', () {
+        final param = LiveDataFieldValue(
+          name: 'Total Distance',
+          value: 2000, // Raw value
+          factor: 0.1, // Scale factor to get 200.0 meters
+          unit: 'm',
+        );
+
         final currentData = {
-          'Instantaneous Stroke Rate': 30.0, // 30 strokes per minute
+          'Total Distance': param,
         };
 
-        // 30 SPM = 0.5 strokes per second
-        // In 2 seconds = 1 stroke
-        // 1 stroke * 10m (base distance) = 10 meters
+        // First call: total distance = 200m, increment = 200m
         final distance = strategy.calculateDistanceIncrement(
           currentData: currentData,
           previousData: null,
           timeDeltaSeconds: 2.0,
         );
 
-        expect(distance, closeTo(10.0, 0.01));
-        expect(strategy.totalDistance, closeTo(10.0, 0.01));
+        expect(distance, closeTo(200.0, 0.01));
+        expect(strategy.totalDistance, closeTo(200.0, 0.01));
       });
 
-      test('calculates distance correctly with stroke rate and power', () {
+      test('calculates distance correctly with Total Distance from numeric value', () {
         final currentData = {
-          'Stroke Rate': 24.0, // 24 strokes per minute
-          'Power': 150.0, // 150W (reference power)
+          'Total Distance': 150.0, // 150 meters
         };
 
-        // 24 SPM = 0.4 strokes per second
-        // In 3 seconds = 1.2 strokes
-        // Power factor = 150/150 = 1.0 (no adjustment)
-        // 1.2 strokes * 10m = 12 meters
+        // First call: total distance = 150m, increment = 150m
         final distance = strategy.calculateDistanceIncrement(
           currentData: currentData,
           previousData: null,
           timeDeltaSeconds: 3.0,
         );
 
-        expect(distance, closeTo(12.0, 0.01));
-        expect(strategy.totalDistance, closeTo(12.0, 0.01));
+        expect(distance, closeTo(150.0, 0.01));
+        expect(strategy.totalDistance, closeTo(150.0, 0.01));
       });
 
-      test('adjusts distance based on power - high power', () {
-        final currentData = {
-          'strokeRate': 30.0, // 30 strokes per minute
-          'power': 300.0, // 300W (high power)
+      test('calculates incremental distance correctly on subsequent calls', () {
+        // First call with 100m total distance
+        final currentData1 = {
+          'Total Distance': 100.0,
         };
 
-        // 30 SPM = 0.5 strokes per second
-        // In 2 seconds = 1 stroke
-        // Power factor = 300/150 = 2.0 (max clamp)
-        // 1 stroke * 10m * 2.0 = 20 meters
-        final distance = strategy.calculateDistanceIncrement(
-          currentData: currentData,
+        final distance1 = strategy.calculateDistanceIncrement(
+          currentData: currentData1,
           previousData: null,
+          timeDeltaSeconds: 1.0,
+        );
+
+        expect(distance1, closeTo(100.0, 0.01));
+        expect(strategy.totalDistance, closeTo(100.0, 0.01));
+
+        // Second call with 180m total distance (80m increment)
+        final currentData2 = {
+          'Total Distance': 180.0,
+        };
+
+        final distance2 = strategy.calculateDistanceIncrement(
+          currentData: currentData2,
+          previousData: currentData1,
           timeDeltaSeconds: 2.0,
         );
 
-        expect(distance, closeTo(20.0, 0.01));
-        expect(strategy.totalDistance, closeTo(20.0, 0.01));
+        expect(distance2, closeTo(80.0, 0.01));
+        expect(strategy.totalDistance, closeTo(180.0, 0.01));
       });
 
-      test('adjusts distance based on power - low power', () {
+      test('handles Total Distance from dynamic object', () {
         final currentData = {
-          'Instantaneous Stroke Rate': 30.0, // 30 strokes per minute
-          'Instantaneous Power': 75.0, // 75W (low power)
+          'distance': MockDynamicObject(value: 250.0), // 250 meters
         };
 
-        // 30 SPM = 0.5 strokes per second
-        // In 2 seconds = 1 stroke
-        // Power factor = 75/150 = 0.5 (min clamp)
-        // 1 stroke * 10m * 0.5 = 5 meters
         final distance = strategy.calculateDistanceIncrement(
           currentData: currentData,
           previousData: null,
-          timeDeltaSeconds: 2.0,
+          timeDeltaSeconds: 1.5,
         );
 
-        expect(distance, closeTo(5.0, 0.01));
-        expect(strategy.totalDistance, closeTo(5.0, 0.01));
+        expect(distance, closeTo(250.0, 0.01));
+        expect(strategy.totalDistance, closeTo(250.0, 0.01));
       });
 
-      test('handles FtmsParameter objects for stroke rate and power', () {
-        final strokeRateParam = LiveDataFieldValue(
-          name: 'Instantaneous Stroke Rate',
-          value: 240, // Raw value
-          factor: 0.1, // Scale factor to get 24.0 SPM
-          unit: 'spm',
-        );
-
-        final powerParam = LiveDataFieldValue(
-          name: 'Instantaneous Power',
-          value: 1800, // Raw value
-          factor: 0.1, // Scale factor to get 180.0W
-          unit: 'W',
+      test('handles FtmsParameter objects for Total Distance', () {
+        final param = LiveDataFieldValue(
+          name: 'Total Distance',
+          value: 3500, // Raw value
+          factor: 0.1, // Scale factor to get 350.0 meters
+          unit: 'm',
         );
 
         final currentData = {
-          'Instantaneous Stroke Rate': strokeRateParam,
-          'Instantaneous Power': powerParam,
+          'Total Distance': param,
         };
 
-        // 24 SPM = 0.4 strokes per second
-        // In 2.5 seconds = 1 stroke
-        // Power factor = 180/150 = 1.2
-        // 1 stroke * 10m * 1.2 = 12 meters
         final distance = strategy.calculateDistanceIncrement(
           currentData: currentData,
           previousData: null,
           timeDeltaSeconds: 2.5,
         );
 
-        expect(distance, closeTo(12.0, 0.01));
-        expect(strategy.totalDistance, closeTo(12.0, 0.01));
+        expect(distance, closeTo(350.0, 0.01));
+        expect(strategy.totalDistance, closeTo(350.0, 0.01));
       });
 
-      test('handles dynamic objects for stroke rate and power', () {
+      test('handles dynamic objects for Total Distance', () {
         final currentData = {
-          'strokeRate': MockDynamicObject(value: 36.0), // 36 SPM
-          'power': MockDynamicObject(value: 225.0), // 225W
+          'totalDistance': MockDynamicObject(value: 420.0), // 420 meters
         };
 
-        // 36 SPM = 0.6 strokes per second
-        // In 1 second = 0.6 strokes
-        // Power factor = 225/150 = 1.5
-        // 0.6 strokes * 10m * 1.5 = 9 meters
         final distance = strategy.calculateDistanceIncrement(
           currentData: currentData,
           previousData: null,
           timeDeltaSeconds: 1.0,
         );
 
-        expect(distance, closeTo(9.0, 0.01));
-        expect(strategy.totalDistance, closeTo(9.0, 0.01));
+        expect(distance, closeTo(420.0, 0.01));
+        expect(strategy.totalDistance, closeTo(420.0, 0.01));
       });
 
-      test('tries multiple stroke rate parameter keys', () {
+      test('tries multiple Total Distance parameter keys', () {
         final testCases = [
-          {'Instantaneous Stroke Rate': 30.0},
-          {'Stroke Rate': 30.0},
-          {'strokeRate': 30.0},
+          {'Total Distance': 100.0},
+          {'Distance': 100.0},
+          {'distance': 100.0},
+          {'totalDistance': 100.0},
         ];
 
         for (final testData in testCases) {
@@ -424,34 +414,11 @@ void main() {
             timeDeltaSeconds: 2.0,
           );
 
-          // 30 SPM = 0.5 strokes per second
-          // In 2 seconds = 1 stroke * 10m = 10 meters
-          expect(distance, closeTo(10.0, 0.01));
+          expect(distance, closeTo(100.0, 0.01));
         }
       });
 
-      test('tries multiple power parameter keys', () {
-        final baseData = {'Stroke Rate': 30.0}; // 30 SPM
-        final powerKeys = ['Instantaneous Power', 'Power', 'power'];
-
-        for (final powerKey in powerKeys) {
-          final testStrategy = RowerDistanceStrategy();
-          final testData = Map<String, dynamic>.from(baseData);
-          testData[powerKey] = 300.0; // High power for 2.0 factor
-
-          final distance = testStrategy.calculateDistanceIncrement(
-            currentData: testData,
-            previousData: null,
-            timeDeltaSeconds: 2.0,
-          );
-
-          // 30 SPM = 0.5 strokes per second
-          // In 2 seconds = 1 stroke * 10m * 2.0 = 20 meters
-          expect(distance, closeTo(20.0, 0.01));
-        }
-      });
-
-      test('returns 0 when stroke rate is null', () {
+      test('returns 0 when Total Distance is null', () {
         final currentData = <String, dynamic>{};
 
         final distance = strategy.calculateDistanceIncrement(
@@ -464,9 +431,9 @@ void main() {
         expect(strategy.totalDistance, 0.0);
       });
 
-      test('returns 0 when stroke rate is zero', () {
+      test('returns 0 when Total Distance is zero', () {
         final currentData = {
-          'Stroke Rate': 0.0,
+          'Total Distance': 0.0,
         };
 
         final distance = strategy.calculateDistanceIncrement(
@@ -479,69 +446,65 @@ void main() {
         expect(strategy.totalDistance, 0.0);
       });
 
-      test('returns 0 when stroke rate is negative', () {
-        final currentData = {
-          'Stroke Rate': -10.0,
+      test('clamps negative distance increments to 0', () {
+        // Set up initial distance
+        final currentData1 = {
+          'Total Distance': 100.0,
+        };
+
+        strategy.calculateDistanceIncrement(
+          currentData: currentData1,
+          previousData: null,
+          timeDeltaSeconds: 1.0,
+        );
+
+        // Now simulate a decrease in total distance (should not happen in real scenarios)
+        final currentData2 = {
+          'Total Distance': 80.0, // Decreased by 20m
         };
 
         final distance = strategy.calculateDistanceIncrement(
-          currentData: currentData,
-          previousData: null,
+          currentData: currentData2,
+          previousData: currentData1,
           timeDeltaSeconds: 2.0,
         );
 
+        // Should clamp negative increment to 0
         expect(distance, 0.0);
-        expect(strategy.totalDistance, 0.0);
-      });
-
-      test('ignores power when it is zero or negative', () {
-        final currentData = {
-          'Stroke Rate': 24.0, // 24 SPM
-          'Power': 0.0, // Zero power
-        };
-
-        // Should use base distance per stroke (no power adjustment)
-        // 24 SPM = 0.4 strokes per second
-        // In 2.5 seconds = 1 stroke * 10m = 10 meters
-        final distance = strategy.calculateDistanceIncrement(
-          currentData: currentData,
-          previousData: null,
-          timeDeltaSeconds: 2.5,
-        );
-
-        expect(distance, closeTo(10.0, 0.01));
-        expect(strategy.totalDistance, closeTo(10.0, 0.01));
+        expect(strategy.totalDistance, 80.0); // But total distance is updated
       });
 
       test('accumulates total distance over multiple calls', () {
-        final currentData = {
-          'Stroke Rate': 30.0, // 30 SPM
-          'Power': 150.0, // 150W (no power adjustment)
+        // First call: 50m total
+        final currentData1 = {
+          'Total Distance': 50.0,
         };
 
-        // First call: 2 seconds = 1 stroke * 10m = 10 meters
         final distance1 = strategy.calculateDistanceIncrement(
-          currentData: currentData,
+          currentData: currentData1,
           previousData: null,
+          timeDeltaSeconds: 1.0,
+        );
+        expect(distance1, closeTo(50.0, 0.01));
+        expect(strategy.totalDistance, closeTo(50.0, 0.01));
+
+        // Second call: 120m total (70m increment)
+        final currentData2 = {
+          'Total Distance': 120.0,
+        };
+
+        final distance2 = strategy.calculateDistanceIncrement(
+          currentData: currentData2,
+          previousData: currentData1,
           timeDeltaSeconds: 2.0,
         );
-        expect(distance1, closeTo(10.0, 0.01));
-        expect(strategy.totalDistance, closeTo(10.0, 0.01));
-
-        // Second call: 4 seconds = 2 strokes * 10m = 20 meters
-        final distance2 = strategy.calculateDistanceIncrement(
-          currentData: currentData,
-          previousData: null,
-          timeDeltaSeconds: 4.0,
-        );
-        expect(distance2, closeTo(20.0, 0.01));
-        expect(strategy.totalDistance, closeTo(30.0, 0.01));
+        expect(distance2, closeTo(70.0, 0.01));
+        expect(strategy.totalDistance, closeTo(120.0, 0.01));
       });
 
       test('handles invalid dynamic objects gracefully', () {
         final currentData = {
-          'strokeRate': MockInvalidDynamicObject(),
-          'power': MockInvalidDynamicObject(),
+          'Total Distance': MockInvalidDynamicObject(),
         };
 
         final distance = strategy.calculateDistanceIncrement(
@@ -556,8 +519,7 @@ void main() {
 
       test('handles non-numeric values gracefully', () {
         final currentData = {
-          'Stroke Rate': 'not a number',
-          'Power': 'also not a number',
+          'Total Distance': 'not a number',
         };
 
         final distance = strategy.calculateDistanceIncrement(
@@ -571,24 +533,46 @@ void main() {
       });
 
       test('calculates realistic rowing scenario', () {
-        // Simulate a typical rowing scenario
-        final currentData = {
-          'Instantaneous Stroke Rate': 28.0, // 28 SPM (typical training rate)
-          'Instantaneous Power': 200.0, // 200W (moderate effort)
+        // Simulate a typical rowing scenario with progressive total distance
+        
+        // Start of workout
+        final currentData1 = {
+          'Total Distance': 0.0,
         };
 
-        // 28 SPM = 0.467 strokes per second
-        // In 60 seconds = 28 strokes
-        // Power factor = 200/150 = 1.33 (clamped to 1.33)
-        // 28 strokes * 10m * 1.33 = 373.3 meters
-        final distance = strategy.calculateDistanceIncrement(
-          currentData: currentData,
+        final distance1 = strategy.calculateDistanceIncrement(
+          currentData: currentData1,
           previousData: null,
+          timeDeltaSeconds: 1.0,
+        );
+        expect(distance1, 0.0);
+        expect(strategy.totalDistance, 0.0);
+
+        // After 1 minute of rowing
+        final currentData2 = {
+          'Total Distance': 250.0, // 250m after 1 minute
+        };
+
+        final distance2 = strategy.calculateDistanceIncrement(
+          currentData: currentData2,
+          previousData: currentData1,
           timeDeltaSeconds: 60.0,
         );
+        expect(distance2, closeTo(250.0, 0.01));
+        expect(strategy.totalDistance, closeTo(250.0, 0.01));
 
-        expect(distance, closeTo(373.3, 1.0));
-        expect(strategy.totalDistance, closeTo(373.3, 1.0));
+        // After 2 minutes of rowing
+        final currentData3 = {
+          'Total Distance': 520.0, // 520m total (270m increment)
+        };
+
+        final distance3 = strategy.calculateDistanceIncrement(
+          currentData: currentData3,
+          previousData: currentData2,
+          timeDeltaSeconds: 60.0,
+        );
+        expect(distance3, closeTo(270.0, 0.01));
+        expect(strategy.totalDistance, closeTo(520.0, 0.01));
       });
     });
 
@@ -599,32 +583,32 @@ void main() {
 
       test('returns accumulated total distance', () {
         final currentData = {
-          'Stroke Rate': 24.0, // 24 SPM
+          'Total Distance': 150.0,
         };
 
         strategy.calculateDistanceIncrement(
           currentData: currentData,
           previousData: null,
-          timeDeltaSeconds: 5.0, // 2 strokes * 10m = 20m
+          timeDeltaSeconds: 5.0,
         );
 
-        expect(strategy.totalDistance, closeTo(20.0, 0.01));
+        expect(strategy.totalDistance, closeTo(150.0, 0.01));
       });
     });
 
     group('reset', () {
       test('resets total distance to 0', () {
         final currentData = {
-          'Stroke Rate': 30.0, // 30 SPM
+          'Total Distance': 200.0,
         };
 
         // Build up some distance
         strategy.calculateDistanceIncrement(
           currentData: currentData,
           previousData: null,
-          timeDeltaSeconds: 6.0, // 3 strokes * 10m = 30m
+          timeDeltaSeconds: 6.0,
         );
-        expect(strategy.totalDistance, closeTo(30.0, 0.01));
+        expect(strategy.totalDistance, closeTo(200.0, 0.01));
 
         // Reset and verify
         strategy.reset();
@@ -633,8 +617,7 @@ void main() {
 
       test('allows distance calculation after reset', () {
         final currentData = {
-          'Stroke Rate': 36.0, // 36 SPM
-          'Power': 180.0, // 180W
+          'Total Distance': 180.0,
         };
 
         // Build up some distance
@@ -643,21 +626,23 @@ void main() {
           previousData: null,
           timeDeltaSeconds: 2.0,
         );
-        expect(strategy.totalDistance,
-            closeTo(14.4, 0.01)); // 1.2 strokes * 10m * 1.2
+        expect(strategy.totalDistance, closeTo(180.0, 0.01));
 
         // Reset
         strategy.reset();
         expect(strategy.totalDistance, 0.0);
 
         // Calculate new distance
+        final newCurrentData = {
+          'Total Distance': 75.0,
+        };
         final newDistance = strategy.calculateDistanceIncrement(
-          currentData: currentData,
+          currentData: newCurrentData,
           previousData: null,
           timeDeltaSeconds: 1.0,
         );
-        expect(newDistance, closeTo(7.2, 0.01)); // 0.6 strokes * 10m * 1.2
-        expect(strategy.totalDistance, closeTo(7.2, 0.01));
+        expect(newDistance, closeTo(75.0, 0.01));
+        expect(strategy.totalDistance, closeTo(75.0, 0.01));
       });
     });
 
