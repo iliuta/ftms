@@ -6,6 +6,9 @@ final Map<String, IconData> liveDataIconRegistry = {
   'cadence': Icons.cyclone, // Placeholder for pedal/cadence
   'bike': Icons.pedal_bike,
   'rowing': Icons.rowing,
+  'power': Icons.flash_on,
+  'distance': Icons.straighten,
+  'calories': Icons.local_fire_department
 };
 
 /// Utility to select the correct icon for FTMS display fields.

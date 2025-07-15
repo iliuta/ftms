@@ -26,6 +26,7 @@
       "label": "Power",
       "display": "number",
       "unit": "W",
+      "icon": "power",
       "min": 0,
       "max": 1500
     },
@@ -41,7 +42,16 @@
       "name": "Total Distance",
       "label": "Distance",
       "display": "number",
-      "unit": "m"
+      "unit": "m",
+      "icon": "distance"
+    },
+    {
+      "name": "Expended Energy",
+      "label": "Calories",
+      "display": "number",
+      "formatter": "intFormatter",
+      "unit": "kcal",
+      "icon": "calories"
     }
   ]
 }
