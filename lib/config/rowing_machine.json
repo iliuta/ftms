@@ -46,7 +46,7 @@
       "icon": "distance"
     },
     {
-      "name": "Expended Energy",
+      "name": "Total Energy",
       "label": "Calories",
       "display": "number",
       "formatter": "intFormatter",

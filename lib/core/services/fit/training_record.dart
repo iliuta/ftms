@@ -13,6 +13,7 @@ class TrainingRecord {
   final double? resistanceLevel;
   final double? strokeRate; // for rower, strokes/min
   final double? totalStrokeCount; // for rower
+  final double? calories; // burned calories (from Total Energy)
   
   const TrainingRecord({
     required this.timestamp,
@@ -26,6 +27,7 @@ class TrainingRecord {
     this.resistanceLevel,
     this.strokeRate,
     this.totalStrokeCount,
+    this.calories,
   });
   
   /// Create from FTMS parameter map (with proper types) and calculated distance
@@ -47,6 +49,7 @@ class TrainingRecord {
       resistanceLevel: resistanceLevel,
       strokeRate: _getParameterValue(ftmsParams, 'Stroke Rate'),
       totalStrokeCount: _getParameterValue(ftmsParams, 'Total Stroke Count'),
+      calories: _getParameterValue(ftmsParams, 'Total Energy'),
     );
   }
   
@@ -59,6 +62,6 @@ class TrainingRecord {
   @override
   String toString() {
     return 'TrainingRecord(time: ${elapsedTime}s, power: ${instantaneousPower}W, '
-        'speed: ${instantaneousSpeed}km/h, distance: ${totalDistance}m)';
+        'speed: ${instantaneousSpeed}km/h, distance: ${totalDistance}m, calories: ${calories}kcal)';
   }
 }

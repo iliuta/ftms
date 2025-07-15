@@ -79,6 +79,12 @@ void main() {
               factor: 1,
               unit: 'bpm',
             ),
+            'Expended Energy': LiveDataFieldValue(
+              name: 'Expended Energy',
+              value: 50 + i * 10,
+              factor: 1,
+              unit: 'kcal',
+            ),
           },
         );
       }
@@ -151,6 +157,10 @@ void main() {
         // Heart rate follows power with some lag
         final heartRate = 120 + (power - 100) * 0.4; // bpm
 
+        // Calories accumulate based on power and time
+        final caloriesPerSecond = power * 0.001; // Rough approximation: 1 calorie per 1000W*s
+        final totalCalories = elapsedSeconds * caloriesPerSecond;
+
         // Create FTMS parameters
         final ftmsParams = <String, LiveDataFieldValue>{
           'Instantaneous Power': LiveDataFieldValue(
@@ -175,6 +185,12 @@ void main() {
             name: 'Heart Rate',
             value: heartRate.round(),
             unit: 'bpm',
+            factor: 1,
+          ),
+          'Expended Energy': LiveDataFieldValue(
+            name: 'Expended Energy',
+            value: totalCalories.round(),
+            unit: 'kcal',
             factor: 1,
           ),
         };
@@ -301,6 +317,10 @@ void main() {
         final speed = 3.5 + (power - 80) * 0.015; // m/s converted to km/h
         final heartRate = 110 + (power - 80) * 0.6; // bpm
 
+        // Calories accumulate based on power and time (rowing tends to burn more calories)
+        final caloriesPerSecond = power * 0.0012; // Slightly higher than cycling
+        final totalCalories = elapsedSeconds * caloriesPerSecond;
+
           // Create FTMS parameters for rowing
           final ftmsParams = <String, LiveDataFieldValue>{
             'Instantaneous Power': LiveDataFieldValue(
@@ -331,6 +351,12 @@ void main() {
               name: 'Heart Rate',
               value: heartRate.round(),
               unit: 'bpm',
+              factor: 1,
+            ),
+            'Expended Energy': LiveDataFieldValue(
+              name: 'Expended Energy',
+              value: totalCalories.round(),
+              unit: 'kcal',
               factor: 1,
             ),
           };
@@ -420,6 +446,11 @@ void main() {
             value: 150 + i * 10,
             unit: 'W',
           ),
+          'Expended Energy': LiveDataFieldValue(
+            name: 'Expended Energy',
+            value: 25 + i * 5,
+            unit: 'kcal',
+          ),
         };
 
         recorder.recordDataPoint(ftmsParams: ftmsParams);
@@ -466,6 +497,103 @@ void main() {
       logger.i('   📊 Records: ${validationResult.recordValidation.recordCount}');
       
       logger.i('✅ Minimal FIT file generated: $fitFilePath');
+    });
+
+    test('Calories field integration in FIT file', () async {
+      // Test specifically for calories field recording and FIT file integration
+      recorder = TrainingDataRecorder(
+        deviceType: DeviceType.indoorBike,
+        sessionName: 'Calories_Test',
+      );
+
+      recorder.startRecording();
+
+      // Add test data with incremental calories values
+      final startTime = DateTime.now();
+      final caloriesValues = [50, 75, 100, 125, 150, 175, 200]; // Progressive calories
+
+      for (int i = 0; i < caloriesValues.length; i++) {
+        final timestamp = startTime.add(Duration(seconds: i * 30)); // 30 seconds apart
+        final ftmsParams = <String, LiveDataFieldValue>{
+          'Instantaneous Power': LiveDataFieldValue(
+            name: 'Instantaneous Power',
+            value: 150 + i * 10,
+            unit: 'W',
+          ),
+          'Instantaneous Speed': LiveDataFieldValue(
+            name: 'Instantaneous Speed',
+            value: 25.0 + i * 2,
+            unit: 'km/h',
+          ),
+          'Heart Rate': LiveDataFieldValue(
+            name: 'Heart Rate',
+            value: 130 + i * 5,
+            unit: 'bpm',
+          ),
+          'Expended Energy': LiveDataFieldValue(
+            name: 'Expended Energy',
+            value: caloriesValues[i],
+            unit: 'kcal',
+          ),
+        };
+
+        recorder.recordDataPoint(
+          ftmsParams: ftmsParams,
+          timestamp: timestamp,
+        );
+      }
+
+      recorder.stopRecording();
+
+      // Verify statistics include calories
+      final stats = recorder.getStatistics();
+      expect(stats['recordCount'], equals(caloriesValues.length));
+
+      // Generate FIT file
+      final fitFilePath = await recorder.generateFitFileToDirectory(testOutputDir);
+      expect(fitFilePath, isNotNull);
+      
+      final fitFile = File(fitFilePath!);
+      expect(await fitFile.exists(), isTrue);
+
+      // Validate FIT file and specifically check for calories data
+      logger.i('🔍 Validating calories in FIT file...');
+      
+      final validationResult = await FitFileValidator.validateFitFile(
+        fitFile,
+        sessionName: 'Calories_Test',
+        deviceType: DeviceDataType.indoorBike,
+        expectedRecordCount: null,
+        expectedDataRanges: null,
+      );
+
+      // Basic validation
+      expect(validationResult.headerValidation.isValid, isTrue);
+      expect(validationResult.recordValidation.hasRecords, isTrue);
+      expect(validationResult.recordValidation.recordCount, greaterThan(0));
+
+      // Check that FIT file was created with calories data
+      final fitBytes = await fitFile.readAsBytes();
+      final parsedFit = FitFile.fromBytes(Uint8List.fromList(fitBytes));
+      
+      // Look for record messages with calories data
+      int recordsWithCalories = 0;
+      for (final record in parsedFit.records) {
+        final message = record.message;
+        if (message is RecordMessage && message.calories != null) {
+          recordsWithCalories++;
+          expect(message.calories, greaterThan(0));
+          expect(message.calories, lessThanOrEqualTo(200)); // Within our test range
+        }
+      }
+
+      // Should have at least some records with calories
+      expect(recordsWithCalories, greaterThan(0));
+
+      logger.i('✅ Calories FIT file validation passed!');
+      logger.i('   📊 Records with calories: $recordsWithCalories');
+      logger.i('   📊 Total records: ${stats['recordCount']}');
+      logger.i('   📊 Calories range: ${caloriesValues.first} - ${caloriesValues.last} kcal');
     });
   });
 }

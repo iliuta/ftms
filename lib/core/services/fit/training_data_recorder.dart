@@ -135,6 +135,14 @@ class TrainingDataRecorder {
       );
     }
 
+    if (record.calories != null) {
+      convertedMap['Total Energy'] = LiveDataFieldValue(
+        name: 'Total Energy',
+        value: record.calories!,
+        unit: 'kcal',
+      );
+    }
+
     return convertedMap;
   }
 
@@ -265,7 +273,8 @@ class TrainingDataRecorder {
         ..heartRate = record.heartRate?.round()
         ..distance = (record.totalDistance != null)
             ? (record.totalDistance!).toDouble()
-            : null;
+            : null
+        ..calories = record.calories?.round(); // Add calories from Total Energy
 
       builder.add(recordMessage);
     }
