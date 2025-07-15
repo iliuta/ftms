@@ -226,7 +226,8 @@ class TrainingDataRecorder {
       ..avgHeartRate = _getAverageHeartRate()
       ..maxHeartRate = _getMaximumHeartRate()
       ..avgCadence = _getAverageCadence()
-      ..maxCadence = _getMaximumCadence();
+      ..maxCadence = _getMaximumCadence()
+      ..totalCalories = _getTotalCalories(); // Add total calories to session
 
     // Create Lap message (one lap for the entire session)
     final lapMessage = LapMessage()
@@ -242,7 +243,8 @@ class TrainingDataRecorder {
       ..avgHeartRate = _getAverageHeartRate()
       ..maxHeartRate = _getMaximumHeartRate()
       ..avgCadence = _getAverageCadence()
-      ..maxCadence = _getMaximumCadence();
+      ..maxCadence = _getMaximumCadence()
+      ..totalCalories = _getTotalCalories(); // Add total calories to lap
 
     // Add all messages to builder
     builder.add(fileIdMessage);
@@ -385,6 +387,18 @@ class TrainingDataRecorder {
         .toList();
     if (cadences.isEmpty) return null;
     return cadences.reduce((a, b) => a > b ? a : b).round();
+  }
+
+  /// Get total calories from the last record (cumulative)
+  int? _getTotalCalories() {
+    // Find the last record with calories data
+    final lastRecordWithCalories = _records.lastWhere(
+      (r) => r.calories != null && r.calories! > 0,
+      orElse: () => _records.last,
+    );
+    
+    if (lastRecordWithCalories.calories == null) return null;
+    return lastRecordWithCalories.calories!.round();
   }
 
   /// Get current statistics
