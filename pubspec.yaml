@@ -48,6 +48,7 @@ dependencies:
   app_links: ^6.4.0
   crypto: ^3.0.6
   permission_handler: ^11.4.0
+  audioplayers: ^6.1.0
   device_info_plus: ^10.0.0
   meta: ^1.12.0
 
@@ -82,6 +83,7 @@ flutter:
   assets:
     - lib/training-sessions/
     - lib/config/
+    - assets/sounds/
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

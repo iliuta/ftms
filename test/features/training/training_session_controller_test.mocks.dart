@@ -3,23 +3,24 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i9;
-import 'dart:io' as _i14;
-import 'dart:typed_data' as _i10;
+import 'dart:async' as _i8;
+import 'dart:io' as _i15;
+import 'dart:typed_data' as _i11;
 
-import 'package:flutter_blue_plus/flutter_blue_plus.dart' as _i8;
+import 'package:audioplayers/audioplayers.dart' as _i7;
+import 'package:flutter_blue_plus/flutter_blue_plus.dart' as _i10;
 import 'package:flutter_blue_plus_platform_interface/flutter_blue_plus_platform_interface.dart'
     as _i2;
 import 'package:flutter_ftms/flutter_ftms.dart' as _i3;
-import 'package:ftms/core/models/live_data_field_value.dart' as _i13;
-import 'package:ftms/core/services/fit/training_data_recorder.dart' as _i12;
-import 'package:ftms/core/services/ftms_service.dart' as _i11;
+import 'package:ftms/core/models/live_data_field_value.dart' as _i14;
+import 'package:ftms/core/services/fit/training_data_recorder.dart' as _i13;
+import 'package:ftms/core/services/ftms_service.dart' as _i12;
 import 'package:ftms/core/services/strava/strava_activity_uploader.dart' as _i6;
 import 'package:ftms/core/services/strava/strava_oauth_handler.dart' as _i5;
-import 'package:ftms/core/services/strava/strava_service.dart' as _i15;
+import 'package:ftms/core/services/strava/strava_service.dart' as _i16;
 import 'package:ftms/core/services/strava/strava_token_manager.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i7;
+import 'package:mockito/src/dummies.dart' as _i9;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -90,6 +91,26 @@ class _FakeStravaActivityUploader_4 extends _i1.SmartFake
         );
 }
 
+class _FakeAudioCache_5 extends _i1.SmartFake implements _i7.AudioCache {
+  _FakeAudioCache_5(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeCompleter_6<T> extends _i1.SmartFake implements _i8.Completer<T> {
+  _FakeCompleter_6(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [BluetoothDevice].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -110,7 +131,7 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
   @override
   String get platformName => (super.noSuchMethod(
         Invocation.getter(#platformName),
-        returnValue: _i7.dummyValue<String>(
+        returnValue: _i9.dummyValue<String>(
           this,
           Invocation.getter(#platformName),
         ),
@@ -119,17 +140,17 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
   @override
   String get advName => (super.noSuchMethod(
         Invocation.getter(#advName),
-        returnValue: _i7.dummyValue<String>(
+        returnValue: _i9.dummyValue<String>(
           this,
           Invocation.getter(#advName),
         ),
       ) as String);
 
   @override
-  List<_i8.BluetoothService> get servicesList => (super.noSuchMethod(
+  List<_i10.BluetoothService> get servicesList => (super.noSuchMethod(
         Invocation.getter(#servicesList),
-        returnValue: <_i8.BluetoothService>[],
-      ) as List<_i8.BluetoothService>);
+        returnValue: <_i10.BluetoothService>[],
+      ) as List<_i10.BluetoothService>);
 
   @override
   bool get isAutoConnectEnabled => (super.noSuchMethod(
@@ -150,11 +171,11 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
       ) as bool);
 
   @override
-  _i9.Stream<_i3.BluetoothConnectionState> get connectionState =>
+  _i8.Stream<_i3.BluetoothConnectionState> get connectionState =>
       (super.noSuchMethod(
         Invocation.getter(#connectionState),
-        returnValue: _i9.Stream<_i3.BluetoothConnectionState>.empty(),
-      ) as _i9.Stream<_i3.BluetoothConnectionState>);
+        returnValue: _i8.Stream<_i3.BluetoothConnectionState>.empty(),
+      ) as _i8.Stream<_i3.BluetoothConnectionState>);
 
   @override
   int get mtuNow => (super.noSuchMethod(
@@ -163,28 +184,28 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
       ) as int);
 
   @override
-  _i9.Stream<int> get mtu => (super.noSuchMethod(
+  _i8.Stream<int> get mtu => (super.noSuchMethod(
         Invocation.getter(#mtu),
-        returnValue: _i9.Stream<int>.empty(),
-      ) as _i9.Stream<int>);
+        returnValue: _i8.Stream<int>.empty(),
+      ) as _i8.Stream<int>);
 
   @override
-  _i9.Stream<void> get onServicesReset => (super.noSuchMethod(
+  _i8.Stream<void> get onServicesReset => (super.noSuchMethod(
         Invocation.getter(#onServicesReset),
-        returnValue: _i9.Stream<void>.empty(),
-      ) as _i9.Stream<void>);
+        returnValue: _i8.Stream<void>.empty(),
+      ) as _i8.Stream<void>);
 
   @override
-  _i9.Stream<_i8.BluetoothBondState> get bondState => (super.noSuchMethod(
+  _i8.Stream<_i10.BluetoothBondState> get bondState => (super.noSuchMethod(
         Invocation.getter(#bondState),
-        returnValue: _i9.Stream<_i8.BluetoothBondState>.empty(),
-      ) as _i9.Stream<_i8.BluetoothBondState>);
+        returnValue: _i8.Stream<_i10.BluetoothBondState>.empty(),
+      ) as _i8.Stream<_i10.BluetoothBondState>);
 
   @override
-  _i9.Stream<bool> get isDiscoveringServices => (super.noSuchMethod(
+  _i8.Stream<bool> get isDiscoveringServices => (super.noSuchMethod(
         Invocation.getter(#isDiscoveringServices),
-        returnValue: _i9.Stream<bool>.empty(),
-      ) as _i9.Stream<bool>);
+        returnValue: _i8.Stream<bool>.empty(),
+      ) as _i8.Stream<bool>);
 
   @override
   _i2.DeviceIdentifier get id => (super.noSuchMethod(
@@ -198,7 +219,7 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
   @override
   String get localName => (super.noSuchMethod(
         Invocation.getter(#localName),
-        returnValue: _i7.dummyValue<String>(
+        returnValue: _i9.dummyValue<String>(
           this,
           Invocation.getter(#localName),
         ),
@@ -207,34 +228,34 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
   @override
   String get name => (super.noSuchMethod(
         Invocation.getter(#name),
-        returnValue: _i7.dummyValue<String>(
+        returnValue: _i9.dummyValue<String>(
           this,
           Invocation.getter(#name),
         ),
       ) as String);
 
   @override
-  _i9.Stream<_i3.BluetoothConnectionState> get state => (super.noSuchMethod(
+  _i8.Stream<_i3.BluetoothConnectionState> get state => (super.noSuchMethod(
         Invocation.getter(#state),
-        returnValue: _i9.Stream<_i3.BluetoothConnectionState>.empty(),
-      ) as _i9.Stream<_i3.BluetoothConnectionState>);
+        returnValue: _i8.Stream<_i3.BluetoothConnectionState>.empty(),
+      ) as _i8.Stream<_i3.BluetoothConnectionState>);
 
   @override
-  _i9.Stream<List<_i8.BluetoothService>> get servicesStream =>
+  _i8.Stream<List<_i10.BluetoothService>> get servicesStream =>
       (super.noSuchMethod(
         Invocation.getter(#servicesStream),
-        returnValue: _i9.Stream<List<_i8.BluetoothService>>.empty(),
-      ) as _i9.Stream<List<_i8.BluetoothService>>);
+        returnValue: _i8.Stream<List<_i10.BluetoothService>>.empty(),
+      ) as _i8.Stream<List<_i10.BluetoothService>>);
 
   @override
-  _i9.Stream<List<_i8.BluetoothService>> get services => (super.noSuchMethod(
+  _i8.Stream<List<_i10.BluetoothService>> get services => (super.noSuchMethod(
         Invocation.getter(#services),
-        returnValue: _i9.Stream<List<_i8.BluetoothService>>.empty(),
-      ) as _i9.Stream<List<_i8.BluetoothService>>);
+        returnValue: _i8.Stream<List<_i10.BluetoothService>>.empty(),
+      ) as _i8.Stream<List<_i10.BluetoothService>>);
 
   @override
   void cancelWhenDisconnected(
-    _i9.StreamSubscription<dynamic>? subscription, {
+    _i8.StreamSubscription<dynamic>? subscription, {
     bool? next = false,
     bool? delayed = false,
   }) =>
@@ -251,7 +272,7 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
       );
 
   @override
-  _i9.Future<void> connect({
+  _i8.Future<void> connect({
     Duration? timeout = const Duration(seconds: 35),
     int? mtu = 512,
     bool? autoConnect = false,
@@ -266,12 +287,12 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
             #autoConnect: autoConnect,
           },
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i9.Future<void> disconnect({
+  _i8.Future<void> disconnect({
     int? timeout = 35,
     bool? queue = true,
     int? androidDelay = 2000,
@@ -286,12 +307,12 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
             #androidDelay: androidDelay,
           },
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i9.Future<List<_i8.BluetoothService>> discoverServices({
+  _i8.Future<List<_i10.BluetoothService>> discoverServices({
     bool? subscribeToServicesChanged = true,
     int? timeout = 15,
   }) =>
@@ -304,22 +325,22 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
             #timeout: timeout,
           },
         ),
-        returnValue: _i9.Future<List<_i8.BluetoothService>>.value(
-            <_i8.BluetoothService>[]),
-      ) as _i9.Future<List<_i8.BluetoothService>>);
+        returnValue: _i8.Future<List<_i10.BluetoothService>>.value(
+            <_i10.BluetoothService>[]),
+      ) as _i8.Future<List<_i10.BluetoothService>>);
 
   @override
-  _i9.Future<int> readRssi({int? timeout = 15}) => (super.noSuchMethod(
+  _i8.Future<int> readRssi({int? timeout = 15}) => (super.noSuchMethod(
         Invocation.method(
           #readRssi,
           [],
           {#timeout: timeout},
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i8.Future<int>.value(0),
+      ) as _i8.Future<int>);
 
   @override
-  _i9.Future<int> requestMtu(
+  _i8.Future<int> requestMtu(
     int? desiredMtu, {
     double? predelay = 0.35,
     int? timeout = 15,
@@ -333,27 +354,27 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
             #timeout: timeout,
           },
         ),
-        returnValue: _i9.Future<int>.value(0),
-      ) as _i9.Future<int>);
+        returnValue: _i8.Future<int>.value(0),
+      ) as _i8.Future<int>);
 
   @override
-  _i9.Future<void> requestConnectionPriority(
-          {required _i8.ConnectionPriority? connectionPriorityRequest}) =>
+  _i8.Future<void> requestConnectionPriority(
+          {required _i10.ConnectionPriority? connectionPriorityRequest}) =>
       (super.noSuchMethod(
         Invocation.method(
           #requestConnectionPriority,
           [],
           {#connectionPriorityRequest: connectionPriorityRequest},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i9.Future<void> setPreferredPhy({
+  _i8.Future<void> setPreferredPhy({
     required int? txPhy,
     required int? rxPhy,
-    required _i8.PhyCoding? option,
+    required _i10.PhyCoding? option,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -365,14 +386,14 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
             #option: option,
           },
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i9.Future<void> createBond({
+  _i8.Future<void> createBond({
     int? timeout = 90,
-    _i10.Uint8List? pin,
+    _i11.Uint8List? pin,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -383,46 +404,46 @@ class MockBluetoothDevice extends _i1.Mock implements _i3.BluetoothDevice {
             #pin: pin,
           },
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i9.Future<void> removeBond({int? timeout = 30}) => (super.noSuchMethod(
+  _i8.Future<void> removeBond({int? timeout = 30}) => (super.noSuchMethod(
         Invocation.method(
           #removeBond,
           [],
           {#timeout: timeout},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i9.Future<void> clearGattCache() => (super.noSuchMethod(
+  _i8.Future<void> clearGattCache() => (super.noSuchMethod(
         Invocation.method(
           #clearGattCache,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i9.Future<void> pair() => (super.noSuchMethod(
+  _i8.Future<void> pair() => (super.noSuchMethod(
         Invocation.method(
           #pair,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 }
 
 /// A class which mocks [FTMSService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockFTMSService extends _i1.Mock implements _i11.FTMSService {
+class MockFTMSService extends _i1.Mock implements _i12.FTMSService {
   MockFTMSService() {
     _i1.throwOnMissingStub(this);
   }
@@ -437,18 +458,18 @@ class MockFTMSService extends _i1.Mock implements _i11.FTMSService {
       ) as _i3.BluetoothDevice);
 
   @override
-  _i11.WriteMachineControlPointCharacteristic get writeCharacteristic =>
+  _i12.WriteMachineControlPointCharacteristic get writeCharacteristic =>
       (super.noSuchMethod(
         Invocation.getter(#writeCharacteristic),
         returnValue: (
           _i3.BluetoothDevice device,
           _i3.MachineControlPoint controlPoint,
         ) =>
-            _i9.Future<void>.value(),
-      ) as _i11.WriteMachineControlPointCharacteristic);
+            _i8.Future<void>.value(),
+      ) as _i12.WriteMachineControlPointCharacteristic);
 
   @override
-  _i9.Future<void> writeCommand(
+  _i8.Future<void> writeCommand(
     _i3.MachineControlPointOpcodeType? opcodeType, {
     int? resistanceLevel,
   }) =>
@@ -458,16 +479,16 @@ class MockFTMSService extends _i1.Mock implements _i11.FTMSService {
           [opcodeType],
           {#resistanceLevel: resistanceLevel},
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 }
 
 /// A class which mocks [TrainingDataRecorder].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTrainingDataRecorder extends _i1.Mock
-    implements _i12.TrainingDataRecorder {
+    implements _i13.TrainingDataRecorder {
   MockTrainingDataRecorder() {
     _i1.throwOnMissingStub(this);
   }
@@ -487,7 +508,7 @@ class MockTrainingDataRecorder extends _i1.Mock
   @override
   String get sessionName => (super.noSuchMethod(
         Invocation.getter(#sessionName),
-        returnValue: _i7.dummyValue<String>(
+        returnValue: _i9.dummyValue<String>(
           this,
           Invocation.getter(#sessionName),
         ),
@@ -513,7 +534,7 @@ class MockTrainingDataRecorder extends _i1.Mock
 
   @override
   void recordDataPoint({
-    required Map<String, _i13.LiveDataFieldValue>? ftmsParams,
+    required Map<String, _i14.LiveDataFieldValue>? ftmsParams,
     double? resistanceLevel,
     DateTime? timestamp,
   }) =>
@@ -531,24 +552,24 @@ class MockTrainingDataRecorder extends _i1.Mock
       );
 
   @override
-  _i9.Future<String?> generateFitFile() => (super.noSuchMethod(
+  _i8.Future<String?> generateFitFile() => (super.noSuchMethod(
         Invocation.method(
           #generateFitFile,
           [],
         ),
-        returnValue: _i9.Future<String?>.value(),
-      ) as _i9.Future<String?>);
+        returnValue: _i8.Future<String?>.value(),
+      ) as _i8.Future<String?>);
 
   @override
-  _i9.Future<String?> generateFitFileToDirectory(
-          _i14.Directory? outputDirectory) =>
+  _i8.Future<String?> generateFitFileToDirectory(
+          _i15.Directory? outputDirectory) =>
       (super.noSuchMethod(
         Invocation.method(
           #generateFitFileToDirectory,
           [outputDirectory],
         ),
-        returnValue: _i9.Future<String?>.value(),
-      ) as _i9.Future<String?>);
+        returnValue: _i8.Future<String?>.value(),
+      ) as _i8.Future<String?>);
 
   @override
   Map<String, dynamic> getStatistics() => (super.noSuchMethod(
@@ -563,7 +584,7 @@ class MockTrainingDataRecorder extends _i1.Mock
 /// A class which mocks [StravaService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockStravaService extends _i1.Mock implements _i15.StravaService {
+class MockStravaService extends _i1.Mock implements _i16.StravaService {
   MockStravaService() {
     _i1.throwOnMissingStub(this);
   }
@@ -596,44 +617,44 @@ class MockStravaService extends _i1.Mock implements _i15.StravaService {
       ) as _i6.StravaActivityUploader);
 
   @override
-  _i9.Future<bool> authenticate() => (super.noSuchMethod(
+  _i8.Future<bool> authenticate() => (super.noSuchMethod(
         Invocation.method(
           #authenticate,
           [],
         ),
-        returnValue: _i9.Future<bool>.value(false),
-      ) as _i9.Future<bool>);
+        returnValue: _i8.Future<bool>.value(false),
+      ) as _i8.Future<bool>);
 
   @override
-  _i9.Future<bool> isAuthenticated() => (super.noSuchMethod(
+  _i8.Future<bool> isAuthenticated() => (super.noSuchMethod(
         Invocation.method(
           #isAuthenticated,
           [],
         ),
-        returnValue: _i9.Future<bool>.value(false),
-      ) as _i9.Future<bool>);
+        returnValue: _i8.Future<bool>.value(false),
+      ) as _i8.Future<bool>);
 
   @override
-  _i9.Future<Map<String, dynamic>?> getAuthStatus() => (super.noSuchMethod(
+  _i8.Future<Map<String, dynamic>?> getAuthStatus() => (super.noSuchMethod(
         Invocation.method(
           #getAuthStatus,
           [],
         ),
-        returnValue: _i9.Future<Map<String, dynamic>?>.value(),
-      ) as _i9.Future<Map<String, dynamic>?>);
+        returnValue: _i8.Future<Map<String, dynamic>?>.value(),
+      ) as _i8.Future<Map<String, dynamic>?>);
 
   @override
-  _i9.Future<void> signOut() => (super.noSuchMethod(
+  _i8.Future<void> signOut() => (super.noSuchMethod(
         Invocation.method(
           #signOut,
           [],
         ),
-        returnValue: _i9.Future<void>.value(),
-        returnValueForMissingStub: _i9.Future<void>.value(),
-      ) as _i9.Future<void>);
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 
   @override
-  _i9.Future<Map<String, dynamic>?> uploadActivity(
+  _i8.Future<Map<String, dynamic>?> uploadActivity(
     String? fitFilePath,
     String? activityName, {
     String? activityType = 'workout',
@@ -647,11 +668,11 @@ class MockStravaService extends _i1.Mock implements _i15.StravaService {
           ],
           {#activityType: activityType},
         ),
-        returnValue: _i9.Future<Map<String, dynamic>?>.value(),
-      ) as _i9.Future<Map<String, dynamic>?>);
+        returnValue: _i8.Future<Map<String, dynamic>?>.value(),
+      ) as _i8.Future<Map<String, dynamic>?>);
 
   @override
-  _i9.Future<Map<String, dynamic>?> uploadActivityWithMetadata({
+  _i8.Future<Map<String, dynamic>?> uploadActivityWithMetadata({
     required String? fitFilePath,
     required String? name,
     String? description,
@@ -674,6 +695,398 @@ class MockStravaService extends _i1.Mock implements _i15.StravaService {
             #hasPower: hasPower,
           },
         ),
-        returnValue: _i9.Future<Map<String, dynamic>?>.value(),
-      ) as _i9.Future<Map<String, dynamic>?>);
+        returnValue: _i8.Future<Map<String, dynamic>?>.value(),
+      ) as _i8.Future<Map<String, dynamic>?>);
+}
+
+/// A class which mocks [AudioPlayer].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockAudioPlayer extends _i1.Mock implements _i7.AudioPlayer {
+  MockAudioPlayer() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i7.AudioCache get audioCache => (super.noSuchMethod(
+        Invocation.getter(#audioCache),
+        returnValue: _FakeAudioCache_5(
+          this,
+          Invocation.getter(#audioCache),
+        ),
+      ) as _i7.AudioCache);
+
+  @override
+  String get playerId => (super.noSuchMethod(
+        Invocation.getter(#playerId),
+        returnValue: _i9.dummyValue<String>(
+          this,
+          Invocation.getter(#playerId),
+        ),
+      ) as String);
+
+  @override
+  _i7.PlayerState get desiredState => (super.noSuchMethod(
+        Invocation.getter(#desiredState),
+        returnValue: _i7.PlayerState.stopped,
+      ) as _i7.PlayerState);
+
+  @override
+  _i8.Completer<void> get creatingCompleter => (super.noSuchMethod(
+        Invocation.getter(#creatingCompleter),
+        returnValue: _FakeCompleter_6<void>(
+          this,
+          Invocation.getter(#creatingCompleter),
+        ),
+      ) as _i8.Completer<void>);
+
+  @override
+  double get volume => (super.noSuchMethod(
+        Invocation.getter(#volume),
+        returnValue: 0.0,
+      ) as double);
+
+  @override
+  double get balance => (super.noSuchMethod(
+        Invocation.getter(#balance),
+        returnValue: 0.0,
+      ) as double);
+
+  @override
+  double get playbackRate => (super.noSuchMethod(
+        Invocation.getter(#playbackRate),
+        returnValue: 0.0,
+      ) as double);
+
+  @override
+  _i7.PlayerMode get mode => (super.noSuchMethod(
+        Invocation.getter(#mode),
+        returnValue: _i7.PlayerMode.mediaPlayer,
+      ) as _i7.PlayerMode);
+
+  @override
+  _i7.ReleaseMode get releaseMode => (super.noSuchMethod(
+        Invocation.getter(#releaseMode),
+        returnValue: _i7.ReleaseMode.release,
+      ) as _i7.ReleaseMode);
+
+  @override
+  _i7.PlayerState get state => (super.noSuchMethod(
+        Invocation.getter(#state),
+        returnValue: _i7.PlayerState.stopped,
+      ) as _i7.PlayerState);
+
+  @override
+  _i8.Stream<_i7.AudioEvent> get eventStream => (super.noSuchMethod(
+        Invocation.getter(#eventStream),
+        returnValue: _i8.Stream<_i7.AudioEvent>.empty(),
+      ) as _i8.Stream<_i7.AudioEvent>);
+
+  @override
+  _i8.Stream<_i7.PlayerState> get onPlayerStateChanged => (super.noSuchMethod(
+        Invocation.getter(#onPlayerStateChanged),
+        returnValue: _i8.Stream<_i7.PlayerState>.empty(),
+      ) as _i8.Stream<_i7.PlayerState>);
+
+  @override
+  _i8.Stream<Duration> get onPositionChanged => (super.noSuchMethod(
+        Invocation.getter(#onPositionChanged),
+        returnValue: _i8.Stream<Duration>.empty(),
+      ) as _i8.Stream<Duration>);
+
+  @override
+  _i8.Stream<Duration> get onDurationChanged => (super.noSuchMethod(
+        Invocation.getter(#onDurationChanged),
+        returnValue: _i8.Stream<Duration>.empty(),
+      ) as _i8.Stream<Duration>);
+
+  @override
+  _i8.Stream<void> get onPlayerComplete => (super.noSuchMethod(
+        Invocation.getter(#onPlayerComplete),
+        returnValue: _i8.Stream<void>.empty(),
+      ) as _i8.Stream<void>);
+
+  @override
+  _i8.Stream<void> get onSeekComplete => (super.noSuchMethod(
+        Invocation.getter(#onSeekComplete),
+        returnValue: _i8.Stream<void>.empty(),
+      ) as _i8.Stream<void>);
+
+  @override
+  _i8.Stream<String> get onLog => (super.noSuchMethod(
+        Invocation.getter(#onLog),
+        returnValue: _i8.Stream<String>.empty(),
+      ) as _i8.Stream<String>);
+
+  @override
+  set audioCache(_i7.AudioCache? _audioCache) => super.noSuchMethod(
+        Invocation.setter(
+          #audioCache,
+          _audioCache,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set desiredState(_i7.PlayerState? _desiredState) => super.noSuchMethod(
+        Invocation.setter(
+          #desiredState,
+          _desiredState,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set state(_i7.PlayerState? state) => super.noSuchMethod(
+        Invocation.setter(
+          #state,
+          state,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set positionUpdater(_i7.PositionUpdater? positionUpdater) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #positionUpdater,
+          positionUpdater,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i8.Future<void> play(
+    _i7.Source? source, {
+    double? volume,
+    double? balance,
+    _i7.AudioContext? ctx,
+    Duration? position,
+    _i7.PlayerMode? mode,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #play,
+          [source],
+          {
+            #volume: volume,
+            #balance: balance,
+            #ctx: ctx,
+            #position: position,
+            #mode: mode,
+          },
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setAudioContext(_i7.AudioContext? ctx) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setAudioContext,
+          [ctx],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setPlayerMode(_i7.PlayerMode? mode) => (super.noSuchMethod(
+        Invocation.method(
+          #setPlayerMode,
+          [mode],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> pause() => (super.noSuchMethod(
+        Invocation.method(
+          #pause,
+          [],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> stop() => (super.noSuchMethod(
+        Invocation.method(
+          #stop,
+          [],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> resume() => (super.noSuchMethod(
+        Invocation.method(
+          #resume,
+          [],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> release() => (super.noSuchMethod(
+        Invocation.method(
+          #release,
+          [],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> seek(Duration? position) => (super.noSuchMethod(
+        Invocation.method(
+          #seek,
+          [position],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setBalance(double? balance) => (super.noSuchMethod(
+        Invocation.method(
+          #setBalance,
+          [balance],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setVolume(double? volume) => (super.noSuchMethod(
+        Invocation.method(
+          #setVolume,
+          [volume],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setReleaseMode(_i7.ReleaseMode? releaseMode) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setReleaseMode,
+          [releaseMode],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setPlaybackRate(double? playbackRate) => (super.noSuchMethod(
+        Invocation.method(
+          #setPlaybackRate,
+          [playbackRate],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setSource(_i7.Source? source) => (super.noSuchMethod(
+        Invocation.method(
+          #setSource,
+          [source],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setSourceUrl(
+    String? url, {
+    String? mimeType,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setSourceUrl,
+          [url],
+          {#mimeType: mimeType},
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setSourceDeviceFile(
+    String? path, {
+    String? mimeType,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setSourceDeviceFile,
+          [path],
+          {#mimeType: mimeType},
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setSourceAsset(
+    String? path, {
+    String? mimeType,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setSourceAsset,
+          [path],
+          {#mimeType: mimeType},
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> setSourceBytes(
+    _i11.Uint8List? bytes, {
+    String? mimeType,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #setSourceBytes,
+          [bytes],
+          {#mimeType: mimeType},
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
+
+  @override
+  _i8.Future<Duration?> getDuration() => (super.noSuchMethod(
+        Invocation.method(
+          #getDuration,
+          [],
+        ),
+        returnValue: _i8.Future<Duration?>.value(),
+      ) as _i8.Future<Duration?>);
+
+  @override
+  _i8.Future<Duration?> getCurrentPosition() => (super.noSuchMethod(
+        Invocation.method(
+          #getCurrentPosition,
+          [],
+        ),
+        returnValue: _i8.Future<Duration?>.value(),
+      ) as _i8.Future<Duration?>);
+
+  @override
+  _i8.Future<void> dispose() => (super.noSuchMethod(
+        Invocation.method(
+          #dispose,
+          [],
+        ),
+        returnValue: _i8.Future<void>.value(),
+        returnValueForMissingStub: _i8.Future<void>.value(),
+      ) as _i8.Future<void>);
 }
