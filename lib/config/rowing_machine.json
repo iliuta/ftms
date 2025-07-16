@@ -11,7 +11,8 @@
       "max": 60,
       "availableAsTarget": true,
       "targetRange": 0.08,
-      "userSetting": "rowingFtp"
+      "userSetting": "rowingFtp",
+      "icon": "speed"
     },
     {
       "name": "Stroke Rate",

@@ -13,6 +13,7 @@ void main() {
       min: 0,
       max: 60,
       display: 'speedometer',
+      icon: 'bike',
     );
 
     final param = LiveDataFieldValue(
@@ -37,6 +38,7 @@ void main() {
 
     expect(find.text('Speed'), findsOneWidget);
     expect(find.text('30 km/h'), findsOneWidget);
+    expect(find.byIcon(Icons.pedal_bike), findsOneWidget);
   });
 
   testWidgets('SpeedometerWidget displays with target interval', (WidgetTester tester) async {

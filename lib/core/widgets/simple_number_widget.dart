@@ -30,13 +30,18 @@ class SimpleNumberWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(displayField.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(displayField.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            if (iconData != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 6.0),
+                child: Icon(iconData, size: 16, color: Colors.grey[600]),
+              ),
+          ],
+        ),
         Text(formattedValue, style: TextStyle(fontSize: 22, color: color)),
-        if (iconData != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 2.0),
-            child: Icon(iconData, size: 20, color: Colors.grey[600]),
-          ),
       ],
     );
   }

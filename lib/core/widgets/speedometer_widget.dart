@@ -5,6 +5,7 @@ import 'package:ftms/core/config/live_data_field_format_strategy.dart';
 import 'package:ftms/core/config/live_data_field_config.dart';
 
 import '../models/live_data_field_value.dart';
+import 'live_data_icon_registry.dart';
 
 /// Widget for displaying a value as a speedometer (gauge).
 class SpeedometerWidget extends StatelessWidget {
@@ -27,17 +28,30 @@ class SpeedometerWidget extends StatelessWidget {
     double? max =
         (displayField.max is num) ? (displayField.max as num).toDouble() : null;
     
+    IconData? iconData = getLiveDataIcon(displayField.icon);
+    
     if (param == null) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(displayField.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(displayField.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+              if (iconData != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 6.0),
+                  child: Icon(iconData, size: 16, color: Colors.grey[600]),
+                ),
+            ],
+          ),
           const Text('No data', style: TextStyle(color: Colors.grey)),
         ],
       );
     }
     
     final scaledValue = param!.getScaledValue();
+    
     // if there is a formatter, then use the field format strategy to init a variable
     // with the formatted value
     String formattedValue = '${scaledValue.toStringAsFixed(0)} ${displayField.unit}';
@@ -53,8 +67,18 @@ class SpeedometerWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(displayField.label,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(displayField.label,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            if (iconData != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 6.0),
+                child: Icon(iconData, size: 16, color: Colors.grey[600]),
+              ),
+          ],
+        ),
         SizedBox(
           width: 120,
           height: 65,
