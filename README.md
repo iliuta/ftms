@@ -1,18 +1,31 @@
-# HEAVY WORK IN PROGRESS
+# PowerTrain
+FTMS Training App
 
-# FTMS Training App
-
-I started this app because I bought a rowing machine :) and the free app I was using didn't have the features I wanted and only worked by setting the trainer resistance: 
+I started this app because I bought a rowing machine (Domyos Woodrower from Decathlon) and the free app I was using didn't have the features I wanted and only worked by setting the trainer resistance: 
 - target cadence
 - target speed
 
-By chance, the rowing machine supports FTMS protocol.
+By chance, the rowing machine supports FTMS bluetooth protocol.
 
 I also have a Zwift Hub indoor bike trainer and it's easier to play with it than with the rowing machine because it doesn't go in standby mode after a few minutes of inactivity.
 
-I was looking for a way to learn Flutter and this seemed like a good project to start with.
 
-It is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutter package for FTMS Bluetooth connectivity. Nice work, BTW, it saves a lot of time for translating complicated hex bluetooth codes into meaningful, human readable data.
+The code is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutter package for FTMS Bluetooth connectivity. Nice work, BTW, it saves a lot of time for translating complicated hex bluetooth codes into meaningful, human readable data.
+
+# Supported machine types
+
+The machines MUST support the FTMS protocol.
+
+The app is intended to work with rowers only. I know it works with the Domyos Woodrower, probably with other FTMS rowers but I haven't tested them. Feedback is appreciated.
+
+But, if you activate developer mode in the settings, you may try indoor bikes as well. But, the trainer resistance control is not supported.
+
+External bluetooth heart rate monitors are supported.
+
+If you try the developer mode, you can also try cadence sensors for indoor bikes.
+
+# Disclaimer
+This is a personal project. Use it at your own risk. If you browse the code, you might see pieces of code that are not very clean or not covered by tests. That's all right, it's my playground. I don't have time to make it perfect, but I try to keep it working. Again, feedback is appreciated.
 
 ## Screenshots
 ![App Screenshot](doc/screen1.png)
@@ -21,13 +34,14 @@ It is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutt
 ![App Screenshot](doc/screen4.png)
 ![App Screenshot](doc/screen5.png)
 ![App Screenshot](doc/screen6.png)
+![App Screenshot](doc/screen7.png)
 
 
 ## Main Features
 
-- **FTMS Bluetooth Connectivity**: scan for, connect to and display data from FTMS-compatible fitness machines ( bikes, rowers) using Bluetooth Low Energy (BLE).
+- **FTMS Bluetooth Connectivity**: scan for, connect to and display data from FTMS-compatible fitness machines ( bikes and rowers) using Bluetooth Low Energy (BLE).
 - **Heart rate monitoring**: connect to heart rate monitors (HRMs) via Bluetooth and display real-time heart rate data.
-- **Cdence sensors**: connect to cadence sensors via Bluetooth and display real-time heart cadence data.
+- **Cadence sensors**: connect to cadence sensors via Bluetooth and display real-time heart cadence data.
 - **Structured Training Sessions**: load and execute interval-based training sessions with support for both simple and grouped intervals.
 - **Edit your own training sessions**: create and modify training sessions. Data stored locally in JSON format.
 - **Session Progress Tracking**: Visual progress bar and detailed feedback during workouts, including interval targets and completion status.
@@ -35,9 +49,11 @@ It is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutt
 
 For build, test, and usage instructions, see the rest of this README.
 
-## Features I'm thinking about
+## The resistance level
 
-- Control the machine resistance (ERG mode). I tried to implement this but for some reason it doesn't work. I'm still digging into it.
+The rower I have can be controlled by the app. When editing a training session, for each interval you can set a target resistance level. I don't know what values are accepted by other rowers but you can try different values.
+
+In my case, the number must be the resistance level displayed on the rower multiplied by 10. The rower has 15 resistance levels, so the value that the app transmits to the rower can be 10, 20, ..., 150. Yours ... I don't know.
 
 ## Getting Started
 
