@@ -41,25 +41,11 @@ class FTMSDataTabState extends State<FTMSDataTab> {
   }
 
   Future<void> _loadUserSettings() async {
-    try {
-      final settings = await UserSettings.loadDefault();
-      setState(() {
-        _userSettings = settings;
-        _isLoadingSettings = false;
-      });
-    } catch (e) {
-      logger.w('Error loading user settings: $e');
-      // If settings fail to load, default to developer mode disabled
-      setState(() {
-        _userSettings = const UserSettings(
-          maxHeartRate: 180,
-          cyclingFtp: 250,
-          rowingFtp: '2:00',
-          developerMode: false,
-        );
-        _isLoadingSettings = false;
-      });
-    }
+    final settings = await UserSettings.loadDefault();
+    setState(() {
+      _userSettings = settings;
+      _isLoadingSettings = false;
+    });
   }
 
   Future<void> _loadConfigForFtmsDeviceType(
@@ -82,7 +68,8 @@ class FTMSDataTabState extends State<FTMSDataTab> {
 
   void _checkDeviceAvailability(LiveDataDisplayConfig? config) {
     if (config != null && _userSettings != null) {
-      final isAvailable = _userSettings!.developerMode || !config.availableInDeveloperModeOnly;
+      final isAvailable =
+          _userSettings!.developerMode || !config.availableInDeveloperModeOnly;
       setState(() {
         _isDeviceAvailable = isAvailable;
       });
@@ -141,9 +128,10 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                     const SizedBox(height: 24),
                     Text(
                       'Developer Mode Required',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
@@ -155,7 +143,8 @@ class FTMSDataTabState extends State<FTMSDataTab> {
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.of(context).pop(); // Go back to previous screen
+                        Navigator.of(context)
+                            .pop(); // Go back to previous screen
                       },
                       icon: const Icon(Icons.arrow_back),
                       label: const Text('Go Back'),

@@ -60,7 +60,6 @@ LiveDataDisplayConfig _createMockConfig() {
         label: 'Heart Rate',
         display: 'number',
         unit: 'bpm',
-        userSetting: 'maxHeartRate', // Has user setting - should apply power strategy
       ),
       LiveDataFieldConfig(
         name: 'Stroke Rate',
@@ -74,7 +73,7 @@ LiveDataDisplayConfig _createMockConfig() {
 }
 
 void main() {
-  final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
+  final userSettings = UserSettings(cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
   final config = _createMockConfig();
 
   test('TrainingSession.fromJson expands intervals with repeat field', () {

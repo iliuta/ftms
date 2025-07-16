@@ -6,7 +6,6 @@ import 'package:ftms/features/settings/model/user_settings.dart';
 // Helper to patch UserSettings to allow custom asset path for tests
 class TestableUserSettings extends UserSettings {
   const TestableUserSettings({
-    required super.maxHeartRate,
     required super.cyclingFtp,
     required super.rowingFtp,
     required super.developerMode,
@@ -40,19 +39,16 @@ void main() {
   group('UserSettings', () {
     test('fromJson parses all fields correctly', () {
       final json = {
-        'maxHeartRate': 180,
         'cyclingFtp': 220,
         'rowingFtp': '1:55',
       };
       final settings = UserSettings.fromJson(json);
-      expect(settings.maxHeartRate, 180);
       expect(settings.cyclingFtp, 220);
       expect(settings.rowingFtp, '1:55');
     });
 
     test('fromJson throws if required fields are missing', () {
       expect(() => UserSettings.fromJson({}), throwsA(isA<TypeError>()));
-      expect(() => UserSettings.fromJson({'maxHeartRate': 180}), throwsA(isA<TypeError>()));
       expect(() => UserSettings.fromJson({'cyclingFtp': 220}), throwsA(isA<TypeError>()));
       expect(() => UserSettings.fromJson({'rowingFtp': '2:00'}), throwsA(isA<TypeError>()));
     });
@@ -60,7 +56,6 @@ void main() {
     test('loadFromAsset loads settings from asset (unique path)', () async {
       final assetPath = 'lib/config/default_user_settings_test.json';
       final defaultJson = jsonEncode({
-        'maxHeartRate': 190,
         'cyclingFtp': 250,
         'rowingFtp': '2:00',
       });
@@ -75,7 +70,6 @@ void main() {
         },
       );
       final settings = await TestableUserSettings.loadFromAsset(assetPath);
-      expect(settings.maxHeartRate, 190);
       expect(settings.cyclingFtp, 250);
       expect(settings.rowingFtp, '2:00');
     });
@@ -115,7 +109,6 @@ void main() {
 
       test('loads settings from default asset', () async {
         final defaultJson = jsonEncode({
-          'maxHeartRate': 200,
           'cyclingFtp': 300,
           'rowingFtp': '2:10',
         });
@@ -130,7 +123,6 @@ void main() {
           },
         );
         final settings = await UserSettings.loadDefault();
-        expect(settings.maxHeartRate, 200);
         expect(settings.cyclingFtp, 300);
         expect(settings.rowingFtp, '2:10');
       });

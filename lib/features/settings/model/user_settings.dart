@@ -4,13 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ftms/core/utils/logger.dart';
 
 class UserSettings {
-  final int maxHeartRate;
   final int cyclingFtp;
   final String rowingFtp;
   final bool developerMode;
 
   const UserSettings({
-    required this.maxHeartRate,
     required this.cyclingFtp,
     required this.rowingFtp,
     required this.developerMode,
@@ -18,7 +16,6 @@ class UserSettings {
 
   factory UserSettings.fromJson(Map<String, dynamic> json) {
     return UserSettings(
-      maxHeartRate: json['maxHeartRate'] as int,
       cyclingFtp: json['cyclingFtp'] as int,
       rowingFtp: json['rowingFtp'] as String,
       developerMode: json['developerMode'] as bool? ?? false,
@@ -27,7 +24,6 @@ class UserSettings {
 
   Map<String, dynamic> toJson() {
     return {
-      'maxHeartRate': maxHeartRate,
       'cyclingFtp': cyclingFtp,
       'rowingFtp': rowingFtp,
       'developerMode': developerMode,
@@ -57,7 +53,6 @@ class UserSettings {
         logger.e('Failed to load default user settings from asset: $assetError');
         // Return sensible defaults if all else fails
         return const UserSettings(
-          maxHeartRate: 180,
           cyclingFtp: 250,
           rowingFtp: '2:00',
           developerMode: false,
@@ -73,7 +68,7 @@ class UserSettings {
     final jsonMap = json.decode(jsonString) as Map<String, dynamic>;
     logger.d('Parsed user settings map: $jsonMap');
     final settings = UserSettings.fromJson(jsonMap);
-    logger.d('Created UserSettings: maxHeartRate=[1m${settings.maxHeartRate}[0m, cyclingFtp=[1m${settings.cyclingFtp}[0m, rowingFtp=[1m${settings.rowingFtp}[0m');
+    logger.d('Created UserSettings: cyclingFtp=[1m${settings.cyclingFtp}[0m, rowingFtp=[1m${settings.rowingFtp}[0m');
     return settings;
   }
 
@@ -104,8 +99,6 @@ class UserSettings {
           return int.parse(parts[0]) * 60 + int.parse(parts[1]);
         }
         return double.tryParse(rowingFtp);
-      case 'maxHeartRate':
-        return maxHeartRate;
       case 'developerMode':
         return developerMode;
       default:

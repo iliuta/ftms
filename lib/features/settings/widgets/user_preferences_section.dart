@@ -20,23 +20,22 @@ class UserPreferencesSection extends StatefulWidget {
 
 class _UserPreferencesSectionState extends State<UserPreferencesSection> {
   String? _editingField;
-  late TextEditingController _maxHeartRateController;
   late TextEditingController _cyclingFtpController;
   late TextEditingController _rowingFtpController;
 
   @override
   void initState() {
     super.initState();
-    _maxHeartRateController = TextEditingController(text: widget.userSettings.maxHeartRate.toString());
-    _cyclingFtpController = TextEditingController(text: widget.userSettings.cyclingFtp.toString());
-    _rowingFtpController = TextEditingController(text: widget.userSettings.rowingFtp);
+    _cyclingFtpController =
+        TextEditingController(text: widget.userSettings.cyclingFtp.toString());
+    _rowingFtpController =
+        TextEditingController(text: widget.userSettings.rowingFtp);
   }
 
   @override
   void didUpdateWidget(UserPreferencesSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.userSettings != widget.userSettings) {
-      _maxHeartRateController.text = widget.userSettings.maxHeartRate.toString();
       _cyclingFtpController.text = widget.userSettings.cyclingFtp.toString();
       _rowingFtpController.text = widget.userSettings.rowingFtp;
     }
@@ -44,7 +43,6 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
 
   @override
   void dispose() {
-    _maxHeartRateController.dispose();
     _cyclingFtpController.dispose();
     _rowingFtpController.dispose();
     super.dispose();
@@ -56,8 +54,7 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
       title: 'Fitness Profile',
       subtitle: 'Your personal fitness metrics for accurate training targets',
       children: [
-        _buildMaxHeartRateField(),
-        _buildCyclingFtpField(),
+        if (widget.userSettings.developerMode) _buildCyclingFtpField(),
         _buildRowingFtpField(),
         const Divider(),
         _buildDeveloperModeField(),
@@ -65,58 +62,9 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
     );
   }
 
-  Widget _buildMaxHeartRateField() {
-    final isEditing = _editingField == 'maxHeartRate';
-    
-    return ListTile(
-      leading: const Icon(Icons.favorite, color: Colors.red),
-      title: const Text('Max Heart Rate'),
-      subtitle: isEditing
-          ? Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: TextField(
-                controller: _maxHeartRateController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3),
-                ],
-                decoration: const InputDecoration(
-                  hintText: 'Enter heart rate',
-                  suffixText: 'bpm',
-                  border: OutlineInputBorder(),
-                  isDense: true,
-                ),
-                autofocus: true,
-                onSubmitted: (value) => _saveMaxHeartRate(),
-              ),
-            )
-          : Text('${widget.userSettings.maxHeartRate} bpm'),
-      trailing: isEditing
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.check, color: Colors.green),
-                  onPressed: _saveMaxHeartRate,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.red),
-                  onPressed: _cancelEditing,
-                ),
-              ],
-            )
-          : IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () => _startEditing('maxHeartRate'),
-            ),
-      onTap: isEditing ? null : () => _startEditing('maxHeartRate'),
-    );
-  }
-
   Widget _buildCyclingFtpField() {
     final isEditing = _editingField == 'cyclingFtp';
-    
+
     return ListTile(
       leading: const Icon(Icons.directions_bike, color: Colors.blue),
       title: const Text('Cycling FTP'),
@@ -165,7 +113,7 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
 
   Widget _buildRowingFtpField() {
     final isEditing = _editingField == 'rowingFtp';
-    
+
     return ListTile(
       leading: const Icon(Icons.rowing, color: Colors.teal),
       title: const Text('Rowing FTP'),
@@ -216,7 +164,6 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
         value: widget.userSettings.developerMode,
         onChanged: (bool value) {
           widget.onChanged(UserSettings(
-            maxHeartRate: widget.userSettings.maxHeartRate,
             cyclingFtp: widget.userSettings.cyclingFtp,
             rowingFtp: widget.userSettings.rowingFtp,
             developerMode: value,
@@ -227,7 +174,6 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
       onTap: () {
         final newValue = !widget.userSettings.developerMode;
         widget.onChanged(UserSettings(
-          maxHeartRate: widget.userSettings.maxHeartRate,
           cyclingFtp: widget.userSettings.cyclingFtp,
           rowingFtp: widget.userSettings.rowingFtp,
           developerMode: newValue,
@@ -248,38 +194,14 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
       _editingField = null;
     });
     // Reset controllers to original values
-    _maxHeartRateController.text = widget.userSettings.maxHeartRate.toString();
     _cyclingFtpController.text = widget.userSettings.cyclingFtp.toString();
     _rowingFtpController.text = widget.userSettings.rowingFtp;
-  }
-
-  void _saveMaxHeartRate() {
-    final value = int.tryParse(_maxHeartRateController.text);
-    if (value != null && value >= 120 && value <= 250) {
-      widget.onChanged(UserSettings(
-        maxHeartRate: value,
-        cyclingFtp: widget.userSettings.cyclingFtp,
-        rowingFtp: widget.userSettings.rowingFtp,
-        developerMode: widget.userSettings.developerMode,
-      ));
-      HapticFeedback.lightImpact();
-      setState(() {
-        _editingField = null;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid heart rate (120-250 bpm)'),
-        ),
-      );
-    }
   }
 
   void _saveCyclingFtp() {
     final value = int.tryParse(_cyclingFtpController.text);
     if (value != null && value >= 50 && value <= 1000) {
       widget.onChanged(UserSettings(
-        maxHeartRate: widget.userSettings.maxHeartRate,
         cyclingFtp: value,
         rowingFtp: widget.userSettings.rowingFtp,
         developerMode: widget.userSettings.developerMode,
@@ -301,7 +223,6 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
     final value = _rowingFtpController.text.trim();
     if (_isValidRowingTime(value)) {
       widget.onChanged(UserSettings(
-        maxHeartRate: widget.userSettings.maxHeartRate,
         cyclingFtp: widget.userSettings.cyclingFtp,
         rowingFtp: value,
         developerMode: widget.userSettings.developerMode,
@@ -322,16 +243,16 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
   bool _isValidRowingTime(String time) {
     final regex = RegExp(r'^\d+:\d{2}$');
     if (!regex.hasMatch(time)) return false;
-    
+
     final parts = time.split(':');
     final minutes = int.tryParse(parts[0]);
     final seconds = int.tryParse(parts[1]);
-    
-    return minutes != null && 
-           seconds != null && 
-           minutes >= 0 && 
-           minutes <= 10 && 
-           seconds >= 0 && 
-           seconds < 60;
+
+    return minutes != null &&
+        seconds != null &&
+        minutes >= 0 &&
+        minutes <= 10 &&
+        seconds >= 0 &&
+        seconds < 60;
   }
 }

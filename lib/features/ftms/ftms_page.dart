@@ -17,8 +17,6 @@ class FTMSPage extends StatefulWidget {
   State<FTMSPage> createState() => _FTMSPageState();
 }
 
-
-
 class _FTMSPageState extends State<FTMSPage> {
   late final FTMSService _ftmsService;
   UserSettings? _userSettings;
@@ -32,24 +30,11 @@ class _FTMSPageState extends State<FTMSPage> {
   }
 
   Future<void> _loadUserSettings() async {
-    try {
-      final settings = await UserSettings.loadDefault();
-      setState(() {
-        _userSettings = settings;
-        _isLoadingSettings = false;
-      });
-    } catch (e) {
-      // If settings fail to load, default to developer mode disabled
-      setState(() {
-        _userSettings = const UserSettings(
-          maxHeartRate: 180,
-          cyclingFtp: 250,
-          rowingFtp: '2:00',
-          developerMode: false,
-        );
-        _isLoadingSettings = false;
-      });
-    }
+    final settings = await UserSettings.loadDefault();
+    setState(() {
+      _userSettings = settings;
+      _isLoadingSettings = false;
+    });
   }
 
   @override
@@ -79,7 +64,8 @@ class _FTMSPageState extends State<FTMSPage> {
           // Bottom navigation for the two remaining tabs - only show if developer mode is enabled
           if (_isLoadingSettings)
             Container(
-              color: Theme.of(context).bottomAppBarTheme.color ?? Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).bottomAppBarTheme.color ??
+                  Theme.of(context).colorScheme.surface,
               child: const Center(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
@@ -89,7 +75,8 @@ class _FTMSPageState extends State<FTMSPage> {
             )
           else if (_userSettings?.developerMode == true)
             Container(
-              color: Theme.of(context).bottomAppBarTheme.color ?? Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).bottomAppBarTheme.color ??
+                  Theme.of(context).colorScheme.surface,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -102,7 +89,8 @@ class _FTMSPageState extends State<FTMSPage> {
                         context: context,
                         builder: (context) => SizedBox(
                           height: MediaQuery.of(context).size.height * 0.6,
-                          child: FTMSDeviceDataFeaturesTab(ftmsDevice: widget.ftmsDevice),
+                          child: FTMSDeviceDataFeaturesTab(
+                              ftmsDevice: widget.ftmsDevice),
                         ),
                       );
                     },
@@ -120,7 +108,8 @@ class _FTMSPageState extends State<FTMSPage> {
                           initialChildSize: 0.7,
                           minChildSize: 0.4,
                           maxChildSize: 0.95,
-                          builder: (context, scrollController) => SingleChildScrollView(
+                          builder: (context, scrollController) =>
+                              SingleChildScrollView(
                             controller: scrollController,
                             child: FTMSMachineFeaturesTab(
                               ftmsDevice: widget.ftmsDevice,
@@ -139,4 +128,3 @@ class _FTMSPageState extends State<FTMSPage> {
     );
   }
 }
-
