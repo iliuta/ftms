@@ -7,14 +7,15 @@ import 'speedometer_widget.dart';
 /// Dictionary of available FTMS display widgets for use in config files.
 /// Maps display type string to a builder function.
 typedef LiveDataFieldWidgetBuilder = Widget Function(
-    {required LiveDataFieldConfig displayField, LiveDataFieldValue? param, Color? color});
+    {required LiveDataFieldConfig displayField, LiveDataFieldValue? param, Color? color, ({double lower, double upper})? targetInterval});
 
 final Map<String, LiveDataFieldWidgetBuilder> liveDataFieldWidgetRegistry = {
-  'number': ({required displayField, param, color}) =>
+  'number': ({required displayField, param, color, targetInterval}) =>
       SimpleNumberWidget(displayField, param!, color),
-  'speedometer': ({required displayField, param, color}) => SpeedometerWidget(
+  'speedometer': ({required displayField, param, color, targetInterval}) => SpeedometerWidget(
         displayField: displayField,
         param: param,
         color: color ?? Colors.blue,
+        targetInterval: targetInterval,
       ),
 };

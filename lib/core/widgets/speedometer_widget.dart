@@ -11,12 +11,14 @@ class SpeedometerWidget extends StatelessWidget {
   final LiveDataFieldConfig displayField;
   final LiveDataFieldValue? param;
   final Color color;
+  final ({double lower, double upper})? targetInterval;
 
   const SpeedometerWidget(
       {super.key,
       required this.displayField,
       this.param,
-      this.color = Colors.blue});
+      this.color = Colors.blue,
+      this.targetInterval});
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +59,13 @@ class SpeedometerWidget extends StatelessWidget {
           width: 120,
           height: 65,
           child: CustomPaint(
-            painter: _GaugePainter(scaledValue.toDouble(), min!, max!, color),
+            painter: _GaugePainter(
+              scaledValue.toDouble(), 
+              min!, 
+              max!, 
+              color,
+              targetInterval: targetInterval,
+            ),
           ),
         ),
         const SizedBox(height: 2), // Reduced spacing
@@ -72,8 +80,9 @@ class _GaugePainter extends CustomPainter {
   final double min;
   final double max;
   final Color color;
+  final ({double lower, double upper})? targetInterval;
 
-  _GaugePainter(this.value, this.min, this.max, this.color);
+  _GaugePainter(this.value, this.min, this.max, this.color, {this.targetInterval});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -99,6 +108,38 @@ class _GaugePainter extends CustomPainter {
     
     // Draw background arc
     canvas.drawArc(rect, 3.14, 3.14, false, paint);
+    
+    // Draw target range if available
+    if (targetInterval != null) {
+      final targetPaint = Paint()
+        ..color = Colors.green.withValues(alpha: 0.3)
+        ..strokeWidth = 12
+        ..style = PaintingStyle.stroke;
+      
+      // Handle inverted ranges (where max < min, like pace values)
+      final bool isInverted = max < min;
+      final double targetLowerNormalized;
+      final double targetUpperNormalized;
+      final double targetStartAngle;
+      final double targetSweep;
+      
+      if (isInverted) {
+        // For inverted ranges, normalize the values and invert the position
+        targetLowerNormalized = ((targetInterval!.lower - max) / (min - max)).clamp(0, 1);
+        targetUpperNormalized = ((targetInterval!.upper - max) / (min - max)).clamp(0, 1);
+        targetStartAngle = 3.14 + (1 - targetUpperNormalized) * 3.14;
+        targetSweep = (targetUpperNormalized - targetLowerNormalized) * 3.14;
+      } else {
+        // Normal ranges
+        targetLowerNormalized = ((targetInterval!.lower - min) / (max - min)).clamp(0, 1);
+        targetUpperNormalized = ((targetInterval!.upper - min) / (max - min)).clamp(0, 1);
+        targetStartAngle = 3.14 + targetLowerNormalized * 3.14;
+        targetSweep = (targetUpperNormalized - targetLowerNormalized) * 3.14;
+      }
+      
+      canvas.drawArc(rect, targetStartAngle, targetSweep, false, targetPaint);
+    }
+    
     // Draw value arc
     final paintValue = Paint()
       ..color = color // Utilise la couleur passée au constructeur
