@@ -33,7 +33,7 @@ class TrainingSessionController extends ChangeNotifier {
   late final StravaService _stravaService;
 
   // Audio player for warning sounds
-  late final AudioPlayer _audioPlayer;
+  AudioPlayer? _audioPlayer;
 
   bool hasControl = false;
   bool sessionCompleted = false;
@@ -56,10 +56,22 @@ class TrainingSessionController extends ChangeNotifier {
     StravaService? stravaService,
     TrainingDataRecorder? dataRecorder,
     bool enableFitFileGeneration = true, // Allow disabling for tests
+    AudioPlayer? audioPlayer, // Allow injection for testing
   }) : _enableFitFileGeneration = enableFitFileGeneration {
     _ftmsService = ftmsService ?? FTMSService(ftmsDevice);
     _stravaService = stravaService ?? StravaService();
-    _audioPlayer = AudioPlayer();
+    
+    // Initialize audio player with error handling for tests
+    if (audioPlayer != null) {
+      _audioPlayer = audioPlayer;
+    } else {
+      try {
+        _audioPlayer = AudioPlayer();
+      } catch (e) {
+        debugPrint('Failed to initialize AudioPlayer (likely in test environment): $e');
+        _audioPlayer = null;
+      }
+    }
     _dataRecorder =
         dataRecorder; // Can be null, will be created in _initDataRecording if needed
     _intervals = session.unitIntervals;
@@ -257,13 +269,17 @@ class TrainingSessionController extends ChangeNotifier {
   }
 
   Future<void> _playWarningSound() async {
+    if (_audioPlayer == null) {
+      debugPrint('🔔 AudioPlayer not available, skipping sound playback');
+      return;
+    }
+    
     try {
       // Play custom beep sound from assets
-      await _audioPlayer.play(AssetSource('sounds/beep.wav'));
+      await _audioPlayer!.play(AssetSource('sounds/beep.wav'));
       debugPrint('🔔 Played custom beep sound');
     } catch (e) {
-      debugPrint(
-          '🔔 Failed to play any warning sound');
+      debugPrint('🔔 Failed to play warning sound: $e');
     }
   }
 
@@ -410,7 +426,7 @@ class TrainingSessionController extends ChangeNotifier {
     _disposed = true;
     _ftmsSub.cancel();
     _timer?.cancel();
-    _audioPlayer.dispose();
+    _audioPlayer?.dispose();
 
     // Send stop command to FTMS device if session wasn't completed normally
     if (!sessionCompleted) {

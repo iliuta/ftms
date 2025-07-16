@@ -14,6 +14,7 @@ import 'package:ftms/core/services/ftms_service.dart';
 import 'package:ftms/core/bloc/ftms_bloc.dart';
 import 'package:ftms/core/services/fit/training_data_recorder.dart';
 import 'package:ftms/core/services/strava/strava_service.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 // Generate mocks for our dependencies
 @GenerateMocks([
@@ -21,6 +22,7 @@ import 'package:ftms/core/services/strava/strava_service.dart';
   FTMSService,
   TrainingDataRecorder,
   StravaService,
+  AudioPlayer,
 ])
 import 'training_session_controller_test.mocks.dart';
 
@@ -134,6 +136,7 @@ void main() {
     late MockBluetoothDevice mockDevice;
     late MockFTMSService mockFtmsService;
     late StreamController<DeviceData?> ftmsStreamController;
+    late MockAudioPlayer mockAudioPlayer;
 
     setUp(() {
       session = TrainingSessionDefinition(
@@ -163,6 +166,7 @@ void main() {
       
       mockDevice = MockBluetoothDevice();
       mockFtmsService = MockFTMSService();
+      mockAudioPlayer = MockAudioPlayer();
       
       // Set up the FTMS stream controller
       ftmsStreamController = StreamController<DeviceData?>.broadcast();
@@ -172,6 +176,10 @@ void main() {
           .thenAnswer((_) async {});
       when(mockFtmsService.writeCommand(any, resistanceLevel: anyNamed('resistanceLevel')))
           .thenAnswer((_) async {});
+      
+      // Mock the audio player methods
+      when(mockAudioPlayer.play(any)).thenAnswer((_) async {});
+      when(mockAudioPlayer.dispose()).thenAnswer((_) async {});
     });
 
     tearDown(() {
@@ -184,6 +192,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -204,6 +213,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -217,6 +227,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -240,6 +251,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
       });
@@ -311,6 +323,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
       });
@@ -364,6 +377,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
       });
@@ -461,6 +475,7 @@ void main() {
           session: rowingSession,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -486,6 +501,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: errorMockService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -507,6 +523,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -528,6 +545,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -541,6 +559,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -556,6 +575,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           enableFitFileGeneration: false,
         );
 
@@ -629,6 +649,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
         );
@@ -649,6 +670,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: false,
         );
@@ -673,6 +695,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
         );
@@ -693,6 +716,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
         );
@@ -765,6 +789,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           stravaService: mockStravaService,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
@@ -804,6 +829,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           stravaService: mockStravaService,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
@@ -846,6 +872,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           stravaService: mockStravaService,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
@@ -891,6 +918,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           stravaService: mockStravaService,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
@@ -940,6 +968,7 @@ void main() {
           session: rowingSession,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           stravaService: mockStravaService,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
@@ -970,6 +999,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           stravaService: mockStravaService,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
@@ -1028,6 +1058,7 @@ void main() {
           session: session,
           ftmsDevice: mockDevice,
           ftmsService: mockFtmsService,
+          audioPlayer: mockAudioPlayer,
           stravaService: mockStravaService,
           dataRecorder: mockDataRecorder,
           enableFitFileGeneration: true,
