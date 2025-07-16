@@ -10,6 +10,7 @@
       "min": 400,
       "max": 0,
       "availableAsTarget": true,
+      "targetRange": 0.05,
       "userSetting": "rowingFtp"
     },
     {
@@ -19,7 +20,8 @@
       "formatter": "intFormatter",
       "unit": "spm",
       "icon": "rowing",
-      "availableAsTarget": true
+      "availableAsTarget": true,
+      "targetRange": 0.05
     },
     {
       "name": "Instantaneous Power",

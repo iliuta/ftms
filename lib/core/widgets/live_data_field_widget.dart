@@ -47,7 +47,7 @@ class LiveDataFieldWidget extends StatelessWidget {
   Color? _getFieldColor(dynamic value, num factor, Color? color) {
     if (target != null && param != null) {
       final targetValue = target is num ? target : num.tryParse(target.toString());
-      if (param!.isWithinTarget(targetValue)) {
+      if (param!.isWithinTarget(targetValue, field.targetRange)) {
         color = Colors.green[700];
       } else {
         color = Colors.red[700];
