@@ -59,6 +59,8 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
         _buildMaxHeartRateField(),
         _buildCyclingFtpField(),
         _buildRowingFtpField(),
+        const Divider(),
+        _buildDeveloperModeField(),
       ],
     );
   }
@@ -205,6 +207,36 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
     );
   }
 
+  Widget _buildDeveloperModeField() {
+    return ListTile(
+      leading: const Icon(Icons.developer_mode, color: Colors.orange),
+      title: const Text('Developer Mode'),
+      subtitle: const Text('Enable debugging options and beta features'),
+      trailing: Switch(
+        value: widget.userSettings.developerMode,
+        onChanged: (bool value) {
+          widget.onChanged(UserSettings(
+            maxHeartRate: widget.userSettings.maxHeartRate,
+            cyclingFtp: widget.userSettings.cyclingFtp,
+            rowingFtp: widget.userSettings.rowingFtp,
+            developerMode: value,
+          ));
+          HapticFeedback.lightImpact();
+        },
+      ),
+      onTap: () {
+        final newValue = !widget.userSettings.developerMode;
+        widget.onChanged(UserSettings(
+          maxHeartRate: widget.userSettings.maxHeartRate,
+          cyclingFtp: widget.userSettings.cyclingFtp,
+          rowingFtp: widget.userSettings.rowingFtp,
+          developerMode: newValue,
+        ));
+        HapticFeedback.lightImpact();
+      },
+    );
+  }
+
   void _startEditing(String field) {
     setState(() {
       _editingField = field;
@@ -228,6 +260,7 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
         maxHeartRate: value,
         cyclingFtp: widget.userSettings.cyclingFtp,
         rowingFtp: widget.userSettings.rowingFtp,
+        developerMode: widget.userSettings.developerMode,
       ));
       HapticFeedback.lightImpact();
       setState(() {
@@ -249,6 +282,7 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
         maxHeartRate: widget.userSettings.maxHeartRate,
         cyclingFtp: value,
         rowingFtp: widget.userSettings.rowingFtp,
+        developerMode: widget.userSettings.developerMode,
       ));
       HapticFeedback.lightImpact();
       setState(() {
@@ -270,6 +304,7 @@ class _UserPreferencesSectionState extends State<UserPreferencesSection> {
         maxHeartRate: widget.userSettings.maxHeartRate,
         cyclingFtp: widget.userSettings.cyclingFtp,
         rowingFtp: value,
+        developerMode: widget.userSettings.developerMode,
       ));
       HapticFeedback.lightImpact();
       setState(() {

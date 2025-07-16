@@ -13,6 +13,7 @@ import '../../core/utils/ftms_debug_utils.dart';
 import '../../core/config/live_data_display_config.dart';
 import '../../core/widgets/ftms_live_data_display_widget.dart';
 import '../../core/services/ftms_data_processor.dart';
+import '../settings/model/user_settings.dart';
 
 class FTMSDataTab extends StatefulWidget {
   final BluetoothDevice ftmsDevice;
@@ -28,11 +29,37 @@ class FTMSDataTabState extends State<FTMSDataTab> {
   LiveDataDisplayConfig? _config;
   String? _configError;
   final FtmsDataProcessor _dataProcessor = FtmsDataProcessor();
+  UserSettings? _userSettings;
+  bool _isLoadingSettings = true;
+  bool _isDeviceAvailable = true;
 
   @override
   void initState() {
     super.initState();
     _startFTMS();
+    _loadUserSettings();
+  }
+
+  Future<void> _loadUserSettings() async {
+    try {
+      final settings = await UserSettings.loadDefault();
+      setState(() {
+        _userSettings = settings;
+        _isLoadingSettings = false;
+      });
+    } catch (e) {
+      logger.w('Error loading user settings: $e');
+      // If settings fail to load, default to developer mode disabled
+      setState(() {
+        _userSettings = const UserSettings(
+          maxHeartRate: 180,
+          cyclingFtp: 250,
+          rowingFtp: '2:00',
+          developerMode: false,
+        );
+        _isLoadingSettings = false;
+      });
+    }
   }
 
   Future<void> _loadConfigForFtmsDeviceType(
@@ -47,6 +74,18 @@ class FTMSDataTabState extends State<FTMSDataTab> {
     // Configure data processor for averaging
     if (config != null) {
       _dataProcessor.configure(config);
+    }
+
+    // Check if device is available based on developer mode
+    _checkDeviceAvailability(config);
+  }
+
+  void _checkDeviceAvailability(LiveDataDisplayConfig? config) {
+    if (config != null && _userSettings != null) {
+      final isAvailable = _userSettings!.developerMode || !config.availableInDeveloperModeOnly;
+      setState(() {
+        _isDeviceAvailable = isAvailable;
+      });
     }
   }
 
@@ -80,6 +119,54 @@ class FTMSDataTabState extends State<FTMSDataTab> {
             }
             return const Center(child: CircularProgressIndicator());
           }
+
+          // Show loading while user settings are being loaded
+          if (_isLoadingSettings) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          // Show developer mode required message if device is not available
+          if (!_isDeviceAvailable) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.developer_mode,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Developer Mode Required',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'This device requires developer mode to be enabled. Please enable developer mode in the settings to view device data and features.',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Go back to previous screen
+                      },
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text('Go Back'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          // Show normal device data content
           final parameterValues = deviceData.getDeviceDataParameterValues();
           logFtmsParameterAttributes(parameterValues);
 

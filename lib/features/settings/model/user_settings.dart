@@ -7,11 +7,13 @@ class UserSettings {
   final int maxHeartRate;
   final int cyclingFtp;
   final String rowingFtp;
+  final bool developerMode;
 
   const UserSettings({
     required this.maxHeartRate,
     required this.cyclingFtp,
     required this.rowingFtp,
+    required this.developerMode,
   });
 
   factory UserSettings.fromJson(Map<String, dynamic> json) {
@@ -19,6 +21,7 @@ class UserSettings {
       maxHeartRate: json['maxHeartRate'] as int,
       cyclingFtp: json['cyclingFtp'] as int,
       rowingFtp: json['rowingFtp'] as String,
+      developerMode: json['developerMode'] as bool? ?? false,
     );
   }
 
@@ -27,6 +30,7 @@ class UserSettings {
       'maxHeartRate': maxHeartRate,
       'cyclingFtp': cyclingFtp,
       'rowingFtp': rowingFtp,
+      'developerMode': developerMode,
     };
   }
 
@@ -56,6 +60,7 @@ class UserSettings {
           maxHeartRate: 180,
           cyclingFtp: 250,
           rowingFtp: '2:00',
+          developerMode: false,
         );
       }
     }
@@ -101,6 +106,8 @@ class UserSettings {
         return double.tryParse(rowingFtp);
       case 'maxHeartRate':
         return maxHeartRate;
+      case 'developerMode':
+        return developerMode;
       default:
         return null;
     }

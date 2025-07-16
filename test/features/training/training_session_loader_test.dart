@@ -32,6 +32,7 @@ dynamic _enduranceRideJson = {
 LiveDataDisplayConfig _createMockConfig() {
   return LiveDataDisplayConfig(
     deviceType: DeviceType.indoorBike,
+    availableInDeveloperModeOnly: false,
     fields: [
       LiveDataFieldConfig(
         name: 'Instantaneous Power',
@@ -73,7 +74,7 @@ LiveDataDisplayConfig _createMockConfig() {
 }
 
 void main() {
-  final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00');
+  final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
   final config = _createMockConfig();
 
   test('TrainingSession.fromJson expands intervals with repeat field', () {

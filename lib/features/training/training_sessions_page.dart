@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/core/services/training_session_storage_service.dart';
+import 'package:ftms/core/config/live_data_display_config.dart';
+import 'package:ftms/features/settings/model/user_settings.dart';
 import 'training_session_loader.dart';
 import 'training_session_expansion_panel.dart';
 import 'training_session_progress_screen.dart';
@@ -25,12 +27,58 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
   List<TrainingSessionDefinition>? _sessions;
   bool _isLoading = true;
   String? _error;
-  DeviceType _selectedMachineType = DeviceType.indoorBike;
+  DeviceType _selectedMachineType = DeviceType.rower;
+  UserSettings? _userSettings;
+  List<DeviceType> _availableDeviceTypes = [DeviceType.rower, DeviceType.indoorBike];
 
   @override
   void initState() {
     super.initState();
-    _loadSessions();
+    _loadUserSettings();
+  }
+
+  Future<void> _loadUserSettings() async {
+    try {
+      final userSettings = await UserSettings.loadDefault();
+      setState(() {
+        _userSettings = userSettings;
+      });
+      await _filterAvailableDeviceTypes();
+      _loadSessions();
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to load user settings: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _filterAvailableDeviceTypes() async {
+    List<DeviceType> filteredTypes = [];
+    
+    for (DeviceType deviceType in [DeviceType.rower, DeviceType.indoorBike]) {
+      try {
+        final config = await LiveDataDisplayConfig.loadForFtmsMachineType(deviceType);
+        if (config != null) {
+          // If developer mode is enabled, show all devices
+          // If developer mode is disabled, only show devices that are NOT developer-only
+          if (_userSettings?.developerMode == true || !config.availableInDeveloperModeOnly) {
+            filteredTypes.add(deviceType);
+          }
+        }
+      } catch (e) {
+        // If we can't load config, assume it's available for non-developer mode
+        filteredTypes.add(deviceType);
+      }
+    }
+    
+    setState(() {
+      _availableDeviceTypes = filteredTypes;
+      // If the currently selected machine type is not available, switch to the first available one
+      if (!_availableDeviceTypes.contains(_selectedMachineType) && _availableDeviceTypes.isNotEmpty) {
+        _selectedMachineType = _availableDeviceTypes.first;
+      }
+    });
   }
 
   Future<void> _loadSessions() async {
@@ -54,7 +102,7 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
   }
 
   void _onMachineTypeChanged(DeviceType? newType) {
-    if (newType != null && newType != _selectedMachineType) {
+    if (newType != null && newType != _selectedMachineType && _availableDeviceTypes.contains(newType)) {
       setState(() {
         _selectedMachineType = newType;
       });
@@ -201,16 +249,12 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
                   child: DropdownButton<DeviceType>(
                     value: _selectedMachineType,
                     isExpanded: true,
-                    items: const [
-                      DropdownMenuItem(
-                        value: DeviceType.indoorBike,
-                        child: Text('Indoor Bike'),
-                      ),
-                      DropdownMenuItem(
-                        value: DeviceType.rower,
-                        child: Text('Rowing Machine'),
-                      ),
-                    ],
+                    items: _availableDeviceTypes.map((DeviceType deviceType) {
+                      return DropdownMenuItem<DeviceType>(
+                        value: deviceType,
+                        child: Text(deviceType == DeviceType.indoorBike ? 'Indoor Bike' : 'Rowing Machine'),
+                      );
+                    }).toList(),
                     onChanged: _onMachineTypeChanged,
                   ),
                 ),

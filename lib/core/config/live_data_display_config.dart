@@ -11,7 +11,14 @@ class LiveDataDisplayConfig {
 
   final List<LiveDataFieldConfig> fields;
 
-  LiveDataDisplayConfig({required this.fields, required this.deviceType});
+  /// Whether this configuration is only available in developer mode
+  final bool availableInDeveloperModeOnly;
+
+  LiveDataDisplayConfig({
+    required this.fields, 
+    required this.deviceType,
+    this.availableInDeveloperModeOnly = false,
+  });
 
   factory LiveDataDisplayConfig.fromJson(Map<String, dynamic> json) {
     final ftmsMachineType = DeviceType.fromString(json['ftmsMachineType']);
@@ -23,7 +30,10 @@ class LiveDataDisplayConfig {
         .map((f) => LiveDataFieldConfig.fromJson(f as Map<String, dynamic>))
         .toList();
     return LiveDataDisplayConfig(
-        fields: fields, deviceType: ftmsMachineType);
+        fields: fields, 
+        deviceType: ftmsMachineType,
+        availableInDeveloperModeOnly: json['availableInDeveloperModeOnly'] as bool? ?? false,
+    );
   }
 
   static final Map<DeviceType, Future<LiveDataDisplayConfig?>> _configCache = {};

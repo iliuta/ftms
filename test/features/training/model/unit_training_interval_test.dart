@@ -10,6 +10,7 @@ void main() {
   LiveDataDisplayConfig createIndoorBikeConfig() {
     return LiveDataDisplayConfig(
       deviceType: DeviceType.indoorBike,
+      availableInDeveloperModeOnly: false,
       fields: [
         LiveDataFieldConfig(
           name: 'Instantaneous Power',
@@ -40,6 +41,7 @@ void main() {
   LiveDataDisplayConfig createRowerConfig() {
     return LiveDataDisplayConfig(
       deviceType: DeviceType.rower,
+      availableInDeveloperModeOnly: false,
       fields: [
         LiveDataFieldConfig(
           name: 'Instantaneous Pace',
@@ -69,7 +71,7 @@ void main() {
   group('UnitTrainingInterval FTP percentage parsing', () {
     test('FTP percentage parsing uses user settings', () {
       // Simulate a user with FTP 250
-      final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00');
+      final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
       final config = createIndoorBikeConfig();
       final json = {
         'title': 'Test Interval',
@@ -87,7 +89,7 @@ void main() {
     });
 
     test('FTP percentage parsing for rower resolves to seconds', () {
-      final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00');
+      final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
       final config = createRowerConfig();
       final json = {
         'title': 'Test Interval',
@@ -133,7 +135,7 @@ void main() {
     });
 
     test('does not apply power strategy to fields without userSetting', () {
-      final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00');
+      final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
       final config = createIndoorBikeConfig();
       final json = {
         'title': 'Test Interval',
@@ -159,7 +161,7 @@ void main() {
     });
 
     test('rower only applies power strategy to Instantaneous Pace', () {
-      final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00');
+      final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
       final config = createRowerConfig();
       final json = {
         'title': 'Test Interval',

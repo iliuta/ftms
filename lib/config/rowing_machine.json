@@ -1,5 +1,6 @@
 {
   "ftmsMachineType": "DeviceDataType.rower",
+  "availableInDeveloperModeOnly": false,
   "fields": [
     {
       "name": "Instantaneous Pace",
