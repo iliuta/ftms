@@ -35,10 +35,15 @@ class LiveDataFieldWidget extends StatelessWidget {
 
     final widgetBuilder = liveDataFieldWidgetRegistry[field.display];
     if (widgetBuilder != null) {
+      // Compute target interval if target is available
+      final targetValue = target is num ? target : num.tryParse(target?.toString() ?? '');
+      final targetInterval = targetValue != null ? field.computeTargetInterval(targetValue) : null;
+      
       return widgetBuilder(
         displayField: field,
         param: param!,
-        color: color
+        color: color,
+        targetInterval: targetInterval,
       );
     }
     return Text('${field.label}: (unknown display type)', style: const TextStyle(color: Colors.red));
@@ -47,7 +52,7 @@ class LiveDataFieldWidget extends StatelessWidget {
   Color? _getFieldColor(dynamic value, num factor, Color? color) {
     if (target != null && param != null) {
       final targetValue = target is num ? target : num.tryParse(target.toString());
-      if (param!.isWithinTarget(targetValue)) {
+      if (param!.isWithinTarget(targetValue, field.targetRange)) {
         color = Colors.green[700];
       } else {
         color = Colors.red[700];

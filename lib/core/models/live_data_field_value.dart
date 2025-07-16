@@ -59,12 +59,13 @@ class LiveDataFieldValue {
     return value * factor;
   }
 
-  /// Check if this parameter's scaled value is within target range (±10%)
-  bool isWithinTarget(num? target) {
+  /// Check if this parameter's scaled value is within target range
+  /// [targetRange] represents the tolerance as a decimal (e.g., 0.1 for 10%, 0.05 for 5%)
+  bool isWithinTarget(num? target, double targetRange) {
     if (target == null) return false;
     final scaledValue = getScaledValue();
-    final lower = target * 0.9;
-    final upper = target * 1.1;
+    final lower = target * (1 - targetRange);
+    final upper = target * (1 + targetRange);
     return scaledValue >= lower && scaledValue <= upper;
   }
 

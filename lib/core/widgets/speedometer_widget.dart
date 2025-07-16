@@ -5,18 +5,21 @@ import 'package:ftms/core/config/live_data_field_format_strategy.dart';
 import 'package:ftms/core/config/live_data_field_config.dart';
 
 import '../models/live_data_field_value.dart';
+import 'live_data_icon_registry.dart';
 
 /// Widget for displaying a value as a speedometer (gauge).
 class SpeedometerWidget extends StatelessWidget {
   final LiveDataFieldConfig displayField;
   final LiveDataFieldValue? param;
   final Color color;
+  final ({double lower, double upper})? targetInterval;
 
   const SpeedometerWidget(
       {super.key,
       required this.displayField,
       this.param,
-      this.color = Colors.blue});
+      this.color = Colors.blue,
+      this.targetInterval});
 
   @override
   Widget build(BuildContext context) {
@@ -25,17 +28,30 @@ class SpeedometerWidget extends StatelessWidget {
     double? max =
         (displayField.max is num) ? (displayField.max as num).toDouble() : null;
     
+    IconData? iconData = getLiveDataIcon(displayField.icon);
+    
     if (param == null) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(displayField.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(displayField.label, style: const TextStyle(fontWeight: FontWeight.bold)),
+              if (iconData != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 6.0),
+                  child: Icon(iconData, size: 16, color: Colors.grey[600]),
+                ),
+            ],
+          ),
           const Text('No data', style: TextStyle(color: Colors.grey)),
         ],
       );
     }
     
     final scaledValue = param!.getScaledValue();
+    
     // if there is a formatter, then use the field format strategy to init a variable
     // with the formatted value
     String formattedValue = '${scaledValue.toStringAsFixed(0)} ${displayField.unit}';
@@ -51,13 +67,29 @@ class SpeedometerWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(displayField.label,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(displayField.label,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            if (iconData != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 6.0),
+                child: Icon(iconData, size: 16, color: Colors.grey[600]),
+              ),
+          ],
+        ),
         SizedBox(
           width: 120,
           height: 65,
           child: CustomPaint(
-            painter: _GaugePainter(scaledValue.toDouble(), min!, max!, color),
+            painter: _GaugePainter(
+              scaledValue.toDouble(), 
+              min!, 
+              max!, 
+              color,
+              targetInterval: targetInterval,
+            ),
           ),
         ),
         const SizedBox(height: 2), // Reduced spacing
@@ -72,8 +104,9 @@ class _GaugePainter extends CustomPainter {
   final double min;
   final double max;
   final Color color;
+  final ({double lower, double upper})? targetInterval;
 
-  _GaugePainter(this.value, this.min, this.max, this.color);
+  _GaugePainter(this.value, this.min, this.max, this.color, {this.targetInterval});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -99,6 +132,38 @@ class _GaugePainter extends CustomPainter {
     
     // Draw background arc
     canvas.drawArc(rect, 3.14, 3.14, false, paint);
+    
+    // Draw target range if available
+    if (targetInterval != null) {
+      final targetPaint = Paint()
+        ..color = Colors.green.withValues(alpha: 0.3)
+        ..strokeWidth = 12
+        ..style = PaintingStyle.stroke;
+      
+      // Handle inverted ranges (where max < min, like pace values)
+      final bool isInverted = max < min;
+      final double targetLowerNormalized;
+      final double targetUpperNormalized;
+      final double targetStartAngle;
+      final double targetSweep;
+      
+      if (isInverted) {
+        // For inverted ranges, normalize the values and invert the position
+        targetLowerNormalized = ((targetInterval!.lower - max) / (min - max)).clamp(0, 1);
+        targetUpperNormalized = ((targetInterval!.upper - max) / (min - max)).clamp(0, 1);
+        targetStartAngle = 3.14 + (1 - targetUpperNormalized) * 3.14;
+        targetSweep = (targetUpperNormalized - targetLowerNormalized) * 3.14;
+      } else {
+        // Normal ranges
+        targetLowerNormalized = ((targetInterval!.lower - min) / (max - min)).clamp(0, 1);
+        targetUpperNormalized = ((targetInterval!.upper - min) / (max - min)).clamp(0, 1);
+        targetStartAngle = 3.14 + targetLowerNormalized * 3.14;
+        targetSweep = (targetUpperNormalized - targetLowerNormalized) * 3.14;
+      }
+      
+      canvas.drawArc(rect, targetStartAngle, targetSweep, false, targetPaint);
+    }
+    
     // Draw value arc
     final paintValue = Paint()
       ..color = color // Utilise la couleur passée au constructeur

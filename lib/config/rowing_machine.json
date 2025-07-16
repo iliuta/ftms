@@ -7,10 +7,12 @@
       "display": "speedometer",
       "formatter": "rowerPaceFormatter",
       "unit": "seconds/500m",
-      "min": 400,
-      "max": 0,
+      "min": 360,
+      "max": 60,
       "availableAsTarget": true,
-      "userSetting": "rowingFtp"
+      "targetRange": 0.08,
+      "userSetting": "rowingFtp",
+      "icon": "speed"
     },
     {
       "name": "Stroke Rate",
@@ -19,7 +21,10 @@
       "formatter": "intFormatter",
       "unit": "spm",
       "icon": "rowing",
-      "availableAsTarget": true
+      "min": 0,
+      "max": 40,
+      "availableAsTarget": true,
+      "targetRange": 0.08
     },
     {
       "name": "Instantaneous Power",

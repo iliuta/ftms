@@ -32,6 +32,10 @@ class LiveDataFieldConfig {
   /// This links the field to a specific user setting for training purposes.
   /// For example, 'rowingFtp' for rowing FTP or 'cyclingFtp' for cycling FTP.
   final String? userSetting;
+  /// The percentage range to use when calculating isWithinRange for target values.
+  /// Represents the tolerance as a decimal (e.g., 0.1 for 10%, 0.05 for 5%).
+  /// Defaults to 0.1 (10%) if not specified.
+  final double targetRange;
 
   LiveDataFieldConfig({
     required this.name,
@@ -45,7 +49,47 @@ class LiveDataFieldConfig {
     this.samplePeriodSeconds,
     this.availableAsTarget = false,
     this.userSetting,
+    this.targetRange = 0.1,
   });
+  /// Computes the target interval range for a given target value.
+  /// Returns a record with (lower, upper) bounds based on the targetRange percentage.
+  /// 
+  /// For fields where min > max (like pace values), the calculation is adjusted
+  /// to ensure the interval makes sense within the field's constraints.
+  /// 
+  /// [target] The target value to compute the interval around
+  /// Returns a record with (lower, upper) bounds, or null if target is null
+  ({double lower, double upper})? computeTargetInterval(num? target) {
+    if (target == null) return null;
+    
+    final targetValue = target.toDouble();
+    final range = targetValue * targetRange;
+    
+    // Calculate initial bounds
+    var lower = targetValue - range.abs();
+    var upper = targetValue + range.abs();
+    
+    // Apply bounds if they exist
+    if (min != null && max != null) {
+      if (min! <= max!) {
+        // Normal fields where min <= max
+        lower = lower.clamp(min!.toDouble(), double.infinity);
+        upper = upper.clamp(double.negativeInfinity, max!.toDouble());
+      } else {
+        // Inverted fields where min > max (e.g., pace values)
+        // max is the lower constraint (best/fastest value), min is the upper constraint (worst/slowest value)
+        lower = lower.clamp(max!.toDouble(), double.infinity);
+        upper = upper.clamp(double.negativeInfinity, min!.toDouble());
+      }
+    } else {
+      // Apply individual bounds if only one exists
+      if (min != null) lower = lower.clamp(min!.toDouble(), double.infinity);
+      if (max != null) upper = upper.clamp(double.negativeInfinity, max!.toDouble());
+    }
+    
+    return (lower: lower, upper: upper);
+  }
+
   factory LiveDataFieldConfig.fromJson(Map<String, dynamic> json) {
     return LiveDataFieldConfig(
       name: json['name'] as String,
@@ -59,6 +103,7 @@ class LiveDataFieldConfig {
       samplePeriodSeconds: json['samplePeriodSeconds'] as int?,
       availableAsTarget: json['availableAsTarget'] as bool? ?? false,
       userSetting: json['userSetting'] as String?,
+      targetRange: json['targetRange'] as double? ?? 0.1,
     );
   }
 }
