@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/services/ftms_service.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
@@ -52,7 +53,7 @@ class TrainingSessionController extends ChangeNotifier {
     StravaService? stravaService,
     TrainingDataRecorder? dataRecorder,
     bool enableFitFileGeneration = true, // Allow disabling for tests
-  }) : _enableFitFileGeneration = enableFitFileGeneration {
+  }  ) : _enableFitFileGeneration = enableFitFileGeneration {
     _ftmsService = ftmsService ?? FTMSService(ftmsDevice);
     _stravaService = stravaService ?? StravaService();
     _dataRecorder = dataRecorder; // Can be null, will be created in _initDataRecording if needed
@@ -195,6 +196,7 @@ class TrainingSessionController extends ChangeNotifier {
   void _onTick() {
     if (sessionCompleted || sessionPaused) return;
     elapsed++;
+    debugPrint('🕐 Timer tick: elapsed=$elapsed, sessionCompleted=$sessionCompleted, sessionPaused=$sessionPaused, timerActive=$timerActive');
     if (elapsed >= _totalDuration) {
       _timer?.cancel();
       timerActive = false;
@@ -207,12 +209,21 @@ class TrainingSessionController extends ChangeNotifier {
         notifyListeners();
       });
     } else {
-      // Update current interval
+      // Update current interval first
       int previousInterval = currentInterval;
       while (currentInterval < _intervals.length - 1 && elapsed >= _intervalStartTimes[currentInterval + 1]) {
         currentInterval++;
       }
+      
+      // Calculate current interval timing using the correct current interval
       intervalElapsed = elapsed - _intervalStartTimes[currentInterval];
+      
+      // Play warning sound when interval is about to finish (5 seconds or less remaining)
+      final remainingTime = current.duration - intervalElapsed;
+      if (remainingTime <= 4 || remainingTime == current.duration) {
+        _playWarningSound();
+      }
+      
       // If interval changed and resistanceLevel is set, send command
       if (currentInterval != previousInterval) {
         final resistance = _intervals[currentInterval].resistanceLevel;
@@ -223,6 +234,21 @@ class TrainingSessionController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> _playWarningSound() async {
+    try {
+      // Try multiple system sounds for macOS compatibility
+      try {
+        await SystemSound.play(SystemSoundType.alert);
+      } catch (e) {
+        await SystemSound.play(SystemSoundType.click);
+      }
+    } catch (e) {
+      // Don't let audio errors crash the training session
+      debugPrint('🔔 Failed to play warning sound: $e');
+    }
+  }
+
 
   Future<void> _finishRecording() async {
     if (_dataRecorder != null) {
