@@ -73,7 +73,7 @@ LiveDataDisplayConfig _createMockConfig() {
 }
 
 void main() {
-  final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00');
+  final userSettings = UserSettings(maxHeartRate: 190, cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
   final config = _createMockConfig();
 
   test('TrainingSession.fromJson expands intervals with repeat field', () {

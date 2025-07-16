@@ -9,6 +9,7 @@ class TestableUserSettings extends UserSettings {
     required super.maxHeartRate,
     required super.cyclingFtp,
     required super.rowingFtp,
+    required super.developerMode,
   });
 
   static Future<UserSettings> loadFromAsset(String assetPath) async {
