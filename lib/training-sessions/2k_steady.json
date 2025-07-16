@@ -1,0 +1,59 @@
+{
+  "title": "2K steady",
+  "ftmsMachineType": "rower",
+  "intervals": [
+    {
+      "title": "Warm up",
+      "duration": 300,
+      "targets": {
+        "Instantaneous Pace": "90%",
+        "Stroke Rate": 20.0
+      },
+      "resistanceLevel": 40,
+      "repeat": 1
+    },
+    {
+      "repeat": 3,
+      "intervals": [
+        {
+          "title": "High",
+          "duration": 60,
+          "targets": {
+            "Instantaneous Pace": "110%"
+          },
+          "resistanceLevel": 60,
+          "repeat": null
+        },
+        {
+          "title": "Low",
+          "duration": 180,
+          "targets": {
+            "Instantaneous Pace": "90%",
+            "Stroke Rate": 22.0
+          },
+          "resistanceLevel": 60,
+          "repeat": null
+        }
+      ]
+    },
+    {
+      "title": "Intensive",
+      "duration": 450,
+      "targets": {
+        "Instantaneous Pace": "103%"
+      },
+      "resistanceLevel": 60,
+      "repeat": 1
+    },
+    {
+      "title": "Cool down",
+      "duration": 240,
+      "targets": {
+        "Instantaneous Pace": "90%",
+        "Stroke Rate": 22
+      },
+      "resistanceLevel": 40,
+      "repeat": 1
+    }
+  ]
+}
