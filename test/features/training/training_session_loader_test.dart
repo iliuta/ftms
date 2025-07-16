@@ -32,6 +32,7 @@ dynamic _enduranceRideJson = {
 LiveDataDisplayConfig _createMockConfig() {
   return LiveDataDisplayConfig(
     deviceType: DeviceType.indoorBike,
+    availableInDeveloperModeOnly: false,
     fields: [
       LiveDataFieldConfig(
         name: 'Instantaneous Power',

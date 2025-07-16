@@ -10,6 +10,7 @@ void main() {
   LiveDataDisplayConfig createIndoorBikeConfig() {
     return LiveDataDisplayConfig(
       deviceType: DeviceType.indoorBike,
+      availableInDeveloperModeOnly: false,
       fields: [
         LiveDataFieldConfig(
           name: 'Instantaneous Power',
@@ -40,6 +41,7 @@ void main() {
   LiveDataDisplayConfig createRowerConfig() {
     return LiveDataDisplayConfig(
       deviceType: DeviceType.rower,
+      availableInDeveloperModeOnly: false,
       fields: [
         LiveDataFieldConfig(
           name: 'Instantaneous Pace',
