@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../training/training_sessions_page.dart';
 import '../settings/settings_page.dart';
+import '../fit_files/fit_file_manager_page.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 
 /// A burger menu widget with navigation options and device status
@@ -31,6 +32,14 @@ class BurgerMenu extends StatelessWidget {
           ),
         ),
         const PopupMenuItem<String>(
+          value: 'fit_files',
+          child: ListTile(
+            leading: Icon(Icons.folder),
+            title: Text('FIT Files'),
+            dense: true,
+          ),
+        ),
+        const PopupMenuItem<String>(
           value: 'settings',
           child: ListTile(
             leading: Icon(Icons.settings),
@@ -50,6 +59,13 @@ class BurgerMenu extends StatelessWidget {
             builder: (context) => TrainingSessionsPage(
               connectedDevice: connectedDevice,
             ),
+          ),
+        );
+        break;
+      case 'fit_files':
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const FitFileManagerPage(),
           ),
         );
         break;
