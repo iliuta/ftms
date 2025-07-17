@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -299,6 +300,9 @@ class TrainingSessionController extends ChangeNotifier {
           // Attempt automatic Strava upload if user is authenticated
           if (fitFilePath != null) {
             await _attemptStravaUpload(fitFilePath);
+            
+            // Delete the FIT file after successful Strava upload
+            await _deleteFitFile(fitFilePath);
           }
         } else {
           logger.i(
@@ -307,6 +311,22 @@ class TrainingSessionController extends ChangeNotifier {
       } catch (e) {
         logger.e('**************** Failed to generate FIT file: $e');
         debugPrint('***************** Failed to generate FIT file: $e');
+      }
+    }
+  }
+
+  Future<void> _deleteFitFile(String fitFilePath) async {
+    if (stravaUploadSuccessful) {
+      try {
+        final file = File(fitFilePath);
+        if (await file.exists()) {
+          await file.delete();
+          logger.i('🗑️ FIT file deleted after successful Strava upload: $fitFilePath');
+          debugPrint('FIT file deleted: $fitFilePath');
+        }
+      } catch (e) {
+        logger.w('Failed to delete FIT file after Strava upload: $e');
+        debugPrint('Failed to delete FIT file: $e');
       }
     }
   }
@@ -344,16 +364,13 @@ class TrainingSessionController extends ChangeNotifier {
         stravaActivityId = uploadResult['id']?.toString();
         logger.i(
             '✅ Successfully uploaded activity to Strava: ${uploadResult['id']}');
-        debugPrint('Strava upload successful: ${uploadResult['id']}');
       } else {
         stravaUploadSuccessful = false;
         logger.w('❌ Failed to upload activity to Strava');
-        debugPrint('Strava upload failed');
       }
     } catch (e) {
       stravaUploadSuccessful = false;
       logger.e('Error during Strava upload: $e');
-      debugPrint('Strava upload error: $e');
     }
 
     notifyListeners();
@@ -371,7 +388,7 @@ class TrainingSessionController extends ChangeNotifier {
     try {
       _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
     } catch (e) {
-      debugPrint('Failed to send pause command: $e');
+      logger.e('Failed to send pause command: $e');
     }
 
     notifyListeners();
@@ -387,7 +404,7 @@ class TrainingSessionController extends ChangeNotifier {
     try {
       _ftmsService.writeCommand(MachineControlPointOpcodeType.startOrResume);
     } catch (e) {
-      debugPrint('Failed to send resume command: $e');
+      logger.e('Failed to send resume command: $e');
     }
 
     // Restart timer - it will start automatically when FTMS data changes
@@ -403,11 +420,12 @@ class TrainingSessionController extends ChangeNotifier {
     timerActive = false;
     _timer?.cancel();
 
-    // Send stop command to FTMS device
+    // Send stop + reset commands to FTMS device
     try {
       _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+      _ftmsService.writeCommand(MachineControlPointOpcodeType.reset);
     } catch (e) {
-      debugPrint('Failed to send stop command: $e');
+      logger.e('Failed to send stop command: $e');
     }
 
     // Finish recording and generate FIT file (async)
