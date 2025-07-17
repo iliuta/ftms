@@ -1,5 +1,5 @@
 buildscript {
-    ext.agp_version = "8.3.0" // Version du plugin Android Gradle
+    ext.agp_version = "8.5.0" // Updated Android Gradle Plugin version
 
     repositories {
         google()

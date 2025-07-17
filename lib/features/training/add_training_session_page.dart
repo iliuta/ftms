@@ -426,7 +426,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
           const SizedBox(height: 16),
           Row(
             children: [
-              const SizedBox(width: 100, child: Text('Resistance:')),
+              const SizedBox(width: 80, child: Text('Resistance:')),
               Expanded(
                 child: TextFormField(
                   initialValue: interval.resistanceLevel?.toString() ?? '',
@@ -435,6 +435,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                     suffixText: 'level',
                     isDense: true,
                     border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   ),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
@@ -489,38 +490,45 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
       child: Row(
         children: [
           SizedBox(
-            width: 100,
+            width: 80,
             child: Text('${field.label}:'),
           ),
           Expanded(
             child: canShowPercentage ?
               // Percentage input for fields that support percentage calculation
-              TextFormField(
-                initialValue: initialPercentage,
-                decoration: InputDecoration(
-                  hintText: 'Target %',
-                  suffixText: '% FTP',
-                  isDense: true,
-                  border: const OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  final percentage = double.tryParse(value);
-                  final newTargets = Map<String, dynamic>.from(interval.targets ?? {});
-                  if (percentage != null) {
-                    // Store percentage string (e.g., "85%") for serialization
-                    newTargets[field.name] = '${percentage.round()}%';
-                  } else {
-                    newTargets.remove(field.name);
-                  }
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // Use shorter suffix text on narrow screens
+                  final suffixText = constraints.maxWidth < 150 ? '%' : '% FTP';
+                  return TextFormField(
+                    initialValue: initialPercentage,
+                    decoration: InputDecoration(
+                      hintText: '%',
+                      suffixText: suffixText,
+                      isDense: true,
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      final percentage = double.tryParse(value);
+                      final newTargets = Map<String, dynamic>.from(interval.targets ?? {});
+                      if (percentage != null) {
+                        // Store percentage string (e.g., "85%") for serialization
+                        newTargets[field.name] = '${percentage.round()}%';
+                      } else {
+                        newTargets.remove(field.name);
+                      }
 
-                  onUpdate(UnitTrainingInterval(
-                    title: interval.title,
-                    duration: interval.duration,
-                    targets: newTargets,
-                    resistanceLevel: interval.resistanceLevel,
-                    repeat: interval.repeat,
-                  ));
+                      onUpdate(UnitTrainingInterval(
+                        title: interval.title,
+                        duration: interval.duration,
+                        targets: newTargets,
+                        resistanceLevel: interval.resistanceLevel,
+                        repeat: interval.repeat,
+                      ));
+                    },
+                  );
                 },
               ) :
               // Absolute value input for fields that don't support percentage calculation
@@ -531,6 +539,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                   suffixText: field.unit,
                   isDense: true,
                   border: const OutlineInputBorder(),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 ),
                 keyboardType: TextInputType.number,
                 onChanged: (value) {
