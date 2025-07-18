@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/models/device_types.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
 import 'package:ftms/features/training/widgets/training_session_chart.dart';
-import 'package:ftms/features/training/model/unit_training_interval.dart';
 
 void main() {
   group('TrainingSessionChart', () {
     testWidgets('displays chart with intervals', (WidgetTester tester) async {
-      final intervals = <UnitTrainingInterval>[
-        UnitTrainingInterval(
+      final intervals = <ExpandedUnitTrainingInterval>[
+        ExpandedUnitTrainingInterval(
           duration: 60,
           title: 'Warmup',
           targets: {'Instantaneous Power': '50%'},
         ),
-        UnitTrainingInterval(
+        ExpandedUnitTrainingInterval(
           duration: 120,
           title: 'Main',
           targets: {'Instantaneous Power': '100%'},
         ),
-        UnitTrainingInterval(
+        ExpandedUnitTrainingInterval(
           duration: 30,
           title: 'Cooldown',
           targets: {'Instantaneous Power': '30%'},
@@ -48,13 +48,13 @@ void main() {
     });
 
     testWidgets('shows hover tooltip when tapping on chart', (WidgetTester tester) async {
-      final intervals = <UnitTrainingInterval>[
-        UnitTrainingInterval(
+      final intervals = <ExpandedUnitTrainingInterval>[
+        ExpandedUnitTrainingInterval(
           duration: 60,
           title: 'Warmup',
           targets: {'Instantaneous Power': '50%'},
         ),
-        UnitTrainingInterval(
+        ExpandedUnitTrainingInterval(
           duration: 120,
           title: 'Main',
           targets: {'Instantaneous Power': '100%'},
@@ -87,8 +87,8 @@ void main() {
     });
 
     testWidgets('handles rower machine type', (WidgetTester tester) async {
-      final intervals = <UnitTrainingInterval>[
-        UnitTrainingInterval(
+      final intervals = <ExpandedUnitTrainingInterval>[
+        ExpandedUnitTrainingInterval(
           duration: 60,
           title: 'Warmup',
           targets: {'Instantaneous Pace': '105%'},
