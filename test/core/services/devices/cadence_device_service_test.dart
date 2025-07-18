@@ -95,11 +95,6 @@ void main() {
       });
     });
 
-    test('should connect to cadence device successfully', () async {
-      final result = await cadenceBtDevice.connectToDevice(mockDevice);
-      expect(result, isTrue);
-    }, skip: 'Bluetooth not available in test environment');
-
     test('should handle connection failure gracefully', () async {
       final failingDevice = FailingMockBluetoothDevice();
       final result = await cadenceBtDevice.connectToDevice(failingDevice);

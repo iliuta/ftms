@@ -233,6 +233,11 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
     }
   }
 
+  void _onSessionDuplicate(TrainingSessionDefinition session) {
+    // Reload sessions after duplication (this will be called from the expansion panel)
+    _loadSessions();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -368,6 +373,7 @@ class _TrainingSessionsPageState extends State<TrainingSessionsPage> {
       onSessionSelected: _onSessionSelected,
       onSessionEdit: _onSessionEdit,
       onSessionDelete: _onSessionDelete,
+      onSessionDuplicate: _onSessionDuplicate,
     );
   }
 

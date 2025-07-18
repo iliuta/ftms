@@ -1,0 +1,76 @@
+{
+  "title": "Steady state - endurance base - 37 min",
+  "ftmsMachineType": "rower",
+  "intervals": [
+    {
+      "repeat": 1,
+      "intervals": [
+        {
+          "title": "Warm up 1",
+          "duration": 120,
+          "targets": {
+            "Instantaneous Pace": "80%",
+            "Stroke Rate": 18.0
+          },
+          "resistanceLevel": 30,
+          "repeat": null
+        },
+        {
+          "title": "Warm up 2",
+          "duration": 120,
+          "targets": {
+            "Instantaneous Pace": "85%",
+            "Stroke Rate": 20.0
+          },
+          "resistanceLevel": 40,
+          "repeat": null
+        },
+        {
+          "title": "Warm up 3",
+          "duration": 120,
+          "targets": {
+            "Instantaneous Pace": "90%",
+            "Stroke Rate": 20.0
+          },
+          "resistanceLevel": 50,
+          "repeat": null
+        }
+      ]
+    },
+    {
+      "repeat": 4,
+      "intervals": [
+        {
+          "title": "Workout",
+          "duration": 240,
+          "targets": {
+            "Instantaneous Pace": "95%",
+            "Stroke Rate": 20.0
+          },
+          "resistanceLevel": 60,
+          "repeat": null
+        },
+        {
+          "title": "Rest",
+          "duration": 150,
+          "targets": {
+            "Stroke Rate": 18.0,
+            "Instantaneous Pace": "88%"
+          },
+          "resistanceLevel": 60,
+          "repeat": null
+        }
+      ]
+    },
+    {
+      "title": "Cool down",
+      "duration": 300,
+      "targets": {
+        "Instantaneous Pace": "85%",
+        "Stroke Rate": 20.0
+      },
+      "resistanceLevel": 50,
+      "repeat": 1
+    }
+  ]
+}

@@ -52,21 +52,6 @@ void main() {
       expect(isHrmDevice, isA<bool>());
     });
 
-    test('should connect to HRM device', () async {
-      // Note: Since HeartRateService is a real service with static dependencies,
-      // this test verifies the method structure rather than mocking the actual connection
-      final result = await service.connectToDevice(mockDevice);
-      expect(result, isA<bool>());
-    }, skip: 'Bluetooth not available in test environment');
-
-    test('should disconnect from HRM device', () async {
-      // This test verifies the method structure
-      await expectLater(
-        service.disconnectFromDevice(mockDevice),
-        completes,
-      );
-    }, skip: 'Bluetooth not available in test environment');
-
     test('should return null for device page', () {
       final page = service.getDevicePage(mockDevice);
       expect(page, isNull);

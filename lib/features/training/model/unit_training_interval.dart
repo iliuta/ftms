@@ -81,6 +81,17 @@ class UnitTrainingInterval extends TrainingInterval {
     return List.generate(r > 0 ? r : 1, (_) => this);
   }
 
+  @override
+  UnitTrainingInterval copy() {
+    return UnitTrainingInterval(
+      title: title,
+      duration: duration,
+      targets: targets != null ? Map<String, dynamic>.from(targets!) : null,
+      resistanceLevel: resistanceLevel,
+      repeat: repeat,
+    );
+  }
+
   /// Helper method to determine if a field should apply power strategy
   /// based on the field's userSetting configuration in LiveDataDisplayConfig.
   /// This replaces explicit checks for 'Instantaneous Power' and 'Instantaneous Pace'

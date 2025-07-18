@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ftms/core/models/device_types.dart';
@@ -30,13 +31,15 @@ class AddTrainingSessionPage extends StatefulWidget {
 
 class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
   final TextEditingController _titleController = TextEditingController();
-  final List<TrainingInterval> _intervals = [];
+  final LinkedHashMap<String, TrainingInterval> _intervals = LinkedHashMap<String, TrainingInterval>();
   LiveDataDisplayConfig? _config;
   UserSettings? _userSettings;
   bool _isLoading = true;
 
   // Check if we're in edit mode
   bool get _isEditMode => widget.existingSession != null;
+
+  List<TrainingInterval> get _intervalsList => _intervals.values.toList();
 
   @override
   void initState() {
@@ -77,9 +80,12 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     // Set the title
     _titleController.text = session.title;
     
-    // Clear and populate intervals
+    // Clear and populate intervals with generated keys
     _intervals.clear();
-    _intervals.addAll(session.intervals);
+    for (int i = 0; i < session.intervals.length; i++) {
+      final key = 'interval_${DateTime.now().millisecondsSinceEpoch}_$i';
+      _intervals[key] = session.intervals[i];
+    }
     
     setState(() {
       // Trigger rebuild to show the loaded data
@@ -95,7 +101,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     if (_userSettings == null) return [];
     
     final List<UnitTrainingInterval> expanded = [];
-    for (final interval in _intervals) {
+    for (final interval in _intervalsList) {
       // First expand targets (convert percentages to absolute values), then expand repetitions
       final expandedTargetsInterval = interval.expandTargets(
         machineType: widget.machineType,
@@ -108,20 +114,22 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
   }
 
   void _addUnitInterval() {
+    final key = 'interval_${DateTime.now().millisecondsSinceEpoch}';
     setState(() {
-      _intervals.add(UnitTrainingInterval(
+      _intervals[key] = UnitTrainingInterval(
         title: 'Interval ${_intervals.length + 1}',
         duration: 300, // 5 minutes default
         targets: {},
         resistanceLevel: null,
         repeat: 1,
-      ));
+      );
     });
   }
 
   void _addGroupInterval() {
+    final key = 'interval_${DateTime.now().millisecondsSinceEpoch}';
     setState(() {
-      _intervals.add(GroupTrainingInterval(
+      _intervals[key] = GroupTrainingInterval(
         intervals: [
           UnitTrainingInterval(
             title: 'Interval 1',
@@ -131,23 +139,62 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
           ),
         ],
         repeat: 3,
-      ));
+      );
     });
   }
 
-  void _removeInterval(int index) {
+  void _removeInterval(String key) {
     setState(() {
-      _intervals.removeAt(index);
+      _intervals.remove(key);
     });
+  }
+
+  void _duplicateInterval(String key) {
+    final originalInterval = _intervals[key];
+    if (originalInterval != null) {
+      final newKey = 'interval_${DateTime.now().millisecondsSinceEpoch}_dup';
+      setState(() {
+        final duplicatedInterval = originalInterval.copy();
+        
+        // Find the position of the original interval
+        final keys = _intervals.keys.toList();
+        final values = _intervals.values.toList();
+        final originalIndex = keys.indexOf(key);
+        
+        // Insert the duplicated interval right after the original
+        keys.insert(originalIndex + 1, newKey);
+        values.insert(originalIndex + 1, duplicatedInterval);
+        
+        // Rebuild the LinkedHashMap with the new order
+        _intervals.clear();
+        for (int i = 0; i < keys.length; i++) {
+          _intervals[keys[i]] = values[i];
+        }
+      });
+    }
   }
 
   void _reorderIntervals(int oldIndex, int newIndex) {
     setState(() {
+      final keys = _intervals.keys.toList();
+      final values = _intervals.values.toList();
+      
       if (oldIndex < newIndex) {
         newIndex -= 1;
       }
-      final TrainingInterval item = _intervals.removeAt(oldIndex);
-      _intervals.insert(newIndex, item);
+      
+      // Reorder the keys and values lists
+      final keyToMove = keys.removeAt(oldIndex);
+      final valueToMove = values.removeAt(oldIndex);
+      
+      keys.insert(newIndex, keyToMove);
+      values.insert(newIndex, valueToMove);
+      
+      // Rebuild the LinkedHashMap with the new order
+      _intervals.clear();
+      for (int i = 0; i < keys.length; i++) {
+        _intervals[keys[i]] = values[i];
+      }
     });
   }
 
@@ -262,13 +309,15 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                       style: TextStyle(color: Colors.grey),
                     ),
                   )
-                : ReorderableListView.builder(
+                : ReorderableListView(
                     padding: const EdgeInsets.all(16.0),
-                    itemCount: _intervals.length,
                     onReorder: _reorderIntervals,
-                    itemBuilder: (context, index) {
-                      return _buildIntervalCard(index, _intervals[index]);
-                    },
+                    children: _intervals.entries.map((entry) {
+                      final key = entry.key;
+                      final interval = entry.value;
+                      final index = _intervals.keys.toList().indexOf(key);
+                      return _buildIntervalCard(key, interval, index);
+                    }).toList(),
                     proxyDecorator: (child, index, animation) {
                       return AnimatedBuilder(
                         animation: animation,
@@ -309,9 +358,9 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     );
   }
 
-  Widget _buildIntervalCard(int index, TrainingInterval interval) {
+  Widget _buildIntervalCard(String key, TrainingInterval interval, int index) {
     return Card(
-      key: Key('interval_$index'),
+      key: Key(key),
       child: ExpansionTile(
         title: Row(
           children: [
@@ -325,20 +374,31 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
           ],
         ),
         subtitle: Text(_getIntervalSubtitle(interval)),
-        trailing: IconButton(
-          icon: const Icon(Icons.delete),
-          onPressed: () => _removeInterval(index),
-          tooltip: 'Delete',
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.copy),
+              onPressed: () => _duplicateInterval(key),
+              tooltip: 'Duplicate',
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => _removeInterval(key),
+              tooltip: 'Delete',
+            ),
+          ],
         ),
         children: [
           if (interval is UnitTrainingInterval)
             _buildUnitIntervalEditor(
+              key: ValueKey('unit_interval_$key'),
               interval: interval,
               isEditing: true, // Always in edit mode
-              onUpdate: (updatedInterval) => _updateUnitInterval(index, updatedInterval),
+              onUpdate: (updatedInterval) => _updateUnitInterval(key, updatedInterval),
             )
           else if (interval is GroupTrainingInterval)
-            _buildGroupIntervalEditor(interval),
+            _buildGroupIntervalEditor(key, interval),
         ],
       ),
     );
@@ -362,6 +422,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     required bool isEditing,
     required Function(UnitTrainingInterval) onUpdate,
     String? labelPrefix,
+    Key? key,
   }) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -575,7 +636,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     );
   }
 
-  Widget _buildGroupIntervalEditor(GroupTrainingInterval interval) {
+  Widget _buildGroupIntervalEditor(String key, GroupTrainingInterval interval) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -594,13 +655,10 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                   label: '${interval.repeat ?? 1}x',
                   onChanged: (value) {
                     setState(() {
-                      final index = _intervals.indexOf(interval);
-                      if (index >= 0) {
-                        _intervals[index] = GroupTrainingInterval(
-                          intervals: interval.intervals,
-                          repeat: value.round(),
-                        );
-                      }
+                      _intervals[key] = GroupTrainingInterval(
+                        intervals: interval.intervals,
+                        repeat: value.round(),
+                      );
                     });
                   },
                 ),
@@ -617,7 +675,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
               const Spacer(),
               IconButton(
                 icon: const Icon(Icons.add, size: 20),
-                onPressed: () => _addSubInterval(interval),
+                onPressed: () => _addSubInterval(key, interval),
                 tooltip: 'Add Sub-interval',
               ),
             ],
@@ -629,6 +687,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
           ...interval.intervals.asMap().entries.map((entry) {
             final subIndex = entry.key;
             final subInterval = entry.value;
+            final subKey = '${key}_sub_$subIndex';
 
             return Card(
               color: Colors.blue[50],
@@ -647,7 +706,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete, size: 16),
-                          onPressed: () => _removeSubInterval(interval, subIndex),
+                          onPressed: () => _removeSubInterval(key, interval, subIndex),
                           tooltip: 'Remove Sub-interval',
                         ),
                       ],
@@ -655,9 +714,10 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                   ),
                   // Use the unified editor - always in edit mode
                   _buildUnitIntervalEditor(
+                    key: ValueKey(subKey),
                     interval: subInterval,
                     isEditing: true,
-                    onUpdate: (updatedInterval) => _updateSubInterval(interval, subIndex, updatedInterval),
+                    onUpdate: (updatedInterval) => _updateSubInterval(key, interval, subIndex, updatedInterval),
                     labelPrefix: 'Sub-interval',
                   ),
                 ],
@@ -680,36 +740,32 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     );
   }
 
-  void _addSubInterval(GroupTrainingInterval groupInterval) {
+  void _addSubInterval(String key, GroupTrainingInterval groupInterval) {
     setState(() {
-      final index = _intervals.indexOf(groupInterval);
-      if (index >= 0) {
-        final newSubInterval = UnitTrainingInterval(
-          title: 'Interval ${groupInterval.intervals.length + 1}',
-          duration: 120, // 2 minutes default
-          targets: {},
-          resistanceLevel: null,
-        );
+      final newSubInterval = UnitTrainingInterval(
+        title: 'Interval ${groupInterval.intervals.length + 1}',
+        duration: 120, // 2 minutes default
+        targets: {},
+        resistanceLevel: null,
+      );
 
-        final updatedIntervals = List<UnitTrainingInterval>.from(groupInterval.intervals)
-          ..add(newSubInterval);
+      final updatedIntervals = List<UnitTrainingInterval>.from(groupInterval.intervals)
+        ..add(newSubInterval);
 
-        _intervals[index] = GroupTrainingInterval(
-          intervals: updatedIntervals,
-          repeat: groupInterval.repeat,
-        );
-      }
+      _intervals[key] = GroupTrainingInterval(
+        intervals: updatedIntervals,
+        repeat: groupInterval.repeat,
+      );
     });
   }
 
-  void _removeSubInterval(GroupTrainingInterval groupInterval, int subIndex) {
+  void _removeSubInterval(String key, GroupTrainingInterval groupInterval, int subIndex) {
     setState(() {
-      final index = _intervals.indexOf(groupInterval);
-      if (index >= 0 && subIndex >= 0 && subIndex < groupInterval.intervals.length) {
+      if (subIndex >= 0 && subIndex < groupInterval.intervals.length) {
         final updatedIntervals = List<UnitTrainingInterval>.from(groupInterval.intervals)
           ..removeAt(subIndex);
 
-        _intervals[index] = GroupTrainingInterval(
+        _intervals[key] = GroupTrainingInterval(
           intervals: updatedIntervals,
           repeat: groupInterval.repeat,
         );
@@ -766,7 +822,7 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
       final session = TrainingSessionDefinition(
         title: _titleController.text.trim(),
         ftmsMachineType: widget.machineType,
-        intervals: List<TrainingInterval>.from(_intervals),
+        intervals: _intervalsList,
         isCustom: true,
       );
 
@@ -803,14 +859,13 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     super.dispose();
   }
 
-  void _updateSubInterval(GroupTrainingInterval groupInterval, int subIndex, UnitTrainingInterval newSubInterval) {
+  void _updateSubInterval(String key, GroupTrainingInterval groupInterval, int subIndex, UnitTrainingInterval newSubInterval) {
     setState(() {
-      final groupIndex = _intervals.indexOf(groupInterval);
-      if (groupIndex >= 0 && subIndex >= 0 && subIndex < groupInterval.intervals.length) {
+      if (subIndex >= 0 && subIndex < groupInterval.intervals.length) {
         final updatedIntervals = List<UnitTrainingInterval>.from(groupInterval.intervals);
         updatedIntervals[subIndex] = newSubInterval;
 
-        _intervals[groupIndex] = GroupTrainingInterval(
+        _intervals[key] = GroupTrainingInterval(
           intervals: updatedIntervals,
           repeat: groupInterval.repeat,
         );
@@ -818,11 +873,9 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     });
   }
 
-  void _updateUnitInterval(int index, UnitTrainingInterval updatedInterval) {
+  void _updateUnitInterval(String key, UnitTrainingInterval updatedInterval) {
     setState(() {
-      if (index >= 0 && index < _intervals.length) {
-        _intervals[index] = updatedInterval;
-      }
+      _intervals[key] = updatedInterval;
     });
   }
 

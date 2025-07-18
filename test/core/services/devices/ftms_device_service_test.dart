@@ -93,31 +93,6 @@ void main() {
       });
     });
 
-    test('should test isFtmsDevice async method', () async {
-      // This tests the structure of the async method
-      // In a real test environment, you might want to mock FTMS.isBluetoothDeviceFTMSDevice
-      final result = ftmsBtDevice.isFtmsDevice(mockDevice);
-      expect(result, isA<Future<bool>>());
-      
-      // Skip the actual call in test environment due to platform limitations
-      // In a real app, this would be properly mocked
-    }, skip: 'Bluetooth not available in test environment');
-
-    test('should connect to FTMS device', () async {
-      // This tests the method structure
-      // In a real test, you'd mock FTMS.connectToFTMSDevice
-      final result = await ftmsBtDevice.connectToDevice(mockDevice);
-      expect(result, isA<bool>());
-    }, skip: 'Bluetooth not available in test environment');
-
-    test('should disconnect from FTMS device', () async {
-      // This tests the method structure
-      await expectLater(
-        ftmsBtDevice.disconnectFromDevice(mockDevice),
-        completes,
-      );
-    }, skip: 'Bluetooth not available in test environment');
-
     test('should return null for device page', () {
       final page = ftmsBtDevice.getDevicePage(mockDevice);
       expect(page, isNull);

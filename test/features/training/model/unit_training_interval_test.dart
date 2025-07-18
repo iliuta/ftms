@@ -186,4 +186,96 @@ void main() {
       expect(interval.targets!['Instantaneous Power'], '90%');
     });
   });
+
+  group('UnitTrainingInterval copy method', () {
+    test('copy creates deep copy with same values', () {
+      final interval = UnitTrainingInterval(
+        title: 'Test Interval',
+        duration: 120,
+        targets: {'power': '100W', 'cadence': '90rpm'},
+        resistanceLevel: 5,
+        repeat: 3,
+      );
+      
+      final copied = interval.copy();
+      
+      expect(copied.title, equals(interval.title));
+      expect(copied.duration, equals(interval.duration));
+      expect(copied.targets!['power'], equals(interval.targets!['power']));
+      expect(copied.targets!['cadence'], equals(interval.targets!['cadence']));
+      expect(copied.resistanceLevel, equals(interval.resistanceLevel));
+      expect(copied.repeat, equals(interval.repeat));
+      
+      // Verify it's a deep copy (different object references)
+      expect(copied, isNot(same(interval)));
+      expect(copied.targets, isNot(same(interval.targets)));
+    });
+
+    test('copy creates independent copy that can be modified', () {
+      final interval = UnitTrainingInterval(
+        title: 'Original',
+        duration: 60,
+        targets: {'power': '100W'},
+      );
+      
+      final copied = interval.copy();
+      
+      // Modify the original targets
+      interval.targets!['power'] = '200W';
+      
+      // The copy should remain unchanged
+      expect(copied.targets!['power'], equals('100W'));
+      expect(interval.targets!['power'], equals('200W'));
+    });
+
+    test('copy handles null targets', () {
+      final interval = UnitTrainingInterval(
+        title: 'Test',
+        duration: 60,
+        targets: null,
+        resistanceLevel: 3,
+        repeat: 1,
+      );
+      
+      final copied = interval.copy();
+      
+      expect(copied.title, equals('Test'));
+      expect(copied.duration, equals(60));
+      expect(copied.targets, isNull);
+      expect(copied.resistanceLevel, equals(3));
+      expect(copied.repeat, equals(1));
+    });
+
+    test('copy handles null optional fields', () {
+      final interval = UnitTrainingInterval(
+        title: null,
+        duration: 60,
+        targets: null,
+        resistanceLevel: null,
+        repeat: null,
+      );
+      
+      final copied = interval.copy();
+      
+      expect(copied.title, isNull);
+      expect(copied.duration, equals(60));
+      expect(copied.targets, isNull);
+      expect(copied.resistanceLevel, isNull);
+      expect(copied.repeat, isNull);
+    });
+
+    test('copy preserves empty targets map', () {
+      final interval = UnitTrainingInterval(
+        title: 'Test',
+        duration: 60,
+        targets: <String, dynamic>{},
+      );
+      
+      final copied = interval.copy();
+      
+      expect(copied.targets, isNotNull);
+      expect(copied.targets, isEmpty);
+      expect(copied.targets, isNot(same(interval.targets)));
+    });
+  });
 }
