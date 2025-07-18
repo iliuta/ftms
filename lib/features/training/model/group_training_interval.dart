@@ -59,4 +59,12 @@ class GroupTrainingInterval extends TrainingInterval {
     }
     return flat;
   }
+
+  @override
+  GroupTrainingInterval copy() {
+    return GroupTrainingInterval(
+      repeat: repeat,
+      intervals: intervals.map((interval) => interval.copy()).toList(),
+    );
+  }
 }

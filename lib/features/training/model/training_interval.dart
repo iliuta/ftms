@@ -11,5 +11,6 @@ abstract class TrainingInterval {
     UserSettings? userSettings,
     LiveDataDisplayConfig? config,
   });
+  TrainingInterval copy();
   Map<String, dynamic> toJson();
 }

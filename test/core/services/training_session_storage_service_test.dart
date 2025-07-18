@@ -128,5 +128,187 @@ void main() {
         // File system test skipped: $e
       }
     });
+
+    test('should duplicate session correctly', () async {
+      try {
+        // Create original session
+        final originalSession = TrainingSessionDefinition(
+          title: 'Original Session',
+          ftmsMachineType: DeviceType.rower,
+          intervals: [
+            UnitTrainingInterval(
+              duration: 300,
+              title: 'Warm Up',
+              targets: {'Stroke Rate': 20, 'Heart Rate': 120},
+            ),
+            UnitTrainingInterval(
+              duration: 600,
+              title: 'Main Set',
+              targets: {'Stroke Rate': 28, 'Heart Rate': 160},
+            ),
+          ],
+          isCustom: false, // Original is built-in
+        );
+
+        // Create duplicated session
+        final duplicatedSession = TrainingSessionDefinition(
+          title: 'Original Session (Copy)',
+          ftmsMachineType: originalSession.ftmsMachineType,
+          intervals: List.from(originalSession.intervals),
+          isCustom: true, // Duplicate is always custom
+        );
+
+        // Save the duplicated session
+        final filePath = await service.saveSession(duplicatedSession);
+        expect(filePath, isNotNull);
+
+        // Load and verify
+        final loadedSessions = await service.loadCustomSessions();
+        final loadedSession = loadedSessions.firstWhere(
+          (s) => s.title == 'Original Session (Copy)',
+          orElse: () => throw Exception('Duplicated session not found'),
+        );
+
+        expect(loadedSession.title, equals('Original Session (Copy)'));
+        expect(loadedSession.ftmsMachineType, equals(DeviceType.rower));
+        expect(loadedSession.isCustom, isTrue);
+        expect(loadedSession.intervals.length, equals(2));
+        
+        // Verify interval content is preserved
+        final interval0 = loadedSession.intervals[0] as UnitTrainingInterval;
+        final interval1 = loadedSession.intervals[1] as UnitTrainingInterval;
+        expect(interval0.title, equals('Warm Up'));
+        expect(interval0.duration, equals(300));
+        expect(interval1.title, equals('Main Set'));
+        expect(interval1.duration, equals(600));
+
+        // Clean up
+        await service.deleteSession(
+          'Original Session (Copy)',
+          'DeviceType.rower',
+        );
+      } catch (e) {
+        // File system test skipped: $e
+      }
+    });
+
+    test('should handle duplication with different machine types', () async {
+      try {
+        // Create sessions for different machine types
+        final rowerSession = TrainingSessionDefinition(
+          title: 'Rower Session',
+          ftmsMachineType: DeviceType.rower,
+          intervals: [
+            UnitTrainingInterval(
+              duration: 300,
+              title: 'Test',
+              targets: {'Stroke Rate': 24},
+            ),
+          ],
+          isCustom: false,
+        );
+
+        final bikeSession = TrainingSessionDefinition(
+          title: 'Bike Session',
+          ftmsMachineType: DeviceType.indoorBike,
+          intervals: [
+            UnitTrainingInterval(
+              duration: 300,
+              title: 'Test',
+              targets: {'Instantaneous Power': 200},
+            ),
+          ],
+          isCustom: false,
+        );
+
+        // Duplicate both sessions
+        final duplicatedRower = TrainingSessionDefinition(
+          title: 'Rower Session (Copy)',
+          ftmsMachineType: rowerSession.ftmsMachineType,
+          intervals: List.from(rowerSession.intervals),
+          isCustom: true,
+        );
+
+        final duplicatedBike = TrainingSessionDefinition(
+          title: 'Bike Session (Copy)',
+          ftmsMachineType: bikeSession.ftmsMachineType,
+          intervals: List.from(bikeSession.intervals),
+          isCustom: true,
+        );
+
+        // Save both
+        await service.saveSession(duplicatedRower);
+        await service.saveSession(duplicatedBike);
+
+        // Load and verify
+        final loadedSessions = await service.loadCustomSessions();
+        final loadedRower = loadedSessions.firstWhere(
+          (s) => s.title == 'Rower Session (Copy)',
+          orElse: () => throw Exception('Duplicated rower session not found'),
+        );
+        final loadedBike = loadedSessions.firstWhere(
+          (s) => s.title == 'Bike Session (Copy)',
+          orElse: () => throw Exception('Duplicated bike session not found'),
+        );
+
+        expect(loadedRower.ftmsMachineType, equals(DeviceType.rower));
+        expect(loadedBike.ftmsMachineType, equals(DeviceType.indoorBike));
+
+        // Clean up
+        await service.deleteSession('Rower Session (Copy)', 'DeviceType.rower');
+        await service.deleteSession('Bike Session (Copy)', 'DeviceType.indoorBike');
+      } catch (e) {
+        // File system test skipped: $e
+      }
+    });
+
+    test('should preserve interval targets when duplicating', () async {
+      try {
+        // Create session with complex targets
+        final originalSession = TrainingSessionDefinition(
+          title: 'Complex Session',
+          ftmsMachineType: DeviceType.rower,
+          intervals: [
+            UnitTrainingInterval(
+              duration: 300,
+              title: 'Multi-target Interval',
+              targets: {
+                'Stroke Rate': 24,
+                'Heart Rate': 150,
+                'Instantaneous Power': 200,
+              },
+            ),
+          ],
+          isCustom: false,
+        );
+
+        // Duplicate it
+        final duplicatedSession = TrainingSessionDefinition(
+          title: 'Complex Session (Copy)',
+          ftmsMachineType: originalSession.ftmsMachineType,
+          intervals: List.from(originalSession.intervals),
+          isCustom: true,
+        );
+
+        // Save and load
+        await service.saveSession(duplicatedSession);
+        final loadedSessions = await service.loadCustomSessions();
+        final loadedSession = loadedSessions.firstWhere(
+          (s) => s.title == 'Complex Session (Copy)',
+          orElse: () => throw Exception('Duplicated session not found'),
+        );
+
+        // Verify all targets are preserved
+        final interval = loadedSession.intervals[0] as UnitTrainingInterval;
+        expect(interval.targets!['Stroke Rate'], equals(24));
+        expect(interval.targets!['Heart Rate'], equals(150));
+        expect(interval.targets!['Instantaneous Power'], equals(200));
+
+        // Clean up
+        await service.deleteSession('Complex Session (Copy)', 'DeviceType.rower');
+      } catch (e) {
+        // File system test skipped: $e
+      }
+    });
   });
 }

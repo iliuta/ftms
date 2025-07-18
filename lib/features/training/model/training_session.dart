@@ -53,6 +53,18 @@ class TrainingSessionDefinition {
     };
   }
 
+  /// Creates a copy of this training session with all fields copied field by field.
+  /// No expansion is performed - the intervals are copied in their original form.
+  TrainingSessionDefinition copy() {
+    return TrainingSessionDefinition(
+      title: title,
+      ftmsMachineType: ftmsMachineType,
+      intervals: intervals.map((interval) => interval.copy()).toList(),
+      isCustom: isCustom,
+      originalSession: originalSession?.copy(),
+    );
+  }
+
   /// Creates a new instance with expanded intervals and target values.
   /// This expands group intervals into their constituent unit intervals
   /// and resolves percentage-based targets using the provided user settings.
