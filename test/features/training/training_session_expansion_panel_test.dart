@@ -184,7 +184,7 @@ void main() {
     await tester.pump();
 
     // Should show duplicate button for both sessions
-    expect(find.text('Duplicate'), findsNWidgets(2));
+    expect(find.byTooltip('Duplicate'), findsNWidgets(2));
     expect(find.byIcon(Icons.content_copy), findsNWidgets(2));
   });
 
@@ -209,7 +209,7 @@ void main() {
     await tester.pumpAndSettle();
     
     // Tap the duplicate button
-    await tester.tap(find.text('Duplicate'));
+    await tester.tap(find.byTooltip('Duplicate'));
     await tester.pumpAndSettle();
 
     // Should show duplicate confirmation dialog
@@ -218,7 +218,8 @@ void main() {
     expect(find.text('New Session Title'), findsOneWidget);
     expect(find.text('Test Session (Copy)'), findsOneWidget);
     expect(find.text('Cancel'), findsOneWidget);
-    expect(find.text('Duplicate'), findsNWidgets(2)); // One in panel, one in dialog
+    expect(find.text('Duplicate'), findsNWidgets(1)); // One in panel, one in dialog
+    expect(find.byTooltip('Duplicate'), findsNWidgets(1)); // One in panel, one in dialog
   });
 
   testWidgets('duplicate dialog can be cancelled', (WidgetTester tester) async {
@@ -240,7 +241,7 @@ void main() {
     // Expand the panel and open duplicate dialog
     await tester.tap(find.text('Test Session'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Duplicate'));
+    await tester.tap(find.byTooltip('Duplicate'));
     await tester.pumpAndSettle();
 
     // Tap cancel
@@ -270,7 +271,7 @@ void main() {
     // Expand the panel and open duplicate dialog
     await tester.tap(find.text('Test Session'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Duplicate'));
+    await tester.tap(find.byTooltip('Duplicate'));
     await tester.pumpAndSettle();
 
     // Find the text field and edit it
@@ -305,7 +306,7 @@ void main() {
     // Expand the panel and open duplicate dialog
     await tester.tap(find.text('Test Session'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Duplicate'));
+    await tester.tap(find.byTooltip('Duplicate'));
     await tester.pumpAndSettle();
 
     // Tap duplicate button in dialog
@@ -355,8 +356,8 @@ void main() {
     await tester.pump();
 
     // Should show edit and delete buttons only for custom session
-    expect(find.text('Edit'), findsOneWidget);
-    expect(find.text('Delete'), findsOneWidget);
+    expect(find.byTooltip('Edit'), findsOneWidget);
+    expect(find.byTooltip('Delete'), findsOneWidget);
     expect(find.byIcon(Icons.edit), findsOneWidget);
     expect(find.byIcon(Icons.delete), findsOneWidget);
   });
@@ -382,7 +383,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the delete button
-    await tester.tap(find.text('Delete'));
+    await tester.tap(find.byTooltip('Delete'));
     await tester.pumpAndSettle();
 
     // Should show delete confirmation dialog

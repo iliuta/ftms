@@ -176,9 +176,9 @@ class _TrainingSessionExpansionPanelListState
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               // Add duplicate button for all sessions
-              TextButton.icon(
+              IconButton(
                 icon: const Icon(Icons.content_copy, size: 16),
-                label: const Text('Duplicate'),
+                tooltip: 'Duplicate',
                 onPressed: () {
                   _showDuplicateConfirmationDialog(context, session);
                 },
@@ -186,9 +186,9 @@ class _TrainingSessionExpansionPanelListState
               const SizedBox(width: 8),
               // Add edit and delete buttons for custom sessions
               if (session.isCustom) ...[
-                TextButton.icon(
+                IconButton(
                   icon: const Icon(Icons.edit, size: 16),
-                  label: const Text('Edit'),
+                  tooltip: 'Edit',
                   onPressed: () {
                     if (widget.onSessionEdit != null) {
                       widget.onSessionEdit!(session);
@@ -196,9 +196,9 @@ class _TrainingSessionExpansionPanelListState
                   },
                 ),
                 const SizedBox(width: 8),
-                TextButton.icon(
+                IconButton(
                   icon: const Icon(Icons.delete, size: 16, color: Colors.red),
-                  label: const Text('Delete', style: TextStyle(color: Colors.red)),
+                  tooltip: 'Delete',
                   onPressed: () {
                     _showDeleteConfirmationDialog(context, session);
                   },
