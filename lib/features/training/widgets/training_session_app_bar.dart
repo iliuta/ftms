@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../model/training_session.dart';
+import '../model/expanded_training_session_definition.dart';
 import '../training_session_controller.dart';
 
 /// App bar for the training session screen
 class TrainingSessionAppBar extends StatelessWidget
     implements PreferredSizeWidget {
-  final TrainingSessionDefinition session;
+  final ExpandedTrainingSessionDefinition session;
   final TrainingSessionController controller;
 
   const TrainingSessionAppBar({

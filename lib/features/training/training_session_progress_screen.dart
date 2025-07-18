@@ -5,6 +5,7 @@ import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../core/config/live_data_display_config.dart';
 import '../settings/model/user_settings.dart';
 import 'model/training_session.dart';
+import 'model/expanded_training_session_definition.dart';
 import 'training_session_controller.dart';
 import 'widgets/training_session_scaffold.dart';
 
@@ -51,7 +52,7 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
     return FutureBuilder<LiveDataDisplayConfig?>(
       future: _loadConfig(),
       builder: (context, snapshot) {
-        return FutureBuilder<TrainingSessionDefinition>(
+        return FutureBuilder<ExpandedTrainingSessionDefinition>(
           future: _expandSession(),
           builder: (context, sessionSnapshot) {
             if (sessionSnapshot.connectionState == ConnectionState.waiting) {
@@ -60,7 +61,12 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
               );
             }
             
-            final expandedSession = sessionSnapshot.data ?? widget.session;
+            final expandedSession = sessionSnapshot.data;
+            if (expandedSession == null) {
+              return const Scaffold(
+                body: Center(child: Text('Failed to load session')),
+              );
+            }
             
             return ChangeNotifierProvider(
               create: (_) => TrainingSessionController(
@@ -84,7 +90,7 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
     );
   }
 
-  Future<TrainingSessionDefinition> _expandSession() async {
+  Future<ExpandedTrainingSessionDefinition> _expandSession() async {
     try {
       final userSettings = await UserSettings.loadDefault();
       final config = await LiveDataDisplayConfig.loadForFtmsMachineType(widget.session.ftmsMachineType);
@@ -93,9 +99,13 @@ class _TrainingSessionProgressScreenState extends State<TrainingSessionProgressS
         config: config,
       );
     } catch (e) {
-      // If expansion fails, use the session directly
+      // If expansion fails, create a minimal expanded session from the original
       debugPrint('Failed to expand session: $e');
-      return widget.session;
+      final userSettings = await UserSettings.loadDefault();
+      return widget.session.expand(
+        userSettings: userSettings,
+        config: null,
+      );
     }
   }
 

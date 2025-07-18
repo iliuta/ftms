@@ -1,11 +1,12 @@
 
 import 'package:flutter/material.dart';
-import 'model/unit_training_interval.dart';
-import 'interval_target_fields_display.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
+
 import '../../core/config/live_data_display_config.dart';
+import 'interval_target_fields_display.dart';
 
 class TrainingIntervalList extends StatelessWidget {
-  final List<UnitTrainingInterval> intervals;
+  final List<ExpandedUnitTrainingInterval> intervals;
   final int currentInterval;
   final int intervalElapsed;
   final int intervalTimeLeft;
@@ -28,7 +29,7 @@ class TrainingIntervalList extends StatelessWidget {
     return ListView.builder(
       itemCount: remainingIntervals.length,
       itemBuilder: (context, idx) {
-        final UnitTrainingInterval interval = remainingIntervals[idx];
+        final ExpandedUnitTrainingInterval interval = remainingIntervals[idx];
         final isCurrent = idx == 0;
         final intervalProgress = isCurrent ? intervalElapsed / interval.duration : 0.0;
         return Card(

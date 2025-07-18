@@ -1,25 +1,27 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
+
 import 'package:audioplayers/audioplayers.dart';
-import '../../core/services/ftms_service.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
+import 'package:ftms/features/training/model/expanded_training_session_definition.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+
 import '../../core/bloc/ftms_bloc.dart';
+import '../../core/config/live_data_display_config.dart';
 import '../../core/services/fit/training_data_recorder.dart';
 import '../../core/services/ftms_data_processor.dart';
-import '../../core/services/strava/strava_service.dart';
+import '../../core/services/ftms_service.dart';
 import '../../core/services/strava/strava_activity_types.dart';
-import '../../core/config/live_data_display_config.dart';
+import '../../core/services/strava/strava_service.dart';
 import '../../core/utils/logger.dart';
-import 'model/training_session.dart';
-import 'model/unit_training_interval.dart';
 
 class TrainingSessionController extends ChangeNotifier {
-  final TrainingSessionDefinition session;
+  final ExpandedTrainingSessionDefinition session;
   final BluetoothDevice ftmsDevice;
   late final FTMSService _ftmsService;
-  late final List<UnitTrainingInterval> _intervals;
+  late final List<ExpandedUnitTrainingInterval> _intervals;
   late final List<int> _intervalStartTimes;
   late final int _totalDuration;
   late final Stream<DeviceData?> _ftmsStream;
@@ -75,7 +77,7 @@ class TrainingSessionController extends ChangeNotifier {
     }
     _dataRecorder =
         dataRecorder; // Can be null, will be created in _initDataRecording if needed
-    _intervals = session.unitIntervals;
+    _intervals = session.intervals;
     _intervalStartTimes = [];
     int acc = 0;
     for (final interval in _intervals) {
@@ -97,13 +99,13 @@ class TrainingSessionController extends ChangeNotifier {
 
   int get totalDuration => _totalDuration;
 
-  List<UnitTrainingInterval> get intervals => _intervals;
+  List<ExpandedUnitTrainingInterval> get intervals => _intervals;
 
   List<int> get intervalStartTimes => _intervalStartTimes;
 
-  UnitTrainingInterval get current => _intervals[currentInterval];
+  ExpandedUnitTrainingInterval get current => _intervals[currentInterval];
 
-  List<UnitTrainingInterval> get remainingIntervals =>
+  List<ExpandedUnitTrainingInterval> get remainingIntervals =>
       _intervals.sublist(currentInterval);
 
   int get mainTimeLeft => _totalDuration - elapsed;

@@ -5,6 +5,7 @@ import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/core/config/live_data_display_config.dart';
 import 'package:ftms/core/config/live_data_field_config.dart';
 import 'package:ftms/core/config/live_data_field_format_strategy.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
 import '../../core/services/training_session_storage_service.dart';
 import 'widgets/training_session_chart.dart';
 import 'model/unit_training_interval.dart';
@@ -97,18 +98,18 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
     return _config!.fields.where((field) => field.availableAsTarget).toList();
   }
 
-  List<UnitTrainingInterval> get _expandedIntervals {
+  List<ExpandedUnitTrainingInterval> get _expandedIntervals {
     if (_userSettings == null) return [];
     
-    final List<UnitTrainingInterval> expanded = [];
+    final List<ExpandedUnitTrainingInterval> expanded = [];
     for (final interval in _intervalsList) {
       // First expand targets (convert percentages to absolute values), then expand repetitions
-      final expandedTargetsInterval = interval.expandTargets(
+      final expandedTargetsIntervals = interval.expand(
         machineType: widget.machineType,
         userSettings: _userSettings,
         config: _config,
       );
-      expanded.addAll(expandedTargetsInterval.expand());
+      expanded.addAll(expandedTargetsIntervals);
     }
     return expanded;
   }

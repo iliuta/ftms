@@ -3,6 +3,8 @@ import 'package:ftms/core/models/device_types.dart';
 import 'unit_training_interval.dart';
 import 'training_interval.dart';
 import 'group_training_interval.dart';
+import 'expanded_training_session_definition.dart';
+import 'expanded_unit_training_interval.dart';
 import '../../settings/model/user_settings.dart';
 import '../../../core/config/live_data_display_config.dart';
 
@@ -21,15 +23,6 @@ class TrainingSessionDefinition {
     this.isCustom = false,
     this.originalSession,
   });
-
-  /// Constructor for expanded sessions with UnitTrainingInterval list
-  TrainingSessionDefinition._expanded({
-    required this.title,
-    required this.ftmsMachineType,
-    required List<UnitTrainingInterval> expandedIntervals,
-    this.isCustom = false,
-    this.originalSession,
-  }) : intervals = expandedIntervals;
 
   factory TrainingSessionDefinition.fromJson(Map<String, dynamic> json, {bool isCustom = false}) {
     final List intervalsRaw = json['intervals'] as List;
@@ -68,28 +61,26 @@ class TrainingSessionDefinition {
   /// Creates a new instance with expanded intervals and target values.
   /// This expands group intervals into their constituent unit intervals
   /// and resolves percentage-based targets using the provided user settings.
-  TrainingSessionDefinition expand({
+  ExpandedTrainingSessionDefinition expand({
     required UserSettings userSettings,
     LiveDataDisplayConfig? config,
   }) {
-    final List<UnitTrainingInterval> expandedIntervals = [];
+    final List<ExpandedUnitTrainingInterval> expandedIntervals = [];
     
     for (final interval in intervals) {
-      // Both GroupTrainingInterval and UnitTrainingInterval have expandTargets method
-      final expandedTargetsInterval = interval.expandTargets(
+      final expandedTargetsInterval = interval.expand(
         machineType: ftmsMachineType,
         userSettings: userSettings,
         config: config,
       );
-      expandedIntervals.addAll(expandedTargetsInterval.expand());
+      expandedIntervals.addAll(expandedTargetsInterval);
     }
     
-    return TrainingSessionDefinition._expanded(
+    return ExpandedTrainingSessionDefinition(
       title: title,
       ftmsMachineType: ftmsMachineType,
-      expandedIntervals: expandedIntervals,
+      intervals: expandedIntervals,
       isCustom: isCustom,
-      originalSession: isCustom ? this : null, // Keep reference to original for custom sessions
     );
   }
 
