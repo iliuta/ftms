@@ -668,11 +668,6 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.copy, size: 16),
-                          onPressed: () => _duplicateSubInterval(interval, subIndex),
-                          tooltip: 'Duplicate Sub-interval',
-                        ),
-                        IconButton(
                           icon: const Icon(Icons.delete, size: 16),
                           onPressed: () => _removeSubInterval(interval, subIndex),
                           tooltip: 'Remove Sub-interval',
@@ -735,26 +730,6 @@ class _AddTrainingSessionPageState extends State<AddTrainingSessionPage> {
       if (index >= 0 && subIndex >= 0 && subIndex < groupInterval.intervals.length) {
         final updatedIntervals = List<UnitTrainingInterval>.from(groupInterval.intervals)
           ..removeAt(subIndex);
-
-        _intervals[index] = GroupTrainingInterval(
-          intervals: updatedIntervals,
-          repeat: groupInterval.repeat,
-        );
-      }
-    });
-  }
-
-  void _duplicateSubInterval(GroupTrainingInterval groupInterval, int subIndex) {
-    setState(() {
-      final index = _intervals.indexOf(groupInterval);
-      if (index >= 0 && subIndex >= 0 && subIndex < groupInterval.intervals.length) {
-        final originalSubInterval = groupInterval.intervals[subIndex];
-        
-        // Use the copy method for consistency
-        final duplicatedSubInterval = originalSubInterval.copy();
-
-        final updatedIntervals = List<UnitTrainingInterval>.from(groupInterval.intervals);
-        updatedIntervals.insert(subIndex + 1, duplicatedSubInterval);
 
         _intervals[index] = GroupTrainingInterval(
           intervals: updatedIntervals,
