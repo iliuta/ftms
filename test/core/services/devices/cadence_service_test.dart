@@ -47,8 +47,11 @@ void main() {
       when(mockCharacteristic.lastValueStream).thenAnswer((_) => characteristicValueController.stream);
       when(mockDevice.connectionState).thenAnswer((_) => connectionStateController.stream);
 
-      // Configure device.connect to return successfully
-      when(mockDevice.connect()).thenAnswer((_) async {});
+      // Configure device.connect to return successfully (with autoConnect parameters)
+      when(mockDevice.connect(autoConnect: true, mtu: null)).thenAnswer((_) async {});
+      
+      // Mock device.isConnected to return true so we don't wait for connection state
+      when(mockDevice.isConnected).thenReturn(true);
 
       // Configure device.disconnect to return successfully
       when(mockDevice.disconnect()).thenAnswer((_) async {});
