@@ -128,4 +128,6 @@ flutter_launcher_icons:
     generate: true
     image_path: "assets/app_icon_powertrain.png"
   image_path: "assets/app_icon_powertrain.png"
+  adaptive_icon_background: "#2980B9"
+  adaptive_icon_foreground: "assets/app_icon_powertrain.png"
   min_sdk_android: 21
