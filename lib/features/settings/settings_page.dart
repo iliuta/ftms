@@ -37,7 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
       setState(() {
         _isLoading = false;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -51,14 +51,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _saveSettings() async {
     if (_userSettings == null) return;
-    
+
     try {
       await _userSettings!.save();
 
       setState(() {
         _hasChanges = false;
       });
-      
+
       if (mounted) {
         HapticFeedback.lightImpact();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -91,12 +91,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<bool> _onWillPop() async {
     if (!_hasChanges) return true;
-    
+
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Unsaved Changes'),
-        content: const Text('You have unsaved changes. Do you want to save them before leaving?'),
+        content: const Text(
+            'You have unsaved changes. Do you want to save them before leaving?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -112,7 +113,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
-    
+
     return result ?? false;
   }
 
@@ -200,38 +201,8 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text('App Version'),
-                subtitle: const Text('1.0.0'),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('FTMS Trainer'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Version: 1.0.0',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('© 2024 https://github.com/iliuta'),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'A comprehensive fitness machine trainer app supporting FTMS protocol for indoor bikes and rowing machines.',
-                          ),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                title: const Text('PowerTrain 0.1.0'),
+                subtitle: const Text('Indoor Rowing with your FTMS compatible fitness equipment.'),
               ),
             ],
           ),
