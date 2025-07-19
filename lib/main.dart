@@ -98,34 +98,52 @@ class _FlutterFTMSAppState extends State<FlutterFTMSApp> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Fitness machines"),
+        titleSpacing: 0, // Reduce spacing between leading and title
         leading: BurgerMenu(connectedDevice: _connectedFtmsDevice),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 4.0),
             child: TextButton.icon(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               icon: const Icon(
                 Icons.coffee,
                 color: Colors.brown,
-                size: 24,
+                size: 18,
               ),
               label: const Text(
                 'Buy me a coffee',
                 style: TextStyle(
                   color: Colors.brown,
-                  fontSize: 14,
+                  fontSize: 10,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               onPressed: () async {
                 final Uri url = Uri.parse('https://coff.ee/iliuta');
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url, mode: LaunchMode.externalApplication);
-                } else {
-                  if (context.mounted) {
+                try {
+                  final bool launched = await launchUrl(
+                    url,
+                    mode: LaunchMode.externalApplication,
+                  );
+                  
+                  if (!launched && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Could not open the link'),
-                        duration: Duration(seconds: 2),
+                        content: Text('Could not open the coffee link. Please visit https://coff.ee/iliuta manually.'),
+                        duration: Duration(seconds: 4),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error opening coffee link: $e'),
+                        duration: const Duration(seconds: 3),
                       ),
                     );
                   }
