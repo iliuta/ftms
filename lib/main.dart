@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:ftms/core/utils/logger.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'features/scan/scan_page.dart';
 import 'features/scan/scan_widgets.dart';
@@ -98,6 +99,41 @@ class _FlutterFTMSAppState extends State<FlutterFTMSApp> {
       appBar: AppBar(
         title: const Text("Fitness machines"),
         leading: BurgerMenu(connectedDevice: _connectedFtmsDevice),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: TextButton.icon(
+              icon: const Icon(
+                Icons.coffee,
+                color: Colors.brown,
+                size: 24,
+              ),
+              label: const Text(
+                'Buy me a coffee',
+                style: TextStyle(
+                  color: Colors.brown,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onPressed: () async {
+                final Uri url = Uri.parse('https://coff.ee/iliuta');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Could not open the link'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ),
+        ],
       ),
       body: const ScanPage(),
     );
