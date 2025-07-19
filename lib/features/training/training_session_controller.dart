@@ -26,6 +26,7 @@ class TrainingSessionController extends ChangeNotifier {
   late final int _totalDuration;
   late final Stream<DeviceData?> _ftmsStream;
   late final StreamSubscription<DeviceData?> _ftmsSub;
+  late final StreamSubscription<BluetoothConnectionState> _connectionStateSub;
   Timer? _timer;
 
   // FIT file recording
@@ -41,6 +42,8 @@ class TrainingSessionController extends ChangeNotifier {
   bool hasControl = false;
   bool sessionCompleted = false;
   bool sessionPaused = false; // Add pause state
+  bool isDeviceConnected = true; // Track device connection state
+  bool wasAutoPaused = false; // Track if session was auto-paused due to disconnection
   int elapsed = 0;
   int intervalElapsed = 0;
   int currentInterval = 0;
@@ -93,6 +96,7 @@ class TrainingSessionController extends ChangeNotifier {
 
     _ftmsStream = ftmsBloc.ftmsDeviceDataControllerStream;
     _ftmsSub = _ftmsStream.listen(_onFtmsData);
+    _connectionStateSub = ftmsDevice.connectionState.listen(_onConnectionStateChanged);
     _initFTMS();
     _initDataRecording();
   }
@@ -111,6 +115,10 @@ class TrainingSessionController extends ChangeNotifier {
   int get mainTimeLeft => _totalDuration - elapsed;
 
   int get intervalTimeLeft => current.duration - intervalElapsed;
+
+  bool get deviceConnected => isDeviceConnected;
+
+  bool get wasSessionAutoPaused => wasAutoPaused;
 
   void _initFTMS() {
     // Request control after a short delay, then start session and set initial resistance if needed
@@ -219,6 +227,64 @@ class TrainingSessionController extends ChangeNotifier {
     }
     // Store current values for next comparison
     _lastFtmsParams = params.map((p) => p.value).toList();
+  }
+
+  void _onConnectionStateChanged(BluetoothConnectionState state) {
+    final wasConnected = isDeviceConnected;
+    isDeviceConnected = state == BluetoothConnectionState.connected;
+    
+    logger.i('🔗 FTMS device connection state changed: $state (was connected: $wasConnected, now connected: $isDeviceConnected)');
+    
+    // Handle disconnection - auto-pause the session
+    if (wasConnected && !isDeviceConnected && !sessionCompleted && !sessionPaused) {
+      logger.w('📱 FTMS device disconnected during training - auto-pausing session');
+      wasAutoPaused = true;
+      _autoPauseSession();
+    }
+    
+    // Handle reconnection - auto-resume if it was auto-paused
+    if (!wasConnected && isDeviceConnected && wasAutoPaused && sessionPaused && !sessionCompleted) {
+      logger.i('📱 FTMS device reconnected - auto-resuming session');
+      wasAutoPaused = false;
+      _autoResumeSession();
+    }
+    
+    notifyListeners();
+  }
+
+  void _autoPauseSession() {
+    if (sessionCompleted || sessionPaused) return;
+
+    logger.i('⏸️ Auto-pausing training session due to device disconnection');
+    sessionPaused = true;
+    timerActive = false;
+    _timer?.cancel();
+
+    // Don't send FTMS commands when device is disconnected
+    notifyListeners();
+  }
+
+  void _autoResumeSession() {
+    if (sessionCompleted || !sessionPaused) return;
+
+    logger.i('▶️ Auto-resuming training session after device reconnection');
+    sessionPaused = false;
+
+    // Request control first, then send resume command to FTMS device after reconnection
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      try {
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.requestControl);
+        hasControl = true;
+        await Future.delayed(const Duration(milliseconds: 200));
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.startOrResume);
+        logger.i('📤 Requested control and sent startOrResume command after reconnection');
+      } catch (e) {
+        logger.e('Failed to request control/send resume command after reconnection: $e');
+      }
+    });
+
+    // Timer will restart automatically when FTMS data changes
+    notifyListeners();
   }
 
   void _startTimer() {
@@ -382,16 +448,24 @@ class TrainingSessionController extends ChangeNotifier {
   void pauseSession() {
     if (sessionCompleted || sessionPaused) return;
 
+    logger.i('⏸️ Manually pausing training session');
     sessionPaused = true;
     timerActive = false;
+    wasAutoPaused = false; // Clear auto-pause flag when manually paused
     _timer?.cancel();
 
-    // Send pause command to FTMS device
-    try {
-      _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
-    } catch (e) {
-      logger.e('Failed to send pause command: $e');
-    }
+    // Request control first, then send pause command to FTMS device
+    Future.microtask(() async {
+      try {
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.requestControl);
+        hasControl = true;
+        await Future.delayed(const Duration(milliseconds: 200));
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+        logger.i('📤 Requested control and sent pause command');
+      } catch (e) {
+        logger.e('Failed to request control/send pause command: $e');
+      }
+    });
 
     notifyListeners();
   }
@@ -400,14 +474,22 @@ class TrainingSessionController extends ChangeNotifier {
   void resumeSession() {
     if (sessionCompleted || !sessionPaused) return;
 
+    logger.i('▶️ Manually resuming training session');
     sessionPaused = false;
+    wasAutoPaused = false; // Clear auto-pause flag when manually resumed
 
-    // Send resume command to FTMS device
-    try {
-      _ftmsService.writeCommand(MachineControlPointOpcodeType.startOrResume);
-    } catch (e) {
-      logger.e('Failed to send resume command: $e');
-    }
+    // Request control first, then send resume command to FTMS device
+    Future.microtask(() async {
+      try {
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.requestControl);
+        hasControl = true;
+        await Future.delayed(const Duration(milliseconds: 200));
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.startOrResume);
+        logger.i('📤 Requested control and sent startOrResume command for manual resume');
+      } catch (e) {
+        logger.e('Failed to request control/send resume command: $e');
+      }
+    });
 
     // Restart timer - it will start automatically when FTMS data changes
     notifyListeners();
@@ -422,13 +504,20 @@ class TrainingSessionController extends ChangeNotifier {
     timerActive = false;
     _timer?.cancel();
 
-    // Send stop + reset commands to FTMS device
-    try {
-      _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
-      _ftmsService.writeCommand(MachineControlPointOpcodeType.reset);
-    } catch (e) {
-      logger.e('Failed to send stop command: $e');
-    }
+    // Request control first, then send stop + reset commands to FTMS device
+    Future.microtask(() async {
+      try {
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.requestControl);
+        hasControl = true;
+        await Future.delayed(const Duration(milliseconds: 200));
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+        await Future.delayed(const Duration(milliseconds: 200));
+        await _ftmsService.writeCommand(MachineControlPointOpcodeType.reset);
+        logger.i('📤 Requested control and sent stop/reset commands');
+      } catch (e) {
+        logger.e('Failed to request control/send stop command: $e');
+      }
+    });
 
     // Finish recording and generate FIT file (async)
     _finishRecording().then((_) {
@@ -445,16 +534,21 @@ class TrainingSessionController extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _ftmsSub.cancel();
+    _connectionStateSub.cancel();
     _timer?.cancel();
     _audioPlayer?.dispose();
 
-    // Send stop command to FTMS device if session wasn't completed normally
+    // Request control and send stop command to FTMS device if session wasn't completed normally
     if (!sessionCompleted) {
-      try {
-        _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
-      } catch (e) {
-        debugPrint('Failed to send stop command during dispose: $e');
-      }
+      Future.microtask(() async {
+        try {
+          await _ftmsService.writeCommand(MachineControlPointOpcodeType.requestControl);
+          await Future.delayed(const Duration(milliseconds: 200));
+          await _ftmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause);
+        } catch (e) {
+          debugPrint('Failed to request control/send stop command during dispose: $e');
+        }
+      });
     }
 
     // Clean up data recorder if session wasn't completed normally
