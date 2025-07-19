@@ -42,8 +42,20 @@ class CadenceService {
       // Disconnect any existing cadence device first
       await disconnectCadenceDevice();
       
-      // Connect to the device
-      await device.connect();
+      // Connect to the device with autoConnect for automatic reconnection
+      // This ensures the device will automatically reconnect when it becomes available
+      // after any disconnection (e.g., during training sessions)
+      // Note: mtu must be null when using autoConnect
+      await device.connect(autoConnect: true, mtu: null);
+      
+      // Wait for the device to be actually connected before proceeding
+      if (!device.isConnected) {
+        // Wait for connection state to become connected
+        await device.connectionState
+            .where((state) => state == BluetoothConnectionState.connected)
+            .first
+            .timeout(Duration(seconds: 10));
+      }
       
       // Discover services
       final services = await device.discoverServices();
@@ -79,10 +91,14 @@ class CadenceService {
       // Start timeout timer to detect when pedaling stops
       _startCadenceTimeoutTimer();
       
-      // Listen for disconnection
+      // Listen for connection state changes to handle both disconnection and reconnection
       device.connectionState.listen((state) {
         if (state == BluetoothConnectionState.disconnected) {
+          logger.i('Cadence device disconnected - waiting for autoConnect reconnection');
           _handleDisconnection();
+        } else if (state == BluetoothConnectionState.connected) {
+          logger.i('Cadence device reconnected - re-establishing data stream');
+          _handleReconnection(device);
         }
       });
       
@@ -158,6 +174,51 @@ class CadenceService {
     _cadenceHistory.clear();
     _cadenceController.add(null);
     logger.i('Cadence device disconnected');
+  }
+  
+  /// Handle device reconnection by re-establishing data streams
+  Future<void> _handleReconnection(BluetoothDevice device) async {
+    try {
+      // Clear any existing subscriptions first
+      _cadenceSubscription?.cancel();
+      _cadenceSubscription = null;
+      _stopCadenceTimeoutTimer();
+      
+      // Wait a moment for the connection to stabilize
+      await Future.delayed(Duration(milliseconds: 500));
+      
+      // Rediscover services to get fresh service references
+      final services = await device.discoverServices();
+      final cadenceService = _findCadenceService(services);
+      
+      if (cadenceService == null) {
+        logger.w('Cadence service not found after reconnection');
+        return;
+      }
+      
+      final cadenceCharacteristic = _findCadenceCharacteristic(cadenceService);
+      if (cadenceCharacteristic == null) {
+        logger.w('Cadence characteristic not found after reconnection');
+        return;
+      }
+      
+      // Re-enable notifications
+      await cadenceCharacteristic.setNotifyValue(true);
+      
+      // Re-subscribe to cadence data
+      _cadenceSubscription = _listenToCadenceCharacteristic(cadenceCharacteristic);
+      
+      // Update stored references
+      _connectedCadenceDevice = device;
+      _cadenceCharacteristic = cadenceCharacteristic;
+      
+      // Restart the timeout timer
+      _startCadenceTimeoutTimer();
+      
+      logger.i('Cadence data stream re-established after reconnection');
+    } catch (e) {
+      logger.e('Failed to re-establish cadence data stream after reconnection: $e');
+    }
   }
   
   /// Parse cadence data from BLE characteristic

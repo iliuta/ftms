@@ -36,6 +36,11 @@ class LiveDataFieldConfig {
   /// Represents the tolerance as a decimal (e.g., 0.1 for 10%, 0.05 for 5%).
   /// Defaults to 0.1 (10%) if not specified.
   final double targetRange;
+  /// Whether this field should be treated as cumulative during training sessions.
+  /// When true, the field value will be maintained as a running total that only increases,
+  /// even if the device disconnects and reconnects (which might reset the device's counter).
+  /// This is particularly useful for fields like calories, distance, and duration.
+  final bool isCumulative;
 
   LiveDataFieldConfig({
     required this.name,
@@ -50,6 +55,7 @@ class LiveDataFieldConfig {
     this.availableAsTarget = false,
     this.userSetting,
     this.targetRange = 0.1,
+    this.isCumulative = false,
   });
   /// Computes the target interval range for a given target value.
   /// Returns a record with (lower, upper) bounds based on the targetRange percentage.
@@ -104,6 +110,7 @@ class LiveDataFieldConfig {
       availableAsTarget: json['availableAsTarget'] as bool? ?? false,
       userSetting: json['userSetting'] as String?,
       targetRange: json['targetRange'] as double? ?? 0.1,
+      isCumulative: json['isCumulative'] as bool? ?? false,
     );
   }
 }

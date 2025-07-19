@@ -12,14 +12,24 @@ class FtmsDataProcessor {
   final HeartRateService _heartRateService = HeartRateService();
   final CadenceService _cadenceService = CadenceService();
   bool _isConfigured = false;
+  LiveDataDisplayConfig? _config;
+  final Map<String, double> _cumulativeValues = {};
+  final Map<String, double> _cumulativeOffsets = {};
 
   /// Configure the processor with display config to set up averaging fields
   void configure(LiveDataDisplayConfig config) {
     if (_isConfigured) return; // Avoid reconfiguring
     
+    _config = config;
     for (final field in config.fields) {
       if (field.samplePeriodSeconds != null) {
         _averagingService.configureField(field.name, field.samplePeriodSeconds!);
+      }
+      
+      // Initialize cumulative fields
+      if (field.isCumulative) {
+        _cumulativeValues[field.name] = 0.0;
+        _cumulativeOffsets[field.name] = 0.0;
       }
     }
     _isConfigured = true;
@@ -44,8 +54,18 @@ class FtmsDataProcessor {
       // Add raw value to averaging service
       _averagingService.addValue(fieldName, param.value);
       
-      // Use averaged value if configured, otherwise use raw value
-      _useAveragedValueIfConfigured(fieldName, paramValueMap, param);
+      // Check if this is a cumulative field
+      final fieldConfig = _config?.fields.where(
+        (field) => field.name == fieldName,
+      ).firstOrNull;
+      
+      if (fieldConfig?.isCumulative == true) {
+        // Handle cumulative fields
+        _processCumulativeField(fieldName, paramValueMap, param);
+      } else {
+        // Use averaged value if configured, otherwise use raw value
+        _useAveragedValueIfConfigured(fieldName, paramValueMap, param);
+      }
     }
     
     // Override heart rate with HRM data if available
@@ -55,6 +75,35 @@ class FtmsDataProcessor {
     _overrideCadenceFromCadenceSensorIfAvailable(paramValueMap);
     
     return paramValueMap;
+  }
+  
+  void _processCumulativeField(String fieldName, Map<String, LiveDataFieldValue> paramValueMap, LiveDataFieldValue param) {
+    final currentRawValue = param.getScaledValue();
+    final storedValue = _cumulativeValues[fieldName] ?? 0.0;
+    final currentOffset = _cumulativeOffsets[fieldName] ?? 0.0;
+    
+    // If current raw value is greater than or equal to stored value, this is normal increment
+    if (currentRawValue >= storedValue) {
+      // Normal case: just use the raw value plus any offset from previous resets
+      _cumulativeValues[fieldName] = currentRawValue.toDouble();
+      final finalValue = currentRawValue + currentOffset;
+      paramValueMap[fieldName] = param.copyWith(value: finalValue);
+    } else {
+      // Current raw value is lower than stored value - potential reset detected
+      final dropPercentage = (storedValue - currentRawValue) / storedValue;
+      if (dropPercentage > 0.5) { 
+        // Significant drop detected - device likely reset
+        // Add the previous total (stored + offset) to the offset for future calculations
+        _cumulativeOffsets[fieldName] = storedValue + currentOffset;
+        _cumulativeValues[fieldName] = currentRawValue.toDouble();
+        final finalValue = currentRawValue + _cumulativeOffsets[fieldName]!;
+        paramValueMap[fieldName] = param.copyWith(value: finalValue);
+      } else {
+        // Small decrease, maintain previous total value
+        final finalValue = storedValue + currentOffset;
+        paramValueMap[fieldName] = param.copyWith(value: finalValue);
+      }
+    }
   }
 
   void _useAveragedValueIfConfigured(String fieldName, Map<String, LiveDataFieldValue> paramValueMap, LiveDataFieldValue param) {
@@ -117,6 +166,9 @@ class FtmsDataProcessor {
   /// Reset the processor state (useful for testing or switching devices)
   void reset() {
     _isConfigured = false;
+    _config = null;
+    _cumulativeValues.clear();
+    _cumulativeOffsets.clear();
     // Clear the averaging service data when resetting
     _averagingService.clearAll();
   }

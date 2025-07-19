@@ -172,6 +172,10 @@ void main() {
       // Set up the FTMS stream controller
       ftmsStreamController = StreamController<DeviceData?>.broadcast();
       
+      // Mock the device connection state - default to connected
+      when(mockDevice.connectionState).thenAnswer((_) => 
+          Stream.value(BluetoothConnectionState.connected));
+      
       // Mock the ftmsService writeCommand method
       when(mockFtmsService.writeCommand(any))
           .thenAnswer((_) async {});
@@ -261,58 +265,96 @@ void main() {
         controller.dispose();
       });
 
-      test('pauseSession pauses timer and sends FTMS command', () {
+      test('pauseSession pauses timer and sends FTMS command', () async {
         controller.timerActive = true; // Simulate active timer
+
+        // Clear any interactions from initialization
+        clearInteractions(mockFtmsService);
 
         controller.pauseSession();
 
         expect(controller.sessionPaused, true);
         expect(controller.timerActive, false);
+        
+        // Wait for async FTMS command to complete
+        await Future.delayed(Duration(milliseconds: 500));
+        
+        verify(mockFtmsService.writeCommand(MachineControlPointOpcodeType.requestControl, resistanceLevel: null)).called(1);
         verify(mockFtmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause)).called(1);
       });
 
-      test('resumeSession resumes from pause and sends FTMS command', () {
+      test('resumeSession resumes from pause and sends FTMS command', () async {
         controller.sessionPaused = true;
+
+        // Clear any interactions from initialization
+        clearInteractions(mockFtmsService);
 
         controller.resumeSession();
 
         expect(controller.sessionPaused, false);
+        
+        // Wait for async FTMS command to complete
+        await Future.delayed(Duration(milliseconds: 500));
+        
+        verify(mockFtmsService.writeCommand(MachineControlPointOpcodeType.requestControl, resistanceLevel: null)).called(1);
         verify(mockFtmsService.writeCommand(MachineControlPointOpcodeType.startOrResume)).called(1);
       });
 
       test('stopSession completes session and sends FTMS command', () async {
         controller.timerActive = true;
 
+        // Clear any interactions from initialization
+        clearInteractions(mockFtmsService);
+
         controller.stopSession();
 
         expect(controller.sessionCompleted, true);
         expect(controller.sessionPaused, false);
         expect(controller.timerActive, false);
+        
+        // Wait for async FTMS command to complete
+        await Future.delayed(Duration(milliseconds: 500));
+        
+        verify(mockFtmsService.writeCommand(MachineControlPointOpcodeType.requestControl, resistanceLevel: null)).called(1);
         verify(mockFtmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause)).called(1);
+        verify(mockFtmsService.writeCommand(MachineControlPointOpcodeType.reset)).called(1);
       });
 
-      test('pauseSession does nothing if already paused', () {
+      test('pauseSession does nothing if already paused', () async {
         controller.sessionPaused = true;
 
         controller.pauseSession();
 
+        // Wait for any potential async operations
+        await Future.delayed(Duration.zero);
+
+        verifyNever(mockFtmsService.writeCommand(MachineControlPointOpcodeType.requestControl));
         verifyNever(mockFtmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause));
       });
 
-      test('resumeSession does nothing if not paused', () {
+      test('resumeSession does nothing if not paused', () async {
         controller.sessionPaused = false;
 
         controller.resumeSession();
 
+        // Wait for any potential async operations
+        await Future.delayed(Duration.zero);
+
+        verifyNever(mockFtmsService.writeCommand(MachineControlPointOpcodeType.requestControl));
         verifyNever(mockFtmsService.writeCommand(MachineControlPointOpcodeType.startOrResume));
       });
 
-      test('stopSession does nothing if already completed', () {
+      test('stopSession does nothing if already completed', () async {
         controller.sessionCompleted = true;
 
         controller.stopSession();
 
+        // Wait for any potential async operations
+        await Future.delayed(Duration.zero);
+
+        verifyNever(mockFtmsService.writeCommand(MachineControlPointOpcodeType.requestControl));
         verifyNever(mockFtmsService.writeCommand(MachineControlPointOpcodeType.stopOrPause));
+        verifyNever(mockFtmsService.writeCommand(MachineControlPointOpcodeType.reset));
       });
     });
 
@@ -1121,6 +1163,5 @@ void main() {
         controller.dispose();
       });
     });
-  // ...end of group
   });
 }
