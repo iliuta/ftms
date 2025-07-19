@@ -49,7 +49,8 @@
       "label": "Distance",
       "display": "number",
       "unit": "m",
-      "icon": "distance"
+      "icon": "distance",
+      "isCumulative": true
     },
     {
       "name": "Total Energy",
@@ -57,7 +58,8 @@
       "display": "number",
       "formatter": "intFormatter",
       "unit": "kcal",
-      "icon": "calories"
+      "icon": "calories",
+      "isCumulative": true
     }
   ]
 }

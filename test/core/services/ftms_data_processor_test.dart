@@ -430,5 +430,201 @@ void main() {
         expect(result['Instantaneous Power'], isNotNull);
       });
     });
+
+    group('Cumulative field processing', () {
+      late FtmsDataProcessor processor;
+      late LiveDataDisplayConfig cumulativeConfig;
+
+      setUp(() {
+        processor = FtmsDataProcessor();
+        cumulativeConfig = LiveDataDisplayConfig(
+          fields: [
+            LiveDataFieldConfig(
+              name: 'Total Distance',
+              label: 'Distance',
+              display: 'number',
+              unit: 'm',
+              isCumulative: true,
+            ),
+            LiveDataFieldConfig(
+              name: 'Total Energy',
+              label: 'Calories',
+              display: 'number',
+              unit: 'kcal',
+              isCumulative: true,
+            ),
+            LiveDataFieldConfig(
+              name: 'Instantaneous Power',
+              label: 'Power',
+              display: 'number',
+              unit: 'W',
+              // Not cumulative
+            ),
+          ],
+          deviceType: DeviceType.rower,
+        );
+      });
+
+      test('maintains cumulative values when they increase', () {
+        processor.configure(cumulativeConfig);
+
+        // Initial values
+        final deviceData1 = MockDeviceData([
+          MockParameter('Total Distance', 100),
+          MockParameter('Total Energy', 50),
+          MockParameter('Instantaneous Power', 200),
+        ], DeviceDataType.rower);
+
+        final result1 = processor.processDeviceData(deviceData1);
+        expect(result1['Total Distance']!.value, equals(100));
+        expect(result1['Total Energy']!.value, equals(50));
+        expect(result1['Instantaneous Power']!.value, equals(200));
+
+        // Values increase normally
+        final deviceData2 = MockDeviceData([
+          MockParameter('Total Distance', 250),
+          MockParameter('Total Energy', 75),
+          MockParameter('Instantaneous Power', 180),
+        ], DeviceDataType.rower);
+
+        final result2 = processor.processDeviceData(deviceData2);
+        expect(result2['Total Distance']!.value, equals(250));
+        expect(result2['Total Energy']!.value, equals(75));
+        expect(result2['Instantaneous Power']!.value, equals(180));
+      });
+
+      test('handles device reconnection by continuing accumulation', () {
+        processor.configure(cumulativeConfig);
+
+        // Initial workout data
+        final deviceData1 = MockDeviceData([
+          MockParameter('Total Distance', 500),
+          MockParameter('Total Energy', 100),
+        ], DeviceDataType.rower);
+
+        final result1 = processor.processDeviceData(deviceData1);
+        expect(result1['Total Distance']!.value, equals(500));
+        expect(result1['Total Energy']!.value, equals(100));
+
+        // Device disconnects and reconnects - values reset to low numbers
+        // This should be detected and handled by continuing accumulation
+        final deviceData2 = MockDeviceData([
+          MockParameter('Total Distance', 50), // Device reset to 50
+          MockParameter('Total Energy', 10),   // Device reset to 10
+        ], DeviceDataType.rower);
+
+        final result2 = processor.processDeviceData(deviceData2);
+        // Should add the reset values to the previous total
+        expect(result2['Total Distance']!.value, equals(550)); // 500 + 50
+        expect(result2['Total Energy']!.value, equals(110));   // 100 + 10
+      });
+
+      test('handles multiple data points after device reset correctly', () {
+        processor.configure(cumulativeConfig);
+
+        // Initial workout data - disconnected at 500m
+        final deviceData1 = MockDeviceData([
+          MockParameter('Total Distance', 500),
+        ], DeviceDataType.rower);
+
+        final result1 = processor.processDeviceData(deviceData1);
+        expect(result1['Total Distance']!.value, equals(500));
+
+        // Device disconnects and reconnects - series of values after reset
+        // Values: 0, 14, 25, 30, 33, 50
+        // Expected results: 500, 514, 525, 530, 533, 550
+
+        // After reconnection: 0 (reset detected)
+        final deviceData2 = MockDeviceData([
+          MockParameter('Total Distance', 0),
+        ], DeviceDataType.rower);
+        final result2 = processor.processDeviceData(deviceData2);
+        expect(result2['Total Distance']!.value, equals(500)); // 500 offset + 0
+
+        // Next: 14
+        final deviceData3 = MockDeviceData([
+          MockParameter('Total Distance', 14),
+        ], DeviceDataType.rower);
+        final result3 = processor.processDeviceData(deviceData3);
+        expect(result3['Total Distance']!.value, equals(514)); // 500 offset + 14
+
+        // Next: 25
+        final deviceData4 = MockDeviceData([
+          MockParameter('Total Distance', 25),
+        ], DeviceDataType.rower);
+        final result4 = processor.processDeviceData(deviceData4);
+        expect(result4['Total Distance']!.value, equals(525)); // 500 offset + 25
+
+        // Next: 30
+        final deviceData5 = MockDeviceData([
+          MockParameter('Total Distance', 30),
+        ], DeviceDataType.rower);
+        final result5 = processor.processDeviceData(deviceData5);
+        expect(result5['Total Distance']!.value, equals(530)); // 500 offset + 30
+
+        // Next: 33
+        final deviceData6 = MockDeviceData([
+          MockParameter('Total Distance', 33),
+        ], DeviceDataType.rower);
+        final result6 = processor.processDeviceData(deviceData6);
+        expect(result6['Total Distance']!.value, equals(533)); // 500 offset + 33
+
+        // Final: 50
+        final deviceData7 = MockDeviceData([
+          MockParameter('Total Distance', 50),
+        ], DeviceDataType.rower);
+        final result7 = processor.processDeviceData(deviceData7);
+        expect(result7['Total Distance']!.value, equals(550)); // 500 offset + 50
+      });
+
+      test('ignores small decreases to avoid false positives', () {
+        processor.configure(cumulativeConfig);
+
+        // Initial values
+        final deviceData1 = MockDeviceData([
+          MockParameter('Total Distance', 200),
+        ], DeviceDataType.rower);
+
+        final result1 = processor.processDeviceData(deviceData1);
+        expect(result1['Total Distance']!.value, equals(200));
+
+        // Small decrease (less than 50% drop) - should be ignored
+        final deviceData2 = MockDeviceData([
+          MockParameter('Total Distance', 190),
+        ], DeviceDataType.rower);
+
+        final result2 = processor.processDeviceData(deviceData2);
+        // Should maintain previous value, not decrease
+        expect(result2['Total Distance']!.value, equals(200));
+      });
+
+      test('resets cumulative values when processor is reset', () {
+        processor.configure(cumulativeConfig);
+
+        // Build up some cumulative values
+        final deviceData = MockDeviceData([
+          MockParameter('Total Distance', 300),
+          MockParameter('Total Energy', 80),
+        ], DeviceDataType.rower);
+
+        final result1 = processor.processDeviceData(deviceData);
+        expect(result1['Total Distance']!.value, equals(300));
+        expect(result1['Total Energy']!.value, equals(80));
+
+        // Reset processor
+        processor.reset();
+
+        // Configure again and process - should start from zero
+        processor.configure(cumulativeConfig);
+        final newDeviceData = MockDeviceData([
+          MockParameter('Total Distance', 100),
+          MockParameter('Total Energy', 25),
+        ], DeviceDataType.rower);
+
+        final result2 = processor.processDeviceData(newDeviceData);
+        expect(result2['Total Distance']!.value, equals(100));
+        expect(result2['Total Energy']!.value, equals(25));
+      });
+    });
   });
 }
