@@ -41,8 +41,20 @@ class HeartRateService {
       // Disconnect any existing HRM device first
       await disconnectHrmDevice();
       
-      // Connect to the device
-      await device.connect();
+      // Connect to the device with autoConnect for automatic reconnection
+      // This ensures the device will automatically reconnect when it becomes available
+      // after any disconnection (e.g., during training sessions)
+      // Note: mtu must be null when using autoConnect
+      await device.connect(autoConnect: true, mtu: null);
+      
+      // Wait for the device to be actually connected before proceeding
+      if (!device.isConnected) {
+        // Wait for connection state to become connected
+        await device.connectionState
+            .where((state) => state == BluetoothConnectionState.connected)
+            .first
+            .timeout(Duration(seconds: 10));
+      }
       
       // Discover services
       final services = await device.discoverServices();
@@ -75,10 +87,14 @@ class HeartRateService {
       _connectedHrmDevice = device;
       _heartRateCharacteristic = heartRateCharacteristic;
       
-      // Listen for disconnection
+      // Listen for connection state changes to handle both disconnection and reconnection
       device.connectionState.listen((state) {
         if (state == BluetoothConnectionState.disconnected) {
+          logger.i('HRM device disconnected - waiting for autoConnect reconnection');
           _handleDisconnection();
+        } else if (state == BluetoothConnectionState.connected) {
+          logger.i('HRM device reconnected - re-establishing data stream');
+          _handleReconnection(device);
         }
       });
       
@@ -149,6 +165,47 @@ class HeartRateService {
     _currentHeartRate = null;
     _heartRateController.add(null);
     logger.i('HRM device disconnected');
+  }
+  
+  /// Handle device reconnection by re-establishing data streams
+  Future<void> _handleReconnection(BluetoothDevice device) async {
+    try {
+      // Clear any existing subscriptions first
+      _heartRateSubscription?.cancel();
+      _heartRateSubscription = null;
+      
+      // Wait a moment for the connection to stabilize
+      await Future.delayed(Duration(milliseconds: 500));
+      
+      // Rediscover services to get fresh service references
+      final services = await device.discoverServices();
+      final heartRateService = _findHeartRateService(services);
+      
+      if (heartRateService == null) {
+        logger.w('Heart rate service not found after reconnection');
+        return;
+      }
+      
+      final heartRateCharacteristic = _findHeartRateCharacteristic(heartRateService);
+      if (heartRateCharacteristic == null) {
+        logger.w('Heart rate characteristic not found after reconnection');
+        return;
+      }
+      
+      // Re-enable notifications
+      await heartRateCharacteristic.setNotifyValue(true);
+      
+      // Re-subscribe to heart rate data
+      _heartRateSubscription = _listenToHeartRateCharacteristic(heartRateCharacteristic);
+      
+      // Update stored references
+      _connectedHrmDevice = device;
+      _heartRateCharacteristic = heartRateCharacteristic;
+      
+      logger.i('HRM data stream re-established after reconnection');
+    } catch (e) {
+      logger.e('Failed to re-establish HRM data stream after reconnection: $e');
+    }
   }
   
   /// Parse heart rate data from BLE characteristic
