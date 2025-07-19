@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/features/settings/model/user_settings.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
 import 'package:ftms/features/training/model/unit_training_interval.dart';
 import 'package:ftms/core/config/live_data_display_config.dart';
 import 'package:ftms/core/config/live_data_field_config.dart';
@@ -78,14 +79,14 @@ void main() {
         'duration': 60,
         'targets': {'Instantaneous Power': '120%'},
       };
-      final interval = UnitTrainingInterval.fromJson(json)
-          .expandTargets(
+      final intervals = UnitTrainingInterval.fromJson(json)
+          .expand(
             machineType: DeviceType.indoorBike,
             userSettings: userSettings,
             config: config,
           );
       // 120% of 250 = 300
-      expect(interval.targets!['Instantaneous Power'], 300);
+      expect(intervals.first.targets!['Instantaneous Power'], 300);
     });
 
     test('FTP percentage parsing for rower resolves to seconds', () {
@@ -97,13 +98,13 @@ void main() {
         'targets': {'Instantaneous Pace': '50%'},
       };
       final interval = UnitTrainingInterval.fromJson(json)
-          .expandTargets(
+          .expand(
             machineType: DeviceType.rower,
             userSettings: userSettings,
             config: config,
           );
       // 120% of 2:00 = 144 seconds
-      expect(interval.targets!['Instantaneous Pace'], 240);
+      expect(interval.first.targets!['Instantaneous Pace'], 240);
     });
 
     test('FTP percentage parsing is ignored if userSettings is null', () {
@@ -114,13 +115,13 @@ void main() {
         'targets': {'Instantaneous Power': '120%'},
       };
       final interval = UnitTrainingInterval.fromJson(json)
-          .expandTargets(
+          .expand(
             machineType: DeviceType.indoorBike,
             userSettings: null,
             config: config,
           );
       // Should remain as string
-      expect(interval.targets!['Instantaneous Power'], '120%');
+      expect(interval.first.targets!['Instantaneous Power'], '120%');
     });
 
     test('fromJson does not expand targets', () {
@@ -146,12 +147,12 @@ void main() {
           'Heart Rate': '85%', // Should NOT be resolved (no userSetting)
         },
       };
-      final interval = UnitTrainingInterval.fromJson(json)
-          .expandTargets(
+      final ExpandedUnitTrainingInterval interval = UnitTrainingInterval.fromJson(json)
+          .expand(
             machineType: DeviceType.indoorBike,
             userSettings: userSettings,
             config: config,
-          );
+          ).first;
       
       // Power should be resolved: 120% of 250 = 300
       expect(interval.targets!['Instantaneous Power'], 300);
@@ -173,17 +174,17 @@ void main() {
         },
       };
       final interval = UnitTrainingInterval.fromJson(json)
-          .expandTargets(
+          .expand(
             machineType: DeviceType.rower,
             userSettings: userSettings,
             config: config,
           );
       
       // Pace should be resolved: 50% easier = 240 seconds (2:00 * 2)
-      expect(interval.targets!['Instantaneous Pace'], 240);
+      expect(interval.first.targets!['Instantaneous Pace'], 240);
       // Stroke Rate and Power should remain as strings (not resolved)
-      expect(interval.targets!['Stroke Rate'], '120%');
-      expect(interval.targets!['Instantaneous Power'], '90%');
+      expect(interval.first.targets!['Stroke Rate'], '120%');
+      expect(interval.first.targets!['Instantaneous Power'], '90%');
     });
   });
 

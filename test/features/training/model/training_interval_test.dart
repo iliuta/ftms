@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/models/device_types.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
 import 'package:ftms/features/training/model/unit_training_interval.dart';
 import 'package:ftms/features/training/model/group_training_interval.dart';
 import 'package:ftms/features/training/model/training_session.dart';
@@ -48,8 +49,7 @@ void main() {
       );
       
       expect(interval.repeat, equals(1));
-      expect(interval.expand(), isA<List<UnitTrainingInterval>>());
-      expect(interval.expandTargets(machineType: DeviceType.indoorBike), isA<UnitTrainingInterval>());
+      expect(interval.expand(machineType: DeviceType.indoorBike), isA<List<ExpandedUnitTrainingInterval>>());
       expect(interval.copy(), isA<UnitTrainingInterval>());
       expect(interval.toJson(), isA<Map<String, dynamic>>());
     });
@@ -67,8 +67,7 @@ void main() {
       );
       
       expect(interval.repeat, equals(2));
-      expect(interval.expand(), isA<List<UnitTrainingInterval>>());
-      expect(interval.expandTargets(machineType: DeviceType.indoorBike), isA<GroupTrainingInterval>());
+      expect(interval.expand(machineType: DeviceType.indoorBike), isA<List<ExpandedUnitTrainingInterval>>());
       expect(interval.copy(), isA<GroupTrainingInterval>());
       expect(interval.toJson(), isA<Map<String, dynamic>>());
     });

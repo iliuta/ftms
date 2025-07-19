@@ -1,9 +1,10 @@
 import 'package:ftms/core/models/device_types.dart';
 
+import '../../../core/config/live_data_display_config.dart';
+import '../../settings/model/user_settings.dart';
+import 'expanded_unit_training_interval.dart';
 import 'training_interval.dart';
 import 'unit_training_interval.dart';
-import '../../settings/model/user_settings.dart';
-import '../../../core/config/live_data_display_config.dart';
 
 class GroupTrainingInterval extends TrainingInterval {
   @override
@@ -29,32 +30,21 @@ class GroupTrainingInterval extends TrainingInterval {
     };
   }
 
-  /// Creates a new instance with expanded target values in all sub-intervals.
   @override
-  GroupTrainingInterval expandTargets({
+  List<ExpandedUnitTrainingInterval> expand({
     required DeviceType machineType,
     UserSettings? userSettings,
     LiveDataDisplayConfig? config,
   }) {
-    return GroupTrainingInterval(
-      repeat: repeat,
-      intervals: intervals
-          .map((interval) => interval.expandTargets(
-                machineType: machineType,
-                userSettings: userSettings,
-                config: config,
-              ))
-          .toList(),
-    );
-  }
-
-  @override
-  List<UnitTrainingInterval> expand() {
     final r = repeat ?? 1;
-    final flat = <UnitTrainingInterval>[];
+    final flat = <ExpandedUnitTrainingInterval>[];
     for (int i = 0; i < (r > 0 ? r : 1); i++) {
       for (final interval in intervals) {
-        flat.addAll(interval.expand());
+        flat.addAll(interval.expand(
+          machineType: machineType,
+          userSettings: userSettings,
+          config: config,
+        ));
       }
     }
     return flat;

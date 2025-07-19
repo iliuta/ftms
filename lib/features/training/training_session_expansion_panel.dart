@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/features/settings/model/user_settings.dart';
+import 'package:ftms/features/training/model/expanded_training_session_definition.dart';
 import 'model/training_session.dart';
 import '../../core/config/live_data_display_config.dart';
 import '../../core/services/devices/bt_device.dart';
@@ -72,13 +73,14 @@ class _TrainingSessionExpansionPanelListState
                   Expanded(child: Text(session.title)),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: session.isCustom 
+                      color: session.isCustom
                           ? Colors.blue.withValues(alpha: 0.1)
                           : Colors.green.withValues(alpha: 0.1),
                       border: Border.all(
-                        color: session.isCustom ? Colors.blue : Colors.green, 
+                        color: session.isCustom ? Colors.blue : Colors.green,
                         width: 1,
                       ),
                       borderRadius: BorderRadius.circular(4),
@@ -108,23 +110,26 @@ class _TrainingSessionExpansionPanelListState
                     userSettings: widget.userSettings!,
                     config: config,
                   );
-                  
-                  return _buildExpandedContent(context, session, expandedSession, config);
+
+                  return _buildExpandedContent(
+                      context, session, expandedSession, config);
                 }
-                
+
                 // Otherwise, load them asynchronously (backward compatibility)
                 return FutureBuilder<LiveDataDisplayConfig?>(
                   future: _getConfig(session.ftmsMachineType),
                   builder: (context, snapshot) {
                     final config = snapshot.data;
-                    return FutureBuilder<TrainingSessionDefinition>(
+                    return FutureBuilder<ExpandedTrainingSessionDefinition>(
                       future: _getExpandedSession(session, config),
                       builder: (context, expandedSnapshot) {
                         final expandedSession = expandedSnapshot.data;
                         if (expandedSession == null) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
-                        return _buildExpandedContent(context, session, expandedSession, config);
+                        return _buildExpandedContent(
+                            context, session, expandedSession, config);
                       },
                     );
                   },
@@ -140,9 +145,9 @@ class _TrainingSessionExpansionPanelListState
   }
 
   Widget _buildExpandedContent(
-      BuildContext context, 
-      TrainingSessionDefinition session, 
-      TrainingSessionDefinition expandedSession, 
+      BuildContext context,
+      TrainingSessionDefinition session,
+      ExpandedTrainingSessionDefinition expandedSession,
       LiveDataDisplayConfig? config) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -162,7 +167,7 @@ class _TrainingSessionExpansionPanelListState
                   ),
                   const SizedBox(height: 8),
                   TrainingSessionChart(
-                    intervals: expandedSession.unitIntervals,
+                    intervals: expandedSession.intervals,
                     machineType: session.ftmsMachineType,
                     height: 120,
                     config: config,
@@ -223,36 +228,20 @@ class _TrainingSessionExpansionPanelListState
     }
   }
 
-  Future<TrainingSessionDefinition> _getExpandedSession(
+  Future<ExpandedTrainingSessionDefinition> _getExpandedSession(
       TrainingSessionDefinition session, LiveDataDisplayConfig? config) async {
-    try {
-      final userSettings = await UserSettings.loadDefault();
-      return session.expand(userSettings: userSettings, config: config);
-    } catch (e) {
-      // If expansion fails (e.g., in tests), return a basic expansion
-      // This ensures the widget still works even if user settings can't be loaded
-      try {
-        return session.expand(
-          userSettings: const UserSettings(
-            cyclingFtp: 250,
-            rowingFtp: '2:00',
-            developerMode: false,
-          ),
-          config: config,
-        );
-      } catch (e2) {
-        // If that also fails, return the original session
-        return session;
-      }
-    }
+    final userSettings = await UserSettings.loadDefault();
+    return session.expand(userSettings: userSettings, config: config);
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, TrainingSessionDefinition session) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, TrainingSessionDefinition session) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
         title: const Text('Delete Training Session'),
-        content: Text('Are you sure you want to delete "${session.title}"?\n\nThis action cannot be undone.'),
+        content: Text(
+            'Are you sure you want to delete "${session.title}"?\n\nThis action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
@@ -273,7 +262,8 @@ class _TrainingSessionExpansionPanelListState
     );
   }
 
-  void _showDuplicateConfirmationDialog(BuildContext context, TrainingSessionDefinition session) {
+  void _showDuplicateConfirmationDialog(
+      BuildContext context, TrainingSessionDefinition session) {
     final TextEditingController titleController = TextEditingController();
     titleController.text = '${session.title} (Copy)';
 
@@ -284,7 +274,8 @@ class _TrainingSessionExpansionPanelListState
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Create a copy of "${session.title}" as a new custom session?'),
+            Text(
+                'Create a copy of "${session.title}" as a new custom session?'),
             const SizedBox(height: 16),
             TextField(
               controller: titleController,
@@ -313,7 +304,8 @@ class _TrainingSessionExpansionPanelListState
     );
   }
 
-  Future<void> _duplicateSession(BuildContext context, TrainingSessionDefinition session, String newTitle) async {
+  Future<void> _duplicateSession(BuildContext context,
+      TrainingSessionDefinition session, String newTitle) async {
     if (newTitle.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -346,7 +338,7 @@ class _TrainingSessionExpansionPanelListState
       // Now we have the original non-expanded session directly!
       // No need for complex logic - just copy it
       final duplicatedSession = session.copy();
-      
+
       // Create a new custom session with the copied data but new title and custom flag
       final customSession = TrainingSessionDefinition(
         title: newTitle,
@@ -405,9 +397,7 @@ class _TrainingSessionExpansionPanelListState
         return ElevatedButton.icon(
           icon: const Icon(Icons.play_arrow, size: 16),
           label: Text(
-            hasCompatibleDevice
-                ? 'Start Session'
-                : 'Not connected',
+            hasCompatibleDevice ? 'Start Session' : 'Not connected',
             style: const TextStyle(fontSize: 13),
           ),
           onPressed: hasCompatibleDevice

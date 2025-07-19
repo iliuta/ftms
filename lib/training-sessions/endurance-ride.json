@@ -4,7 +4,7 @@
     "intervals": [
         {
             "title": "Warm Up",
-            "duration": 10,
+            "duration": 30,
             "targets": {"Instantaneous Power": "40%", "Instantaneous Cadence": 80}
         },
         {
@@ -12,19 +12,19 @@
             "intervals": [
                 {
                     "title": "Steady State",
-                    "duration": 10,
+                    "duration": 30,
                     "targets": {"Instantaneous Power": "104%", "Instantaneous Cadence": 90}
                 },
                 {
                     "title": "Recovery",
-                    "duration": 10,
+                    "duration": 30,
                     "targets": {"Instantaneous Power": "32%", "Instantaneous Cadence": 70}
                 }
             ]
         },
         {
             "title": "Cool Down",
-            "duration": 10,
+            "duration": 30,
             "targets": {"Instantaneous Power": "32%", "Instantaneous Cadence": 70}
         }
     ]

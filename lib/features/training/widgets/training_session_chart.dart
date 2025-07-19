@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ftms/core/models/device_types.dart';
-import 'dart:async';
-import '../model/unit_training_interval.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
+
 import '../../../core/config/live_data_display_config.dart';
 import '../interval_target_fields_display.dart';
 
 /// A visual chart showing training session intensity over time with interactive hover
 class TrainingSessionChart extends StatefulWidget {
-  final List<UnitTrainingInterval> intervals;
+  final List<ExpandedUnitTrainingInterval> intervals;
   final DeviceType machineType;
   final double height;
   final LiveDataDisplayConfig? config;
@@ -258,7 +260,7 @@ class _TrainingSessionChartState extends State<TrainingSessionChart> {
 }
 
 class _TrainingChartPainter extends CustomPainter {
-  final List<UnitTrainingInterval> intervals;
+  final List<ExpandedUnitTrainingInterval> intervals;
   final int totalDuration;
   final String intensityKey;
   final int? hoveredIndex;
@@ -393,7 +395,7 @@ class _TrainingChartPainter extends CustomPainter {
     );
   }
 
-  double _getIntensityValue(UnitTrainingInterval interval) {
+  double _getIntensityValue(ExpandedUnitTrainingInterval interval) {
     final targets = interval.targets;
     if (targets == null) return 50.0; // Default value if no targets
     final target = targets[intensityKey];

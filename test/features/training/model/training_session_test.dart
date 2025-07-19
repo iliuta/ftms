@@ -193,11 +193,10 @@ void main() {
       expect(expanded.title, equals('Test Session'));
       expect(expanded.ftmsMachineType, equals(DeviceType.indoorBike));
       expect(expanded.isCustom, isTrue);
-      expect(expanded.originalSession, equals(session));
-      
+
       // Should have 2 expanded intervals (repeat: 2)
-      expect(expanded.unitIntervals, hasLength(2));
-      expect(expanded.unitIntervals.first.targets!['Instantaneous Power'], equals(300)); // 120% of 250
+      expect(expanded.intervals, hasLength(2));
+      expect(expanded.intervals.first.targets!['Instantaneous Power'], equals(300)); // 120% of 250
     });
 
     test('expand handles GroupTrainingInterval', () {
@@ -227,28 +226,8 @@ void main() {
       );
       
       // Should have 3 expanded intervals (group repeat: 3)
-      expect(expanded.unitIntervals, hasLength(3));
-      expect(expanded.unitIntervals.first.targets!['Instantaneous Power'], equals(300)); // 120% of 250
-    });
-
-    test('expand sets originalSession to null for non-custom sessions', () {
-      final userSettings = UserSettings(cyclingFtp: 250, rowingFtp: '2:00', developerMode: false);
-      
-      final unitInterval = UnitTrainingInterval(
-        title: 'Test Interval',
-        duration: 60,
-      );
-      
-      final session = TrainingSessionDefinition(
-        title: 'Test Session',
-        ftmsMachineType: DeviceType.indoorBike,
-        intervals: [unitInterval],
-        isCustom: false,
-      );
-      
-      final expanded = session.expand(userSettings: userSettings);
-      
-      expect(expanded.originalSession, isNull);
+      expect(expanded.intervals, hasLength(3));
+      expect(expanded.intervals.first.targets!['Instantaneous Power'], equals(300)); // 120% of 250
     });
 
     test('unitIntervals returns intervals cast to UnitTrainingInterval', () {
@@ -272,11 +251,11 @@ void main() {
       );
       
       final expandedSession = session.expand(userSettings: userSettings);
-      final unitIntervals = expandedSession.unitIntervals;
+      final intervals = expandedSession.intervals;
       
-      expect(unitIntervals, hasLength(2));
-      expect(unitIntervals[0].title, equals('Test 1'));
-      expect(unitIntervals[1].title, equals('Test 2'));
+      expect(intervals, hasLength(2));
+      expect(intervals[0].title, equals('Test 1'));
+      expect(intervals[1].title, equals('Test 2'));
     });
 
     test('copy creates deep copy with same values', () {
@@ -285,19 +264,13 @@ void main() {
         duration: 60,
         targets: {'power': '100W'},
       );
-      
-      final originalSession = TrainingSessionDefinition(
-        title: 'Original',
-        ftmsMachineType: DeviceType.indoorBike,
-        intervals: [unitInterval],
-      );
+
       
       final session = TrainingSessionDefinition(
         title: 'Test Session',
         ftmsMachineType: DeviceType.indoorBike,
         intervals: [unitInterval],
         isCustom: true,
-        originalSession: originalSession,
       );
       
       final copied = session.copy();
@@ -307,14 +280,11 @@ void main() {
       expect(copied.isCustom, equals(session.isCustom));
       expect(copied.intervals, hasLength(session.intervals.length));
       expect((copied.intervals.first as UnitTrainingInterval).title, equals((session.intervals.first as UnitTrainingInterval).title));
-      expect(copied.originalSession, isNotNull);
-      expect(copied.originalSession!.title, equals(session.originalSession!.title));
-      
+
       // Verify it's a deep copy (different object references)
       expect(copied, isNot(same(session)));
       expect(copied.intervals, isNot(same(session.intervals)));
       expect(copied.intervals.first, isNot(same(session.intervals.first)));
-      expect(copied.originalSession, isNot(same(session.originalSession)));
     });
 
     test('copy creates independent copy that can be modified', () {

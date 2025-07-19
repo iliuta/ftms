@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/features/settings/model/user_settings.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
 import 'package:ftms/features/training/model/unit_training_interval.dart';
 import 'package:ftms/features/training/model/group_training_interval.dart';
 import 'package:ftms/core/config/live_data_display_config.dart';
@@ -122,15 +123,14 @@ void main() {
         repeat: 2,
       );
       
-      final expanded = groupInterval.expandTargets(
+      final List<ExpandedUnitTrainingInterval> expanded = groupInterval.expand(
         machineType: DeviceType.indoorBike,
         userSettings: userSettings,
         config: config,
       );
       
-      expect(expanded.repeat, equals(2));
-      expect(expanded.intervals, hasLength(1));
-      expect(expanded.intervals.first.targets!['Instantaneous Power'], equals(300)); // 120% of 250
+      expect(expanded, hasLength(2));
+      expect(expanded.first.targets!['Instantaneous Power'], equals(300)); // 120% of 250
     });
 
     test('expand returns flattened list of UnitTrainingInterval', () {
@@ -151,7 +151,7 @@ void main() {
         repeat: 3,
       );
       
-      final expanded = groupInterval.expand();
+      final expanded = groupInterval.expand(machineType: DeviceType.indoorBike, );
       
       // Group repeats 3 times, unitInterval1 repeats 2 times each, unitInterval2 repeats 1 time each
       // Total: 3 * (2 + 1) = 9 intervals
@@ -180,7 +180,7 @@ void main() {
         repeat: null,
       );
       
-      final expanded = groupInterval.expand();
+      final expanded = groupInterval.expand(machineType: DeviceType.indoorBike, );
       
       expect(expanded, hasLength(1));
       expect(expanded.first.title, equals('Test'));
@@ -197,7 +197,7 @@ void main() {
         repeat: 0,
       );
       
-      final expanded = groupInterval.expand();
+      final expanded = groupInterval.expand(machineType: DeviceType.indoorBike, );
       
       expect(expanded, hasLength(1));
       expect(expanded.first.title, equals('Test'));

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import '../../../core/config/live_data_display_config.dart';
-import '../model/training_session.dart';
+import '../model/expanded_training_session_definition.dart';
 import '../training_session_controller.dart';
 import 'session_progress_bar.dart';
 import '../training_interval_list.dart';
@@ -9,7 +9,7 @@ import 'live_ftms_data_widget.dart';
 
 /// Body content for the training session screen
 class TrainingSessionBody extends StatelessWidget {
-  final TrainingSessionDefinition session;
+  final ExpandedTrainingSessionDefinition session;
   final TrainingSessionController controller;
   final LiveDataDisplayConfig? config;
   final BluetoothDevice ftmsDevice;

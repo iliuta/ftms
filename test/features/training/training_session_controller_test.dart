@@ -1,20 +1,21 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:ftms/core/models/device_types.dart';
-import 'package:ftms/features/training/training_session_controller.dart';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_ftms/flutter_ftms.dart';
 import 'package:flutter_ftms/src/ftms/flag.dart';
 import 'package:flutter_ftms/src/ftms/parameter_name.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
-import 'package:ftms/features/training/model/training_session.dart';
-import 'package:ftms/features/training/model/unit_training_interval.dart';
-import 'package:ftms/core/services/ftms_service.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:ftms/core/bloc/ftms_bloc.dart';
+import 'package:ftms/core/models/device_types.dart';
 import 'package:ftms/core/services/fit/training_data_recorder.dart';
+import 'package:ftms/core/services/ftms_service.dart';
 import 'package:ftms/core/services/strava/strava_service.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:ftms/features/training/model/expanded_training_session_definition.dart';
+import 'package:ftms/features/training/model/expanded_unit_training_interval.dart';
+import 'package:ftms/features/training/training_session_controller.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
 // Generate mocks for our dependencies
 @GenerateMocks([
@@ -132,30 +133,30 @@ void main() {
   });
 
   group('TrainingSessionController', () {
-    late TrainingSessionDefinition session;
+    late ExpandedTrainingSessionDefinition session;
     late MockBluetoothDevice mockDevice;
     late MockFTMSService mockFtmsService;
     late StreamController<DeviceData?> ftmsStreamController;
     late MockAudioPlayer mockAudioPlayer;
 
     setUp(() {
-      session = TrainingSessionDefinition(
+      session = ExpandedTrainingSessionDefinition(
         title: 'Test Session',
         ftmsMachineType: DeviceType.indoorBike,
-        intervals: <UnitTrainingInterval>[
-          UnitTrainingInterval(
+        intervals: <ExpandedUnitTrainingInterval>[
+          ExpandedUnitTrainingInterval(
             duration: 60, 
             title: 'Warmup', 
             resistanceLevel: 1,
             targets: {'power': 100},
           ),
-          UnitTrainingInterval(
+          ExpandedUnitTrainingInterval(
             duration: 120, 
             title: 'Main', 
             resistanceLevel: 2,
             targets: {'power': 200},
           ),
-          UnitTrainingInterval(
+          ExpandedUnitTrainingInterval(
             duration: 30, 
             title: 'Cooldown', 
             resistanceLevel: 1,
@@ -463,11 +464,11 @@ void main() {
 
     group('Device Type Parsing', () {
       test('parses rowing machine type correctly', () {
-        final rowingSession = TrainingSessionDefinition(
+        final rowingSession = ExpandedTrainingSessionDefinition(
           title: 'Rowing Session',
           ftmsMachineType: DeviceType.rower,
-          intervals: <UnitTrainingInterval>[
-            UnitTrainingInterval(duration: 60, title: 'Row'),
+          intervals: <ExpandedUnitTrainingInterval>[
+            ExpandedUnitTrainingInterval(duration: 60, title: 'Row'),
           ],
         );
 
@@ -939,11 +940,11 @@ void main() {
       });
 
       test('uses correct activity type for rowing machine', () async {
-        final rowingSession = TrainingSessionDefinition(
+        final rowingSession = ExpandedTrainingSessionDefinition(
           title: 'Rowing Test',
           ftmsMachineType: DeviceType.rower,
-          intervals: <UnitTrainingInterval>[
-            UnitTrainingInterval(duration: 60, title: 'Row'),
+          intervals: <ExpandedUnitTrainingInterval>[
+            ExpandedUnitTrainingInterval(duration: 60, title: 'Row'),
           ],
         );
 
