@@ -9,7 +9,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,29 +32,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       - name: Check for compile errors (flutter build apk)
-        run: flutter build apk --debug --no-pub
-
-  analyze:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-      - name: Restore Flutter dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.yaml') }}
-      - name: Flutter analyze
         run: flutter analyze
 
   test:
     runs-on: ubuntu-latest
-    needs: build
+    needs: analyze
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2

@@ -18,7 +18,7 @@ env:
 jobs:
   build-windows:
     runs-on: windows-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
     
     steps:
     - uses: actions/checkout@v4
@@ -66,7 +66,7 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
     
     steps:
     - uses: actions/checkout@v4
@@ -121,7 +121,7 @@ jobs:
 
   build-android:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
     
     steps:
     - uses: actions/checkout@v4
@@ -189,50 +189,3 @@ jobs:
         name: android-aab-${{ env.ARTIFACT_SUFFIX }}
         path: build/app/outputs/bundle/release/app-release.aab
 
-  build-web:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Cache Flutter SDK
-      uses: actions/cache@v4
-      with:
-        path: |
-          ${{ runner.tool_cache }}/flutter
-        key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-flutter-
-    
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.24.0'
-        channel: 'stable'
-        cache: true
-        
-    - name: Cache pub dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ${{ env.PUB_CACHE }}
-          ~/.pub-cache
-        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-pub-
-        
-    - name: Install dependencies
-      run: flutter pub get
-      
-    - name: Enable web
-      run: flutter config --enable-web
-      
-    - name: Build Web app
-      run: flutter build web --release
-      
-    - name: Upload Web build
-      uses: actions/upload-artifact@v4
-      with:
-        name: web-build-${{ env.ARTIFACT_SUFFIX }}
-        path: build/web/
