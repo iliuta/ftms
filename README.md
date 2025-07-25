@@ -1,16 +1,16 @@
 # PowerTrain
 FTMS Training App
 
-I started this app because I bought a rowing machine ([Domyos Woodrower from Decathlon]([url](https://www.decathlon.fr/p/rameur-domyos-woodrower-3-en-1-pliant-auto-alimente-connecte-et-garanti-5-ans/_/R-p-328823?mc=8604435&utm_source=google&utm_medium=sea&utm_campaign=fr_t-perf_ct-shopp_n-shopping-mq-fitness-mp-sp_ts-bra_f-cv_o-roas_&utm_term=_n-shopping-hm-fitness-mp_sp_ts-gen_pt-pb_yy-materiel-cardio_rameur&gad_source=1&gad_campaignid=6728214193&gbraid=0AAAAADonRCankDO_usz0IaH7m3iE7_Z5S&gclid=CjwKCAjw1ozEBhAdEiwAn9qbzWFTIp69MZSIPiT2995MOvyl5MzVvHD7Ktr1wFxNuZivAdE7gQSLTxoCxZQQAvD_BwE))) and the free app I was using didn't have the features I wanted and only worked by setting the trainer resistance: 
+I started this app because I bought a rowing machine Domyos Woodrower from Decathlon and the free app I was using didn't have the features I wanted and only worked by setting the trainer resistance: 
 - target cadence
 - target speed
 
-By chance, the rowing machine supports [FTMS bluetooth protocol]([url](https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0/)).
+By chance, the rowing machine supports [FTMS bluetooth protocol]([url](https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0/)) - https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0/.
 
 I also have a Zwift Hub indoor bike trainer and it's easier to play with it than with the rowing machine because it doesn't go in standby mode after a few minutes of inactivity.
 
 
-The code is based on [flutter_ftms]([url](https://github.com/Malte2036/flutter_ftms)), a Flutter package for FTMS Bluetooth connectivity. Nice work, BTW, it saves a lot of time for translating complicated hex bluetooth codes into meaningful, human readable data.
+The code is based on [flutter_ftms]([url](https://github.com/Malte2036/flutter_ftms)) - https://github.com/Malte2036/flutter_ftms , a Flutter package for FTMS Bluetooth connectivity. Nice work, BTW, it saves a lot of time for translating complicated hex bluetooth codes into meaningful, human readable data.
 
 # Supported machine types
 
