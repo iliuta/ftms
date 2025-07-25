@@ -1,28 +1,27 @@
 # PowerTrain
 FTMS Training App
 
-I started this app because I bought a rowing machine (Domyos Woodrower from Decathlon) and the free app I was using didn't have the features I wanted and only worked by setting the trainer resistance: 
+I started this app because I bought a rowing machine ([Domyos Woodrower from Decathlon]([url](https://www.decathlon.fr/p/rameur-domyos-woodrower-3-en-1-pliant-auto-alimente-connecte-et-garanti-5-ans/_/R-p-328823?mc=8604435&utm_source=google&utm_medium=sea&utm_campaign=fr_t-perf_ct-shopp_n-shopping-mq-fitness-mp-sp_ts-bra_f-cv_o-roas_&utm_term=_n-shopping-hm-fitness-mp_sp_ts-gen_pt-pb_yy-materiel-cardio_rameur&gad_source=1&gad_campaignid=6728214193&gbraid=0AAAAADonRCankDO_usz0IaH7m3iE7_Z5S&gclid=CjwKCAjw1ozEBhAdEiwAn9qbzWFTIp69MZSIPiT2995MOvyl5MzVvHD7Ktr1wFxNuZivAdE7gQSLTxoCxZQQAvD_BwE))) and the free app I was using didn't have the features I wanted and only worked by setting the trainer resistance: 
 - target cadence
 - target speed
 
-By chance, the rowing machine supports FTMS bluetooth protocol.
+By chance, the rowing machine supports [FTMS bluetooth protocol]([url](https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0/)).
 
 I also have a Zwift Hub indoor bike trainer and it's easier to play with it than with the rowing machine because it doesn't go in standby mode after a few minutes of inactivity.
 
 
-The code is based on flutter_ftms (https://github.com/Malte2036/flutter_ftms), a Flutter package for FTMS Bluetooth connectivity. Nice work, BTW, it saves a lot of time for translating complicated hex bluetooth codes into meaningful, human readable data.
+The code is based on [flutter_ftms]([url](https://github.com/Malte2036/flutter_ftms)), a Flutter package for FTMS Bluetooth connectivity. Nice work, BTW, it saves a lot of time for translating complicated hex bluetooth codes into meaningful, human readable data.
 
 # Supported machine types
 
-The machines MUST support the FTMS protocol.
+The machines MUST support the [FTMS bluetooth protocol]([url](https://www.bluetooth.com/specifications/specs/fitness-machine-service-1-0/)).
 
 The app is intended to work with rowers only. I know it works with the Domyos Woodrower, probably with other FTMS rowers but I haven't tested them. Feedback is appreciated.
 
-But, if you activate developer mode in the settings, you may try indoor bikes as well. But, the trainer resistance control is not supported.
+But, if you activate developer mode in the settings, you may try indoor bikes as well. For trainers, the resistance control is not supported. For indoor bikes, the app supports external cadence sensors.
 
 External bluetooth heart rate monitors are supported.
 
-If you try the developer mode, you can also try cadence sensors for indoor bikes.
 
 # Disclaimer
 This is a personal project. Use it at your own risk. If you browse the code, you might see pieces of code that are not very clean or not covered by tests. That's all right, it's my playground. I don't have time to make it perfect, but I try to keep it working. Again, feedback is appreciated.
@@ -39,7 +38,7 @@ This is a personal project. Use it at your own risk. If you browse the code, you
 
 ## Main Features
 
-- **FTMS Bluetooth Connectivity**: scan for, connect to and display data from FTMS-compatible fitness machines ( bikes and rowers) using Bluetooth Low Energy (BLE).
+- **Bluetooth Connectivity**: scan for, connect to and display data from FTMS-compatible fitness machines (bikes and rowers) using Bluetooth Low Energy (BLE).
 - **Heart rate monitoring**: connect to heart rate monitors (HRMs) via Bluetooth and display real-time heart rate data.
 - **Cadence sensors**: connect to cadence sensors via Bluetooth and display real-time heart cadence data.
 - **Structured Training Sessions**: load and execute interval-based training sessions with support for both simple and grouped intervals.
